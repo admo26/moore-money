@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import {
   Bar,
   BarChart,
@@ -11,6 +12,7 @@ import {
   YAxis,
 } from "recharts";
 import { formatMoney } from "@/lib/format";
+import { toDateParam } from "@/lib/reports/date-params";
 import type { MonthlyCashflow } from "@/lib/reports/queries";
 
 function monthLabel(month: string) {
@@ -18,6 +20,14 @@ function monthLabel(month: string) {
   return new Date(Number(year), Number(m) - 1, 1).toLocaleDateString("en-NZ", {
     month: "short",
   });
+}
+
+/** [first day of month, first day of next month) as YYYY-MM-DD params. */
+function monthRange(month: string) {
+  const [year, m] = month.split("-").map(Number);
+  const from = new Date(year, m - 1, 1);
+  const to = new Date(year, m, 0); // last day of the month
+  return { from: toDateParam(from), to: toDateParam(to) };
 }
 
 function CashflowTooltip({
@@ -44,6 +54,13 @@ function CashflowTooltip({
 }
 
 export function CashflowChart({ data }: { data: MonthlyCashflow[] }) {
+  const router = useRouter();
+
+  function handleClick(entry: MonthlyCashflow) {
+    const { from, to } = monthRange(entry.month);
+    router.push(`/transactions?from=${from}&to=${to}`);
+  }
+
   return (
     <ResponsiveContainer width="100%" height={280}>
       <BarChart data={data} barGap={2} barCategoryGap="20%">
@@ -71,6 +88,10 @@ export function CashflowChart({ data }: { data: MonthlyCashflow[] }) {
           fill="var(--chart-1)"
           radius={[4, 4, 0, 0]}
           maxBarSize={24}
+          cursor="pointer"
+          onClick={(entry: unknown) =>
+            handleClick((entry as { payload: MonthlyCashflow }).payload)
+          }
         />
         <Bar
           dataKey="expense"
@@ -78,6 +99,10 @@ export function CashflowChart({ data }: { data: MonthlyCashflow[] }) {
           fill="var(--negative)"
           radius={[4, 4, 0, 0]}
           maxBarSize={24}
+          cursor="pointer"
+          onClick={(entry: unknown) =>
+            handleClick((entry as { payload: MonthlyCashflow }).payload)
+          }
         />
       </BarChart>
     </ResponsiveContainer>

@@ -3,6 +3,7 @@ import { CashflowChart } from "@/components/charts/cashflow-chart";
 import { CategorySpendChart } from "@/components/charts/category-spend-chart";
 import { formatMoney } from "@/lib/format";
 import { getCategorySpend, getMonthlyCashflow, getPeriodSummary } from "@/lib/reports/queries";
+import { toDateParam } from "@/lib/reports/date-params";
 
 const PERIOD_DAYS = 30;
 
@@ -23,6 +24,10 @@ export default async function DashboardPage() {
   }
 
   const net = summary.income - summary.expense;
+  const periodSince = new Date();
+  periodSince.setDate(periodSince.getDate() - PERIOD_DAYS);
+  const periodFrom = toDateParam(periodSince);
+  const periodTo = toDateParam(new Date());
 
   return (
     <div className="space-y-6">
@@ -100,7 +105,7 @@ export default async function DashboardPage() {
               <CardTitle className="text-base">Spend by category — last {PERIOD_DAYS} days</CardTitle>
             </CardHeader>
             <CardContent>
-              <CategorySpendChart data={categorySpend} />
+              <CategorySpendChart data={categorySpend} from={periodFrom} to={periodTo} />
             </CardContent>
           </Card>
         </>

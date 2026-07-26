@@ -48,6 +48,9 @@ export async function getMonthlyCashflow(months = 6): Promise<MonthlyCashflow[]>
 export interface CategorySpend {
   name: string;
   amount: number;
+  /** Filter value for the Transactions page's categoryId param; null when this
+   * slice can't be filtered to a single category (the folded "Other" bucket). */
+  categoryFilter: string | null;
 }
 
 const MAX_CATEGORY_SLICES = 8;
@@ -59,18 +62,20 @@ export async function getCategorySpend(days = 30): Promise<CategorySpend[]> {
 
   const rows = await db
     .select({
+      categoryId: categories.id,
       categoryName: categories.name,
       amount: sql<string>`sum(-${transactions.amount})`,
     })
     .from(transactions)
     .leftJoin(categories, eq(transactions.categoryId, categories.id))
     .where(and(gte(transactions.date, since), sql`${transactions.amount} < 0`))
-    .groupBy(categories.name)
+    .groupBy(categories.id, categories.name)
     .orderBy(sql`sum(-${transactions.amount}) desc`);
 
-  const spend = rows.map((r) => ({
+  const spend: CategorySpend[] = rows.map((r) => ({
     name: r.categoryName ?? "Uncategorised",
     amount: Number(r.amount),
+    categoryFilter: r.categoryId === null ? "uncategorised" : String(r.categoryId),
   }));
 
   if (spend.length <= MAX_CATEGORY_SLICES) return spend;
@@ -78,7 +83,7 @@ export async function getCategorySpend(days = 30): Promise<CategorySpend[]> {
   const top = spend.slice(0, MAX_CATEGORY_SLICES);
   const rest = spend.slice(MAX_CATEGORY_SLICES);
   const otherTotal = rest.reduce((sum, r) => sum + r.amount, 0);
-  top.push({ name: "Other", amount: otherTotal });
+  top.push({ name: "Other", amount: otherTotal, categoryFilter: null });
   return top;
 }
 
