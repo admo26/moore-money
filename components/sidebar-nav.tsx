@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Wallet, ArrowLeftRight, PieChart } from "lucide-react";
+import { LayoutDashboard, Wallet, ArrowLeftRight, PieChart, Tag } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, disabled: true },
   { href: "/accounts", label: "Accounts", icon: Wallet, disabled: false },
   { href: "/transactions", label: "Transactions", icon: ArrowLeftRight, disabled: false },
+  { href: "/rules", label: "Rules", icon: Tag, disabled: false },
   { href: "/reports", label: "Reports", icon: PieChart, disabled: true },
 ] as const;
 

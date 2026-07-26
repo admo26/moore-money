@@ -8,6 +8,20 @@
       "when": 1785058578823,
       "tag": "0000_fancy_sleepwalker",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1785064084034,
+      "tag": "0001_melodic_nemesis",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1785064100825,
+      "tag": "0002_seed_categories_and_rules",
+      "breakpoints": true
     }
   ]
 }

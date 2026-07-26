@@ -1,6 +1,6 @@
-import { and, desc, eq, gte, ilike, lte, or } from "drizzle-orm";
+import { and, asc, desc, eq, gte, ilike, lte, or } from "drizzle-orm";
 import { db } from "@/lib/db";
-import { accounts, transactions, type Account } from "@/lib/db/schema";
+import { accounts, categories, transactions, type Account, type Category } from "@/lib/db/schema";
 import { TransactionsFilters } from "@/components/transactions-filters";
 import { TransactionsTable, type TransactionRow } from "@/components/transactions-table";
 
@@ -14,7 +14,10 @@ interface SearchParams {
 const PAGE_SIZE = 200;
 
 async function loadData(params: SearchParams) {
-  const allAccounts = await db.select().from(accounts);
+  const [allAccounts, allCategories] = await Promise.all([
+    db.select().from(accounts),
+    db.select().from(categories).orderBy(asc(categories.name)),
+  ]);
 
   const conditions = [];
   if (params.accountId) conditions.push(eq(transactions.accountId, params.accountId));
@@ -38,6 +41,8 @@ async function loadData(params: SearchParams) {
       type: transactions.type,
       balance: transactions.balance,
       akahuCategory: transactions.akahuCategory,
+      categoryId: transactions.categoryId,
+      categorySource: transactions.categorySource,
       raw: transactions.raw,
       createdAt: transactions.createdAt,
       updatedAt: transactions.updatedAt,
@@ -50,7 +55,7 @@ async function loadData(params: SearchParams) {
     .orderBy(desc(transactions.date))
     .limit(PAGE_SIZE);
 
-  return { accounts: allAccounts, rows: rows as TransactionRow[] };
+  return { accounts: allAccounts, categories: allCategories, rows: rows as TransactionRow[] };
 }
 
 export default async function TransactionsPage({
@@ -61,12 +66,14 @@ export default async function TransactionsPage({
   const params = await searchParams;
 
   let accounts_: Account[] = [];
+  let categories_: Category[] = [];
   let rows: TransactionRow[] = [];
   let error: string | null = null;
 
   try {
     const data = await loadData(params);
     accounts_ = data.accounts;
+    categories_ = data.categories;
     rows = data.rows;
   } catch (err) {
     error = err instanceof Error ? err.message : "Failed to load transactions.";
@@ -89,7 +96,7 @@ export default async function TransactionsPage({
       ) : (
         <>
           <TransactionsFilters accounts={accounts_} defaults={params} />
-          <TransactionsTable rows={rows} />
+          <TransactionsTable rows={rows} categories={categories_} />
         </>
       )}
     </div>

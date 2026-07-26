@@ -1,6 +1,7 @@
 import { desc, eq, sql } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { accounts, syncRuns, transactions } from "@/lib/db/schema";
+import { categorizeUncategorized } from "@/lib/categorization";
 import { getAccounts, getTransactions } from "./client";
 import type { AkahuAccount, AkahuTransaction } from "./types";
 
@@ -136,6 +137,15 @@ export async function runSync(): Promise<SyncResult> {
         highWaterMark: newHighWaterMark,
       })
       .where(eq(syncRuns.id, run.id));
+
+    // Categorisation is a best-effort layer on top of the sync — a failure
+    // here (e.g. AI Gateway hiccup) shouldn't mark the sync itself as
+    // failed, since the actual data pull already succeeded.
+    try {
+      await categorizeUncategorized();
+    } catch (err) {
+      console.error("Categorisation failed", err);
+    }
 
     return {
       accountsUpserted: akahuAccounts.length,

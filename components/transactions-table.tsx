@@ -6,15 +6,22 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { CategorySelect } from "@/components/category-select";
 import { formatDate, formatMoney } from "@/lib/format";
-import type { Transaction } from "@/lib/db/schema";
+import type { Category, Transaction } from "@/lib/db/schema";
 
 export interface TransactionRow extends Transaction {
   accountName: string | null;
   connectionName: string | null;
 }
 
-export function TransactionsTable({ rows }: { rows: TransactionRow[] }) {
+export function TransactionsTable({
+  rows,
+  categories,
+}: {
+  rows: TransactionRow[];
+  categories: Category[];
+}) {
   if (rows.length === 0) {
     return (
       <div className="rounded-lg border border-border bg-card p-6 text-sm text-muted-foreground">
@@ -31,6 +38,7 @@ export function TransactionsTable({ rows }: { rows: TransactionRow[] }) {
             <TableHead>Date</TableHead>
             <TableHead>Description</TableHead>
             <TableHead>Account</TableHead>
+            <TableHead>Category</TableHead>
             <TableHead className="text-right">Amount</TableHead>
           </TableRow>
         </TableHeader>
@@ -50,6 +58,13 @@ export function TransactionsTable({ rows }: { rows: TransactionRow[] }) {
                 </TableCell>
                 <TableCell className="whitespace-nowrap text-muted-foreground">
                   {tx.connectionName} — {tx.accountName}
+                </TableCell>
+                <TableCell>
+                  <CategorySelect
+                    transactionId={tx.id}
+                    categoryId={tx.categoryId}
+                    categories={categories}
+                  />
                 </TableCell>
                 <TableCell
                   className={

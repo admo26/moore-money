@@ -28,6 +28,32 @@ export const accounts = pgTable("accounts", {
 });
 
 /**
+ * A user-defined spending/income category (Groceries, Dining, Income, ...).
+ * Seeded with a starter set; editable via the Rules page.
+ */
+export const categories = pgTable("categories", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull().unique(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+/**
+ * A user-editable categorisation rule: if `pattern` appears (case-
+ * insensitively) in a transaction's description or merchant name, assign
+ * `categoryId`. Rules are tried in `priority` order (lower first); the
+ * first match wins.
+ */
+export const rules = pgTable("rules", {
+  id: serial("id").primaryKey(),
+  pattern: text("pattern").notNull(),
+  categoryId: integer("category_id")
+    .notNull()
+    .references(() => categories.id),
+  priority: integer("priority").notNull().default(0),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+/**
  * A single bank transaction as reported by Akahu. `id` is Akahu's own
  * transaction `_id`; syncs upsert on this key so re-pulling a date range
  * never duplicates rows.
@@ -43,9 +69,13 @@ export const transactions = pgTable("transactions", {
   merchantName: text("merchant_name"),
   type: text("type"),
   balance: numeric("balance", { precision: 14, scale: 2 }),
-  // Akahu's own ("Genie") merchant/category enrichment, kept as-is for later
-  // use by the rules + AI categorisation phase.
+  // Akahu's own ("Genie") merchant/category enrichment, kept as-is — a
+  // signal the categorisation engine could use later, but not applied yet.
   akahuCategory: jsonb("akahu_category"),
+  categoryId: integer("category_id").references(() => categories.id),
+  // rule | ai | manual | null (uncategorised). A manual source is never
+  // overwritten by a later rule/AI categorisation pass.
+  categorySource: text("category_source"),
   raw: jsonb("raw"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
@@ -71,3 +101,5 @@ export type NewAccount = typeof accounts.$inferInsert;
 export type Transaction = typeof transactions.$inferSelect;
 export type NewTransaction = typeof transactions.$inferInsert;
 export type SyncRun = typeof syncRuns.$inferSelect;
+export type Category = typeof categories.$inferSelect;
+export type Rule = typeof rules.$inferSelect;
