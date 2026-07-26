@@ -3,7 +3,8 @@ import { db } from "@/lib/db";
 import { categories, rules } from "@/lib/db/schema";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { createRule, deleteRule } from "./actions";
+import { RuleRow } from "@/components/rule-row";
+import { createRule } from "./actions";
 
 async function loadData() {
   const [allCategories, allRules] = await Promise.all([
@@ -24,7 +25,14 @@ async function loadData() {
   return { categories: allCategories, rules: allRules };
 }
 
-export default async function RulesPage() {
+export default async function RulesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ edit?: string }>;
+}) {
+  const { edit } = await searchParams;
+  const editId = edit ? Number(edit) : null;
+
   let categoriesList: Awaited<ReturnType<typeof loadData>>["categories"] = [];
   let rulesList: Awaited<ReturnType<typeof loadData>>["rules"] = [];
   let error: string | null = null;
@@ -111,18 +119,12 @@ export default async function RulesPage() {
                 </thead>
                 <tbody>
                   {rulesList.map((rule) => (
-                    <tr key={rule.id} className="border-b border-border last:border-0">
-                      <td className="px-4 py-2 font-mono text-xs">{rule.pattern}</td>
-                      <td className="px-4 py-2">{rule.categoryName}</td>
-                      <td className="px-4 py-2 text-right">
-                        <form action={deleteRule}>
-                          <input type="hidden" name="id" value={rule.id} />
-                          <Button type="submit" size="sm" variant="ghost">
-                            Delete
-                          </Button>
-                        </form>
-                      </td>
-                    </tr>
+                    <RuleRow
+                      key={rule.id}
+                      rule={rule}
+                      categories={categoriesList}
+                      startEditing={rule.id === editId}
+                    />
                   ))}
                 </tbody>
               </table>

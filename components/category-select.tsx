@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { setTransactionCategory } from "@/app/(app)/transactions/actions";
 import { createRuleFromValues } from "@/app/(app)/rules/actions";
@@ -20,6 +21,7 @@ export function CategorySelect({
 }) {
   const [value, setValue] = useState(categoryId ? String(categoryId) : "");
   const [isPending, startTransition] = useTransition();
+  const router = useRouter();
 
   function handleChange(e: React.ChangeEvent<HTMLSelectElement>) {
     const newValue = e.target.value;
@@ -40,7 +42,14 @@ export function CategorySelect({
             label: "Create rule",
             onClick: () => {
               createRuleFromValues(trimmedPattern, category.id)
-                .then(() => toast.success("Rule created"))
+                .then((ruleId) => {
+                  toast.success("Rule created", {
+                    action: {
+                      label: "Edit rule",
+                      onClick: () => router.push(`/rules?edit=${ruleId}`),
+                    },
+                  });
+                })
                 .catch(() => toast.error("Couldn't create rule"));
             },
           },

@@ -14,8 +14,9 @@ async function insertRule(pattern: string, categoryId: number) {
     throw new Error("A pattern and category are required.");
   }
 
-  await db.insert(rules).values({ pattern, categoryId });
+  const [created] = await db.insert(rules).values({ pattern, categoryId }).returning({ id: rules.id });
   revalidatePath("/rules");
+  return created.id;
 }
 
 export async function createRule(formData: FormData) {
@@ -24,9 +25,22 @@ export async function createRule(formData: FormData) {
   await insertRule(pattern, categoryId);
 }
 
-/** Same as createRule, but callable directly (e.g. from a toast action) instead of via a form. */
+/** Same as createRule, but callable directly (e.g. from a toast action) instead of via a form. Returns the new rule's id. */
 export async function createRuleFromValues(pattern: string, categoryId: number) {
-  await insertRule(pattern.trim(), categoryId);
+  return insertRule(pattern.trim(), categoryId);
+}
+
+export async function updateRule(id: number, pattern: string, categoryId: number) {
+  const user = await getAuthorizedUser();
+  if (!user) throw new Error("Unauthorized");
+
+  const trimmed = pattern.trim();
+  if (!trimmed || !categoryId) {
+    throw new Error("A pattern and category are required.");
+  }
+
+  await db.update(rules).set({ pattern: trimmed, categoryId }).where(eq(rules.id, id));
+  revalidatePath("/rules");
 }
 
 export async function deleteRule(formData: FormData) {
