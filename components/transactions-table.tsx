@@ -31,8 +31,8 @@ export function TransactionsTable({
   }
 
   return (
-    <div className="overflow-hidden rounded-lg border border-border bg-card">
-      <Table>
+    <div className="overflow-x-auto rounded-lg border border-border bg-card">
+      <Table className="min-w-[720px]">
         <TableHeader>
           <TableRow>
             <TableHead>Date</TableHead>

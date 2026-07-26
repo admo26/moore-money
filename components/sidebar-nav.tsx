@@ -13,7 +13,7 @@ const NAV_ITEMS = [
   { href: "/reports", label: "Reports", icon: PieChart, disabled: true },
 ] as const;
 
-export function SidebarNav() {
+export function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
 
   return (
@@ -39,6 +39,7 @@ export function SidebarNav() {
           <Link
             key={item.href}
             href={item.href}
+            onClick={onNavigate}
             className={cn(
               "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
               isActive
