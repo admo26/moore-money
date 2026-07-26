@@ -6,7 +6,7 @@ import { LayoutDashboard, Wallet, ArrowLeftRight, PieChart, Tag } from "lucide-r
 import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, disabled: true },
+  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, disabled: false },
   { href: "/accounts", label: "Accounts", icon: Wallet, disabled: false },
   { href: "/transactions", label: "Transactions", icon: ArrowLeftRight, disabled: false },
   { href: "/rules", label: "Rules", icon: Tag, disabled: false },
