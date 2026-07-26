@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, gte, ilike, lte, or } from "drizzle-orm";
+import { and, asc, desc, eq, gte, ilike, isNull, lte, or } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { accounts, categories, transactions, type Account, type Category } from "@/lib/db/schema";
 import { TransactionsFilters } from "@/components/transactions-filters";
@@ -7,6 +7,7 @@ import { TransactionsTable, type TransactionRow } from "@/components/transaction
 interface SearchParams {
   q?: string;
   accountId?: string;
+  categoryId?: string;
   from?: string;
   to?: string;
 }
@@ -21,6 +22,11 @@ async function loadData(params: SearchParams) {
 
   const conditions = [];
   if (params.accountId) conditions.push(eq(transactions.accountId, params.accountId));
+  if (params.categoryId === "uncategorised") {
+    conditions.push(isNull(transactions.categoryId));
+  } else if (params.categoryId) {
+    conditions.push(eq(transactions.categoryId, Number(params.categoryId)));
+  }
   if (params.from) conditions.push(gte(transactions.date, new Date(params.from)));
   if (params.to) conditions.push(lte(transactions.date, new Date(params.to)));
   if (params.q) {
@@ -95,7 +101,7 @@ export default async function TransactionsPage({
         </div>
       ) : (
         <>
-          <TransactionsFilters accounts={accounts_} defaults={params} />
+          <TransactionsFilters accounts={accounts_} categories={categories_} defaults={params} />
           <TransactionsTable rows={rows} categories={categories_} />
         </>
       )}

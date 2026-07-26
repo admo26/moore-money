@@ -1,13 +1,15 @@
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import type { Account } from "@/lib/db/schema";
+import type { Account, Category } from "@/lib/db/schema";
 
 export function TransactionsFilters({
   accounts,
+  categories,
   defaults,
 }: {
   accounts: Account[];
-  defaults: { accountId?: string; q?: string; from?: string; to?: string };
+  categories: Category[];
+  defaults: { accountId?: string; categoryId?: string; q?: string; from?: string; to?: string };
 }) {
   return (
     <form
@@ -47,6 +49,26 @@ export function TransactionsFilters({
       </div>
 
       <div className="flex flex-col gap-1">
+        <label htmlFor="categoryId" className="text-xs font-medium text-muted-foreground">
+          Category
+        </label>
+        <select
+          id="categoryId"
+          name="categoryId"
+          defaultValue={defaults.categoryId ?? ""}
+          className="h-9 w-48 rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/50"
+        >
+          <option value="">All categories</option>
+          <option value="uncategorised">Uncategorised</option>
+          {categories.map((c) => (
+            <option key={c.id} value={c.id}>
+              {c.name}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div className="flex flex-col gap-1">
         <label htmlFor="from" className="text-xs font-medium text-muted-foreground">
           From
         </label>
@@ -63,7 +85,7 @@ export function TransactionsFilters({
       <Button type="submit" size="sm">
         Filter
       </Button>
-      {(defaults.q || defaults.accountId || defaults.from || defaults.to) && (
+      {(defaults.q || defaults.accountId || defaults.categoryId || defaults.from || defaults.to) && (
         <a
           href="/transactions"
           className="inline-flex h-8 items-center rounded-md px-3 text-sm font-medium text-muted-foreground hover:bg-accent hover:text-accent-foreground"
