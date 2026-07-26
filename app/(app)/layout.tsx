@@ -1,5 +1,4 @@
-import Link from "next/link";
-import { SidebarNav } from "@/components/sidebar-nav";
+import { Sidebar } from "@/components/sidebar";
 import { MobileNav } from "@/components/mobile-nav";
 import { SyncButton } from "@/components/sync-button";
 import { SignOutButton } from "@/components/sign-out-button";
@@ -10,22 +9,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   return (
     <div className="flex min-h-screen w-full bg-background">
-      <aside className="hidden w-60 flex-col bg-sidebar text-sidebar-foreground md:flex">
-        <div className="flex h-16 items-center gap-2 px-5">
-          <div className="flex h-7 w-7 items-center justify-center rounded-md bg-sidebar-primary text-sm font-bold text-sidebar-primary-foreground">
-            M
-          </div>
-          <Link href="/accounts" className="text-base font-semibold tracking-tight">
-            Moore Money
-          </Link>
-        </div>
-        <div className="mt-2 flex-1">
-          <SidebarNav />
-        </div>
-        <div className="px-5 py-4 text-xs text-sidebar-foreground/40">
-          Household finance
-        </div>
-      </aside>
+      <Sidebar />
 
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="flex h-16 items-center justify-between gap-3 border-b border-border bg-card px-4 md:px-6">

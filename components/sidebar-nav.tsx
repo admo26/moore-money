@@ -13,7 +13,13 @@ const NAV_ITEMS = [
   { href: "/reports", label: "Reports", icon: PieChart, disabled: true },
 ] as const;
 
-export function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
+export function SidebarNav({
+  onNavigate,
+  collapsed = false,
+}: {
+  onNavigate?: () => void;
+  collapsed?: boolean;
+}) {
   const pathname = usePathname();
 
   return (
@@ -26,11 +32,14 @@ export function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
           return (
             <span
               key={item.href}
-              className="flex items-center gap-3 rounded-md px-3 py-2 text-sm text-sidebar-foreground/40"
+              className={cn(
+                "flex items-center gap-3 rounded-md px-3 py-2 text-sm text-sidebar-foreground/40",
+                collapsed && "justify-center px-0"
+              )}
               title="Coming soon"
             >
-              <Icon className="h-4 w-4" />
-              {item.label}
+              <Icon className="h-4 w-4 shrink-0" />
+              {!collapsed && item.label}
             </span>
           );
         }
@@ -40,15 +49,17 @@ export function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
             key={item.href}
             href={item.href}
             onClick={onNavigate}
+            title={collapsed ? item.label : undefined}
             className={cn(
               "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
+              collapsed && "justify-center px-0",
               isActive
                 ? "bg-sidebar-primary text-sidebar-primary-foreground"
                 : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
             )}
           >
-            <Icon className="h-4 w-4" />
-            {item.label}
+            <Icon className="h-4 w-4 shrink-0" />
+            {!collapsed && item.label}
           </Link>
         );
       })}

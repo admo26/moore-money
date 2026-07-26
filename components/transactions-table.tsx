@@ -15,6 +15,16 @@ export interface TransactionRow extends Transaction {
   connectionName: string | null;
 }
 
+/** Avoids showing e.g. "American Express — American Express Airpoints Card". */
+function formatAccountLabel(connectionName: string | null, accountName: string | null) {
+  if (!connectionName) return accountName ?? "";
+  if (!accountName) return connectionName;
+  if (accountName.toLowerCase().startsWith(connectionName.toLowerCase())) {
+    return accountName;
+  }
+  return `${connectionName} — ${accountName}`;
+}
+
 export function TransactionsTable({
   rows,
   categories,
@@ -32,10 +42,10 @@ export function TransactionsTable({
 
   return (
     <div className="overflow-x-auto rounded-lg border border-border bg-card">
-      <Table className="min-w-[720px]">
+      <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Date</TableHead>
+            <TableHead className="w-24">Date</TableHead>
             <TableHead>Description</TableHead>
             <TableHead>Account</TableHead>
             <TableHead>Category</TableHead>
@@ -50,14 +60,14 @@ export function TransactionsTable({
                 <TableCell className="whitespace-nowrap text-muted-foreground">
                   {formatDate(tx.date)}
                 </TableCell>
-                <TableCell>
+                <TableCell className="max-w-[280px] whitespace-normal break-words">
                   <div className="font-medium">{tx.merchantName ?? tx.description}</div>
                   {tx.merchantName && (
                     <div className="text-xs text-muted-foreground">{tx.description}</div>
                   )}
                 </TableCell>
-                <TableCell className="whitespace-nowrap text-muted-foreground">
-                  {tx.connectionName} — {tx.accountName}
+                <TableCell className="max-w-[160px] whitespace-normal break-words text-muted-foreground">
+                  {formatAccountLabel(tx.connectionName, tx.accountName)}
                 </TableCell>
                 <TableCell>
                   <CategorySelect
@@ -69,8 +79,8 @@ export function TransactionsTable({
                 <TableCell
                   className={
                     amount < 0
-                      ? "text-right font-medium text-negative"
-                      : "text-right font-medium text-positive"
+                      ? "whitespace-nowrap text-right font-medium text-negative"
+                      : "whitespace-nowrap text-right font-medium text-positive"
                   }
                 >
                   {amount > 0 ? "+" : ""}
