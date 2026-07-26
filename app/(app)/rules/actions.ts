@@ -6,12 +6,9 @@ import { db } from "@/lib/db";
 import { rules } from "@/lib/db/schema";
 import { getAuthorizedUser } from "@/lib/auth";
 
-export async function createRule(formData: FormData) {
+async function insertRule(pattern: string, categoryId: number) {
   const user = await getAuthorizedUser();
   if (!user) throw new Error("Unauthorized");
-
-  const pattern = String(formData.get("pattern") ?? "").trim();
-  const categoryId = Number(formData.get("categoryId"));
 
   if (!pattern || !categoryId) {
     throw new Error("A pattern and category are required.");
@@ -19,6 +16,17 @@ export async function createRule(formData: FormData) {
 
   await db.insert(rules).values({ pattern, categoryId });
   revalidatePath("/rules");
+}
+
+export async function createRule(formData: FormData) {
+  const pattern = String(formData.get("pattern") ?? "").trim();
+  const categoryId = Number(formData.get("categoryId"));
+  await insertRule(pattern, categoryId);
+}
+
+/** Same as createRule, but callable directly (e.g. from a toast action) instead of via a form. */
+export async function createRuleFromValues(pattern: string, categoryId: number) {
+  await insertRule(pattern.trim(), categoryId);
 }
 
 export async function deleteRule(formData: FormData) {

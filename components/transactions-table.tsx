@@ -74,6 +74,7 @@ export function TransactionsTable({
                     transactionId={tx.id}
                     categoryId={tx.categoryId}
                     categories={categories}
+                    pattern={tx.merchantName ?? tx.description}
                   />
                 </TableCell>
                 <TableCell
