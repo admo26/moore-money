@@ -11,6 +11,10 @@ import { Separator } from "@/components/ui/separator";
 export function LoginForm() {
   const searchParams = useSearchParams();
   const notAllowed = searchParams.get("error") === "not_allowed";
+  const authFailedDescription =
+    searchParams.get("error") === "auth_failed"
+      ? searchParams.get("error_description")
+      : null;
 
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
@@ -24,6 +28,9 @@ export function LoginForm() {
       provider: "google",
       options: {
         redirectTo: `${window.location.origin}/auth/callback`,
+        // Always show Google's account picker instead of silently reusing
+        // whichever Google account the browser is already signed into.
+        queryParams: { prompt: "select_account" },
       },
     });
 
@@ -71,6 +78,11 @@ export function LoginForm() {
           {notAllowed && (
             <p className="mb-3 rounded-md border border-destructive/30 bg-destructive/5 p-2 text-sm text-destructive">
               That email isn&apos;t on the household allowlist.
+            </p>
+          )}
+          {authFailedDescription && (
+            <p className="mb-3 rounded-md border border-destructive/30 bg-destructive/5 p-2 text-sm text-destructive">
+              Sign-in failed: {authFailedDescription}
             </p>
           )}
           <Button

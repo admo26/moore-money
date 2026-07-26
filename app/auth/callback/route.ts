@@ -2,13 +2,29 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { isEmailAllowed } from "@/lib/auth";
 
-/** Exchanges the magic-link code for a session, then enforces the email allowlist. */
+/** Exchanges the magic-link/OAuth code for a session, then enforces the email allowlist. */
 export async function GET(request: NextRequest) {
   const code = request.nextUrl.searchParams.get("code");
+  const upstreamError = request.nextUrl.searchParams.get("error_description");
   const supabase = await createClient();
 
+  // Google/Supabase can redirect here with an error instead of a code (e.g.
+  // OAuth misconfiguration) — surface that distinctly from "not allowlisted".
+  if (upstreamError) {
+    const url = new URL("/login", request.url);
+    url.searchParams.set("error", "auth_failed");
+    url.searchParams.set("error_description", upstreamError);
+    return NextResponse.redirect(url);
+  }
+
   if (code) {
-    await supabase.auth.exchangeCodeForSession(code);
+    const { error } = await supabase.auth.exchangeCodeForSession(code);
+    if (error) {
+      const url = new URL("/login", request.url);
+      url.searchParams.set("error", "auth_failed");
+      url.searchParams.set("error_description", error.message);
+      return NextResponse.redirect(url);
+    }
   }
 
   const { data } = await supabase.auth.getUser();
