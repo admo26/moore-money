@@ -147,3 +147,12 @@
     @apply font-sans;
   }
 }
+
+/* Recharts makes the whole chart surface focusable for a11y, but the
+   default browser focus ring lands on the entire SVG rather than the
+   clicked bar — drop it there instead of globally. */
+.recharts-wrapper:focus,
+.recharts-wrapper *:focus,
+.recharts-surface:focus {
+  outline: none;
+}
