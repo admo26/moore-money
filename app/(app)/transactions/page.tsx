@@ -10,6 +10,8 @@ interface SearchParams {
   categoryId?: string;
   from?: string;
   to?: string;
+  minAmount?: string;
+  maxAmount?: string;
 }
 
 const PAGE_SIZE = 200;
@@ -29,6 +31,8 @@ async function loadData(params: SearchParams) {
   }
   if (params.from) conditions.push(gte(transactions.date, new Date(params.from)));
   if (params.to) conditions.push(lte(transactions.date, new Date(params.to)));
+  if (params.minAmount) conditions.push(gte(transactions.amount, params.minAmount));
+  if (params.maxAmount) conditions.push(lte(transactions.amount, params.maxAmount));
   if (params.q) {
     const pattern = `%${params.q}%`;
     conditions.push(

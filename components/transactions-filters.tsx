@@ -9,7 +9,15 @@ export function TransactionsFilters({
 }: {
   accounts: Account[];
   categories: Category[];
-  defaults: { accountId?: string; categoryId?: string; q?: string; from?: string; to?: string };
+  defaults: {
+    accountId?: string;
+    categoryId?: string;
+    q?: string;
+    from?: string;
+    to?: string;
+    minAmount?: string;
+    maxAmount?: string;
+  };
 }) {
   return (
     <form
@@ -82,10 +90,46 @@ export function TransactionsFilters({
         <Input id="to" type="date" name="to" defaultValue={defaults.to ?? ""} className="w-40" />
       </div>
 
+      <div className="flex flex-col gap-1">
+        <label htmlFor="minAmount" className="text-xs font-medium text-muted-foreground">
+          Min amount
+        </label>
+        <Input
+          id="minAmount"
+          type="number"
+          step="0.01"
+          name="minAmount"
+          placeholder="-100.00"
+          defaultValue={defaults.minAmount ?? ""}
+          className="w-32"
+        />
+      </div>
+
+      <div className="flex flex-col gap-1">
+        <label htmlFor="maxAmount" className="text-xs font-medium text-muted-foreground">
+          Max amount
+        </label>
+        <Input
+          id="maxAmount"
+          type="number"
+          step="0.01"
+          name="maxAmount"
+          placeholder="100.00"
+          defaultValue={defaults.maxAmount ?? ""}
+          className="w-32"
+        />
+      </div>
+
       <Button type="submit" size="sm">
         Filter
       </Button>
-      {(defaults.q || defaults.accountId || defaults.categoryId || defaults.from || defaults.to) && (
+      {(defaults.q ||
+        defaults.accountId ||
+        defaults.categoryId ||
+        defaults.from ||
+        defaults.to ||
+        defaults.minAmount ||
+        defaults.maxAmount) && (
         <a
           href="/transactions"
           className="inline-flex h-8 items-center rounded-md px-3 text-sm font-medium text-muted-foreground hover:bg-accent hover:text-accent-foreground"
