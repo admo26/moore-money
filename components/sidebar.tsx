@@ -40,13 +40,7 @@ export function Sidebar() {
           </Link>
         )}
       </div>
-      <div className="mt-2 flex-1">
-        <SidebarNav collapsed={collapsed} />
-      </div>
-      <div className="flex items-center justify-between px-3 py-4">
-        {!collapsed && (
-          <span className="px-2 text-xs text-sidebar-foreground/40">Household finance</span>
-        )}
+      <div className={cn("flex px-3", collapsed ? "justify-center" : "justify-end")}>
         <button
           type="button"
           onClick={toggle}
@@ -56,6 +50,12 @@ export function Sidebar() {
           {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
         </button>
       </div>
+      <div className="mt-2 flex-1">
+        <SidebarNav collapsed={collapsed} />
+      </div>
+      {!collapsed && (
+        <div className="px-5 py-4 text-xs text-sidebar-foreground/40">Household finance</div>
+      )}
     </aside>
   );
 }
