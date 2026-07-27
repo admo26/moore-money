@@ -2,10 +2,10 @@
 
 import { useMemo, useState } from "react";
 import {
+  Bar,
+  BarChart,
   CartesianGrid,
   Legend,
-  Line,
-  LineChart,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -138,7 +138,7 @@ export function CategoryTrendChart({ series }: { series: CategoryTrendSeries[] }
         </div>
       ) : (
         <ResponsiveContainer width="100%" height={240}>
-          <LineChart data={chartData} margin={{ left: 8, right: 8, top: 8 }}>
+          <BarChart data={chartData} margin={{ left: 8, right: 8, top: 8 }} barGap={2} barCategoryGap="20%">
             <CartesianGrid vertical={false} stroke="var(--border)" />
             <XAxis
               dataKey="month"
@@ -153,7 +153,7 @@ export function CategoryTrendChart({ series }: { series: CategoryTrendSeries[] }
               tickLine={false}
               tickFormatter={(v) => new Intl.NumberFormat("en-NZ").format(v)}
             />
-            <Tooltip content={<TrendTooltip />} />
+            <Tooltip content={<TrendTooltip />} cursor={{ fill: "var(--accent)" }} />
             {selectedSeries.length > 1 && (
               <Legend
                 formatter={(value) => (
@@ -164,18 +164,16 @@ export function CategoryTrendChart({ series }: { series: CategoryTrendSeries[] }
               />
             )}
             {selectedSeries.map((s) => (
-              <Line
+              <Bar
                 key={s.categoryFilter}
-                type="monotone"
                 dataKey={s.categoryFilter}
                 name={s.categoryFilter}
-                stroke={colorByCategory.get(s.categoryFilter)}
-                strokeWidth={2}
-                dot={{ r: 3, fill: colorByCategory.get(s.categoryFilter), stroke: "var(--card)", strokeWidth: 2 }}
-                activeDot={{ r: 4, stroke: "var(--card)", strokeWidth: 2 }}
+                fill={colorByCategory.get(s.categoryFilter)}
+                radius={[4, 4, 0, 0]}
+                maxBarSize={selectedSeries.length > 1 ? 20 : 32}
               />
             ))}
-          </LineChart>
+          </BarChart>
         </ResponsiveContainer>
       )}
     </div>
