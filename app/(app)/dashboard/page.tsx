@@ -59,7 +59,7 @@ export default async function DashboardPage() {
             <Card>
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium text-muted-foreground">
-                  Money in
+                  Money in <span className="font-normal">· last {PERIOD_DAYS} days</span>
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -71,7 +71,7 @@ export default async function DashboardPage() {
             <Card>
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium text-muted-foreground">
-                  Money out
+                  Money out <span className="font-normal">· last {PERIOD_DAYS} days</span>
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -82,7 +82,9 @@ export default async function DashboardPage() {
             </Card>
             <Card>
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Net</CardTitle>
+                <CardTitle className="text-sm font-medium text-muted-foreground">
+                  Net <span className="font-normal">· last {PERIOD_DAYS} days</span>
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <div
