@@ -6,15 +6,15 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const user = await getAuthorizedUser();
 
   return (
-    <div className="flex min-h-screen w-full bg-background">
+    <div className="flex h-screen w-full overflow-hidden bg-background">
       <Sidebar />
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="flex h-16 items-center gap-3 border-b border-border bg-card px-4 md:px-6">
+        <header className="flex h-16 shrink-0 items-center gap-3 border-b border-border bg-card px-4 md:px-6">
           <MobileNav />
           <div className="truncate text-sm text-muted-foreground">{user?.email}</div>
         </header>
-        <main className="min-w-0 flex-1 bg-background p-4 md:p-6">{children}</main>
+        <main className="min-w-0 flex-1 overflow-y-auto bg-background p-4 md:p-6">{children}</main>
       </div>
     </div>
   );
