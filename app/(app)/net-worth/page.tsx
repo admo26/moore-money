@@ -1,24 +1,20 @@
 import { db } from "@/lib/db";
 import { accounts } from "@/lib/db/schema";
 import { AccountCard } from "@/components/account-card";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { NetPositionChart } from "@/components/charts/net-position-chart";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatMoney } from "@/lib/format";
 import { accountClass } from "@/lib/accounts/classify";
-import { getNetWorthTrend } from "@/lib/reports/queries";
 
-async function loadData() {
-  const [rows, trend] = await Promise.all([db.select().from(accounts), getNetWorthTrend(182)]);
-  return { rows, trend };
+async function loadAccounts() {
+  return db.select().from(accounts);
 }
 
 export default async function NetWorthPage() {
-  let rows: Awaited<ReturnType<typeof loadData>>["rows"] = [];
-  let trend: Awaited<ReturnType<typeof loadData>>["trend"] = [];
+  let rows: Awaited<ReturnType<typeof loadAccounts>> = [];
   let error: string | null = null;
 
   try {
-    ({ rows, trend } = await loadData());
+    rows = await loadAccounts();
   } catch (err) {
     error = err instanceof Error ? err.message : "Failed to load net worth.";
   }
@@ -72,19 +68,6 @@ export default async function NetWorthPage() {
                 {formatMoney(totalAssets)} in assets − {formatMoney(-totalLiabilities)} in
                 liabilities
               </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Net worth — last 6 months</CardTitle>
-              <CardDescription>
-                Sum of every account&apos;s balance each day, from a daily snapshot taken on
-                sync. An account only appears in the trend from its first snapshot onward.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <NetPositionChart data={trend} />
             </CardContent>
           </Card>
 
