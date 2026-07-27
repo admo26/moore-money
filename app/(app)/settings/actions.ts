@@ -59,6 +59,15 @@ export async function updateCategory(id: number, name: string) {
   revalidatePath("/dashboard");
 }
 
+export async function setCategoryFavourite(id: number, isFavourite: boolean) {
+  const user = await getAuthorizedUser();
+  if (!user) throw new Error("Unauthorized");
+
+  await db.update(categories).set({ isFavourite }).where(eq(categories.id, id));
+  revalidatePath("/settings");
+  revalidatePath("/dashboard");
+}
+
 /**
  * Deletes a category. Rules pointing at it are deleted too (a rule without
  * a category doesn't mean anything), and transactions using it are reset to

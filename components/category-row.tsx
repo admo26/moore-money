@@ -1,19 +1,23 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { Star } from "lucide-react";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { deleteCategory, updateCategory } from "@/app/(app)/settings/actions";
+import { cn } from "@/lib/utils";
+import { deleteCategory, setCategoryFavourite, updateCategory } from "@/app/(app)/settings/actions";
 
 export interface CategoryRowData {
   id: number;
   name: string;
+  isFavourite: boolean;
 }
 
 export function CategoryRow({ category }: { category: CategoryRowData }) {
   const [isEditing, setIsEditing] = useState(false);
   const [name, setName] = useState(category.name);
+  const [isFavourite, setIsFavourite] = useState(category.isFavourite);
   const [isPending, startTransition] = useTransition();
 
   function handleSave() {
@@ -30,6 +34,19 @@ export function CategoryRow({ category }: { category: CategoryRowData }) {
   function handleCancel() {
     setName(category.name);
     setIsEditing(false);
+  }
+
+  function handleToggleFavourite() {
+    const next = !isFavourite;
+    setIsFavourite(next);
+    startTransition(async () => {
+      try {
+        await setCategoryFavourite(category.id, next);
+      } catch {
+        setIsFavourite(!next);
+        toast.error("Couldn't update favourite");
+      }
+    });
   }
 
   function handleDelete() {
@@ -49,16 +66,32 @@ export function CategoryRow({ category }: { category: CategoryRowData }) {
     });
   }
 
+  const favouriteButton = (
+    <button
+      type="button"
+      onClick={handleToggleFavourite}
+      disabled={isPending}
+      aria-label={isFavourite ? "Unstar category" : "Star category"}
+      title={isFavourite ? "Unstar category" : "Star category"}
+      className="text-muted-foreground hover:text-foreground disabled:opacity-50"
+    >
+      <Star className={cn("h-4 w-4", isFavourite && "fill-current text-primary")} />
+    </button>
+  );
+
   if (isEditing) {
     return (
       <tr className="border-b border-border last:border-0">
         <td className="px-4 py-2">
-          <Input
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="h-8 w-56"
-            disabled={isPending}
-          />
+          <div className="flex items-center gap-2">
+            {favouriteButton}
+            <Input
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="h-8 w-56"
+              disabled={isPending}
+            />
+          </div>
         </td>
         <td className="px-4 py-2 text-right">
           <Button size="sm" onClick={handleSave} disabled={isPending}>
@@ -74,7 +107,12 @@ export function CategoryRow({ category }: { category: CategoryRowData }) {
 
   return (
     <tr className="border-b border-border last:border-0">
-      <td className="px-4 py-2">{category.name}</td>
+      <td className="px-4 py-2">
+        <div className="flex items-center gap-2">
+          {favouriteButton}
+          {category.name}
+        </div>
+      </td>
       <td className="px-4 py-2 text-right">
         <Button size="sm" variant="ghost" onClick={() => setIsEditing(true)} disabled={isPending}>
           Edit

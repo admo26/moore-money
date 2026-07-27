@@ -100,6 +100,7 @@ export interface CategoryTrendSeries {
   /** Filter value for the Transactions page's categoryId param. */
   categoryFilter: string;
   name: string;
+  isFavourite: boolean;
   /** Oldest first, zero-filled for months with no activity. */
   points: { month: string; amount: number }[];
 }
@@ -116,17 +117,22 @@ export async function getCategoryTrends(months = 6): Promise<CategoryTrendSeries
   since.setDate(1);
   since.setHours(0, 0, 0, 0);
 
-  const rows = await db
-    .select({
-      categoryId: categories.id,
-      categoryName: categories.name,
-      month: sql<string>`to_char(date_trunc('month', ${transactions.date}), 'YYYY-MM')`,
-      amount: sql<string>`sum(-${transactions.amount})`,
-    })
-    .from(transactions)
-    .leftJoin(categories, eq(transactions.categoryId, categories.id))
-    .where(gte(transactions.date, since))
-    .groupBy(categories.id, categories.name, sql`date_trunc('month', ${transactions.date})`);
+  const [rows, allCategories] = await Promise.all([
+    db
+      .select({
+        categoryId: categories.id,
+        categoryName: categories.name,
+        month: sql<string>`to_char(date_trunc('month', ${transactions.date}), 'YYYY-MM')`,
+        amount: sql<string>`sum(-${transactions.amount})`,
+      })
+      .from(transactions)
+      .leftJoin(categories, eq(transactions.categoryId, categories.id))
+      .where(gte(transactions.date, since))
+      .groupBy(categories.id, categories.name, sql`date_trunc('month', ${transactions.date})`),
+    db.select({ id: categories.id, isFavourite: categories.isFavourite }).from(categories),
+  ]);
+
+  const favouriteByCategoryId = new Map(allCategories.map((c) => [c.id, c.isFavourite]));
 
   const monthKeys: string[] = [];
   const cursor = new Date(since);
@@ -135,18 +141,28 @@ export async function getCategoryTrends(months = 6): Promise<CategoryTrendSeries
     cursor.setMonth(cursor.getMonth() + 1);
   }
 
-  const byCategory = new Map<string, { name: string; amounts: Map<string, number> }>();
+  const byCategory = new Map<
+    string,
+    { name: string; isFavourite: boolean; amounts: Map<string, number> }
+  >();
   for (const r of rows) {
     const key = r.categoryId === null ? "uncategorised" : String(r.categoryId);
     const name = r.categoryName ?? "Uncategorised";
-    if (!byCategory.has(key)) byCategory.set(key, { name, amounts: new Map() });
+    if (!byCategory.has(key)) {
+      byCategory.set(key, {
+        name,
+        isFavourite: r.categoryId === null ? false : favouriteByCategoryId.get(r.categoryId) ?? false,
+        amounts: new Map(),
+      });
+    }
     byCategory.get(key)!.amounts.set(r.month, Number(r.amount));
   }
 
   return [...byCategory.entries()]
-    .map(([categoryFilter, { name, amounts }]) => ({
+    .map(([categoryFilter, { name, isFavourite, amounts }]) => ({
       categoryFilter,
       name,
+      isFavourite,
       points: monthKeys.map((month) => ({ month, amount: amounts.get(month) ?? 0 })),
     }))
     .sort((a, b) => a.name.localeCompare(b.name));

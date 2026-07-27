@@ -64,18 +64,24 @@ export function CategoryTrendChart({ series }: { series: CategoryTrendSeries[] }
     return map;
   }, [series]);
 
-  const defaultCategory = useMemo(() => {
-    if (series.length === 0) return null;
+  const defaultSelected = useMemo(() => {
+    if (series.length === 0) return [];
+
+    const favourites = series.filter((s) => s.isFavourite).slice(0, MAX_SELECTED);
+    if (favourites.length > 0) return favourites.map((s) => s.categoryFilter);
+
     const groceries = series.find((s) => s.name.toLowerCase() === "groceries");
-    if (groceries) return groceries.categoryFilter;
-    return series.reduce((best, s) => {
+    if (groceries) return [groceries.categoryFilter];
+
+    const biggest = series.reduce((best, s) => {
       const total = s.points.reduce((sum, p) => sum + p.amount, 0);
       const bestTotal = best.points.reduce((sum, p) => sum + p.amount, 0);
       return total > bestTotal ? s : best;
-    }).categoryFilter;
+    });
+    return [biggest.categoryFilter];
   }, [series]);
 
-  const [selected, setSelected] = useState<string[]>(defaultCategory ? [defaultCategory] : []);
+  const [selected, setSelected] = useState<string[]>(defaultSelected);
 
   function toggle(categoryFilter: string) {
     setSelected((prev) => {

@@ -8,6 +8,7 @@ import {
   integer,
   serial,
   unique,
+  boolean,
 } from "drizzle-orm/pg-core";
 
 /**
@@ -56,6 +57,9 @@ export const accountBalanceSnapshots = pgTable(
 export const categories = pgTable("categories", {
   id: serial("id").primaryKey(),
   name: text("name").notNull().unique(),
+  // Starred in Settings — used to default which categories the dashboard's
+  // category trend chart shows, without the user re-picking every time.
+  isFavourite: boolean("is_favourite").notNull().default(false),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
