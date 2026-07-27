@@ -140,7 +140,9 @@ export default async function DashboardPage() {
           <Card>
             <CardHeader>
               <CardTitle className="text-base">Category trend — last 6 months</CardTitle>
-              <CardDescription>Net amount per month for one category at a time.</CardDescription>
+              <CardDescription>
+                Net amount per month — click categories below to compare up to 5 at once.
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <CategoryTrendChart series={categoryTrends} />
