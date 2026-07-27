@@ -96,6 +96,22 @@ export const syncRuns = pgTable("sync_runs", {
   highWaterMark: timestamp("high_water_mark", { withTimezone: true }),
 });
 
+/**
+ * A personal access token for the MCP server. Issued from the Settings page
+ * by an allowlisted user; only the SHA-256 hash is stored, never the raw
+ * token. `email` is rechecked against ALLOWED_EMAILS on every use, so
+ * removing someone from the allowlist revokes their tokens too.
+ */
+export const mcpTokens = pgTable("mcp_tokens", {
+  id: serial("id").primaryKey(),
+  tokenHash: text("token_hash").notNull().unique(),
+  email: text("email").notNull(),
+  label: text("label").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  lastUsedAt: timestamp("last_used_at", { withTimezone: true }),
+  revokedAt: timestamp("revoked_at", { withTimezone: true }),
+});
+
 export type Account = typeof accounts.$inferSelect;
 export type NewAccount = typeof accounts.$inferInsert;
 export type Transaction = typeof transactions.$inferSelect;
@@ -103,3 +119,4 @@ export type NewTransaction = typeof transactions.$inferInsert;
 export type SyncRun = typeof syncRuns.$inferSelect;
 export type Category = typeof categories.$inferSelect;
 export type Rule = typeof rules.$inferSelect;
+export type McpToken = typeof mcpTokens.$inferSelect;

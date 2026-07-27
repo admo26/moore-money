@@ -22,6 +22,13 @@
       "when": 1785064100825,
       "tag": "0002_seed_categories_and_rules",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1785115714217,
+      "tag": "0003_glossy_bloodstorm",
+      "breakpoints": true
     }
   ]
 }

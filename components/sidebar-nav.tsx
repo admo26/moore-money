@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Wallet, ArrowLeftRight, PieChart, Tag } from "lucide-react";
+import { LayoutDashboard, Wallet, ArrowLeftRight, PieChart, Tag, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
@@ -11,6 +11,7 @@ const NAV_ITEMS = [
   { href: "/transactions", label: "Transactions", icon: ArrowLeftRight, disabled: false },
   { href: "/rules", label: "Rules", icon: Tag, disabled: false },
   { href: "/reports", label: "Reports", icon: PieChart, disabled: true },
+  { href: "/settings", label: "Settings", icon: Settings, disabled: false },
 ] as const;
 
 export function SidebarNav({
