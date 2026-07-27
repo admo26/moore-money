@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
 import { SidebarNav } from "@/components/sidebar-nav";
+import { SignOutButton } from "@/components/sign-out-button";
 
 export function MobileNav() {
   const [open, setOpen] = useState(false);
@@ -44,6 +45,9 @@ export function MobileNav() {
             </div>
             <div className="mt-2 flex-1">
               <SidebarNav onNavigate={() => setOpen(false)} />
+            </div>
+            <div className="px-3 py-2">
+              <SignOutButton onNavigate={() => setOpen(false)} />
             </div>
           </div>
         </div>

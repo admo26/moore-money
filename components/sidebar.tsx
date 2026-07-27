@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { SidebarNav } from "@/components/sidebar-nav";
+import { SignOutButton } from "@/components/sign-out-button";
 import { cn } from "@/lib/utils";
 
 const STORAGE_KEY = "sidebar-collapsed";
@@ -52,6 +53,9 @@ export function Sidebar() {
       </div>
       <div className="mt-2 flex-1">
         <SidebarNav collapsed={collapsed} />
+      </div>
+      <div className="px-3 py-2">
+        <SignOutButton collapsed={collapsed} />
       </div>
       {!collapsed && (
         <div className="px-5 py-4 text-xs text-sidebar-foreground/40">Household finance</div>

@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { accounts, categories, transactions, type Account, type Category } from "@/lib/db/schema";
 import { TransactionsFilters } from "@/components/transactions-filters";
 import { TransactionsTable, type TransactionRow } from "@/components/transactions-table";
+import { SyncButton } from "@/components/sync-button";
 
 interface SearchParams {
   q?: string;
@@ -91,12 +92,15 @@ export default async function TransactionsPage({
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Transactions</h1>
-        <p className="text-sm text-muted-foreground">
-          All transactions synced from Akahu
-          {rows.length === PAGE_SIZE ? ` (showing latest ${PAGE_SIZE})` : ""}.
-        </p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">Transactions</h1>
+          <p className="text-sm text-muted-foreground">
+            All transactions synced from Akahu
+            {rows.length === PAGE_SIZE ? ` (showing latest ${PAGE_SIZE})` : ""}.
+          </p>
+        </div>
+        <SyncButton />
       </div>
 
       {error ? (

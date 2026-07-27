@@ -5,6 +5,7 @@ import { McpTokenDialog } from "@/components/mcp-token-dialog";
 import { McpTokenRow } from "@/components/mcp-token-row";
 import { AddCategoryForm } from "@/components/add-category-form";
 import { CategoryRow } from "@/components/category-row";
+import { RecategorizeTransfersButton } from "@/components/recategorize-transfers-button";
 
 async function loadTokens() {
   return db
@@ -91,6 +92,27 @@ export default async function SettingsPage() {
             )}
           </>
         )}
+      </div>
+
+      <div className="max-w-md space-y-3">
+        <div>
+          <h2 className="text-lg font-medium">Maintenance</h2>
+          <p className="text-sm text-muted-foreground">
+            Re-applies your current rules and re-scans for internal transfers (e.g.
+            paying off a credit card from a linked account) across every synced
+            transaction, not just new ones. This already runs automatically after
+            every sync — use this if you&apos;ve just edited several rules and want
+            them reflected immediately, or you&apos;re fixing a backlog of historical
+            transactions.
+          </p>
+        </div>
+        <div className="flex items-center justify-between rounded-lg border border-border bg-card p-4">
+          <p className="text-xs text-muted-foreground">
+            Doesn&apos;t contact Akahu or use AI — just re-runs the rules/transfer logic
+            locally.
+          </p>
+          <RecategorizeTransfersButton />
+        </div>
       </div>
 
       <div className="space-y-3">
