@@ -25,7 +25,7 @@ export default async function DashboardPage() {
       getPeriodSummary(PERIOD_DAYS),
       getMonthlyCashflow(6),
       getCategorySpend(PERIOD_DAYS),
-      getNetPositionTrend(6),
+      getNetPositionTrend(182),
     ]);
   } catch (err) {
     error = err instanceof Error ? err.message : "Failed to load dashboard data.";

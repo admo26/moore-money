@@ -87,20 +87,17 @@ export async function getCategorySpend(days = 30): Promise<CategorySpend[]> {
 }
 
 export interface NetPositionPoint {
-  /** "2026-07" */
-  month: string;
-  /** The date this point's balance is as-of (month-end, or today for the current month). */
-  asOf: string;
+  /** "2026-07-24" */
+  date: string;
   netPosition: number;
 }
 
 /**
- * Net position (sum of every account's balance) at each of the last
- * `months` month-ends, using each account's most recent transaction
- * balance snapshot on or before that date. The final point uses today
- * rather than the current month's end, since future balances aren't known.
+ * Net position (sum of every account's balance) for each of the last
+ * `days` calendar days, using each account's most recent transaction
+ * balance snapshot on or before that day.
  */
-export async function getNetPositionTrend(months = 6): Promise<NetPositionPoint[]> {
+export async function getNetPositionTrend(days = 180): Promise<NetPositionPoint[]> {
   const rows = await db
     .select({
       accountId: transactions.accountId,
@@ -118,28 +115,39 @@ export async function getNetPositionTrend(months = 6): Promise<NetPositionPoint[
     byAccount.set(r.accountId, list);
   }
 
+  const accountIds = [...byAccount.keys()];
+  const pointer = new Map(accountIds.map((id) => [id, 0]));
+  const latestBalance = new Map<string, number | null>(accountIds.map((id) => [id, null]));
+
   const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const cursor = new Date(today);
+  cursor.setDate(cursor.getDate() - (days - 1));
+
   const points: NetPositionPoint[] = [];
 
-  for (let i = months - 1; i >= 0; i--) {
-    const monthStart = new Date(today.getFullYear(), today.getMonth() - i, 1);
-    const isCurrentMonth = i === 0;
-    const asOf = isCurrentMonth
-      ? today
-      : new Date(monthStart.getFullYear(), monthStart.getMonth() + 1, 0);
-    const monthKey = `${monthStart.getFullYear()}-${String(monthStart.getMonth() + 1).padStart(2, "0")}`;
+  for (let i = 0; i < days; i++) {
+    const endOfDay = new Date(cursor);
+    endOfDay.setHours(23, 59, 59, 999);
 
-    let netPosition = 0;
-    for (const list of byAccount.values()) {
-      let latest: number | null = null;
-      for (const entry of list) {
-        if (entry.date <= asOf) latest = entry.balance;
-        else break;
+    for (const id of accountIds) {
+      const list = byAccount.get(id)!;
+      let idx = pointer.get(id)!;
+      while (idx < list.length && list[idx].date <= endOfDay) {
+        latestBalance.set(id, list[idx].balance);
+        idx++;
       }
-      if (latest !== null) netPosition += latest;
+      pointer.set(id, idx);
     }
 
-    points.push({ month: monthKey, asOf: asOf.toISOString().slice(0, 10), netPosition });
+    let netPosition = 0;
+    for (const id of accountIds) {
+      const bal = latestBalance.get(id);
+      if (bal !== null && bal !== undefined) netPosition += bal;
+    }
+
+    points.push({ date: cursor.toISOString().slice(0, 10), netPosition });
+    cursor.setDate(cursor.getDate() + 1);
   }
 
   return points;

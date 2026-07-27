@@ -10,14 +10,11 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { formatMoney } from "@/lib/format";
+import { formatDate, formatMoney } from "@/lib/format";
 import type { NetPositionPoint } from "@/lib/reports/queries";
 
-function monthLabel(month: string) {
-  const [year, m] = month.split("-");
-  return new Date(Number(year), Number(m) - 1, 1).toLocaleDateString("en-NZ", {
-    month: "short",
-  });
+function shortDateLabel(date: string) {
+  return new Date(date).toLocaleDateString("en-NZ", { day: "numeric", month: "short" });
 }
 
 function NetPositionTooltip({
@@ -31,7 +28,7 @@ function NetPositionTooltip({
   const point = payload[0].payload;
   return (
     <div className="rounded-md border border-border bg-card p-2 text-xs shadow-sm">
-      <div className="mb-1 font-medium text-foreground">{monthLabel(point.month)}</div>
+      <div className="mb-1 font-medium text-foreground">{formatDate(point.date)}</div>
       <div className="text-muted-foreground">
         Net position:{" "}
         <span className="font-medium text-foreground">{formatMoney(point.netPosition)}</span>
@@ -41,6 +38,9 @@ function NetPositionTooltip({
 }
 
 export function NetPositionChart({ data }: { data: NetPositionPoint[] }) {
+  // Space out ~6 evenly-distributed tick labels regardless of how many daily points there are.
+  const tickInterval = Math.max(0, Math.floor(data.length / 6) - 1);
+
   return (
     <ResponsiveContainer width="100%" height={240}>
       <AreaChart data={data} margin={{ left: 8, right: 8, top: 8 }}>
@@ -52,8 +52,9 @@ export function NetPositionChart({ data }: { data: NetPositionPoint[] }) {
         </defs>
         <CartesianGrid vertical={false} stroke="var(--border)" />
         <XAxis
-          dataKey="month"
-          tickFormatter={monthLabel}
+          dataKey="date"
+          tickFormatter={shortDateLabel}
+          interval={tickInterval}
           tick={{ fill: "var(--muted-foreground)", fontSize: 12 }}
           axisLine={{ stroke: "var(--border)" }}
           tickLine={false}
@@ -72,7 +73,7 @@ export function NetPositionChart({ data }: { data: NetPositionPoint[] }) {
           stroke="var(--chart-1)"
           strokeWidth={2}
           fill="url(#netPositionFill)"
-          dot={{ r: 3, fill: "var(--chart-1)", stroke: "var(--card)", strokeWidth: 2 }}
+          dot={false}
           activeDot={{ r: 4, fill: "var(--chart-1)", stroke: "var(--card)", strokeWidth: 2 }}
         />
       </AreaChart>
