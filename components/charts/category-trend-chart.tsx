@@ -66,6 +66,8 @@ export function CategoryTrendChart({ series }: { series: CategoryTrendSeries[] }
 
   const defaultCategory = useMemo(() => {
     if (series.length === 0) return null;
+    const groceries = series.find((s) => s.name.toLowerCase() === "groceries");
+    if (groceries) return groceries.categoryFilter;
     return series.reduce((best, s) => {
       const total = s.points.reduce((sum, p) => sum + p.amount, 0);
       const bestTotal = best.points.reduce((sum, p) => sum + p.amount, 0);
