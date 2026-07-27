@@ -1,10 +1,12 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { CashflowChart } from "@/components/charts/cashflow-chart";
 import { CategorySpendChart } from "@/components/charts/category-spend-chart";
+import { CategoryTrendChart } from "@/components/charts/category-trend-chart";
 import { NetPositionChart } from "@/components/charts/net-position-chart";
 import { formatMoney } from "@/lib/format";
 import {
   getCategorySpend,
+  getCategoryTrends,
   getMonthlyCashflow,
   getNetCashTrend,
   getPeriodSummary,
@@ -18,13 +20,15 @@ export default async function DashboardPage() {
   let summary = { income: 0, expense: 0 };
   let cashflow: Awaited<ReturnType<typeof getMonthlyCashflow>> = [];
   let categorySpend: Awaited<ReturnType<typeof getCategorySpend>> = [];
+  let categoryTrends: Awaited<ReturnType<typeof getCategoryTrends>> = [];
   let netCashTrend: Awaited<ReturnType<typeof getNetCashTrend>> = [];
 
   try {
-    [summary, cashflow, categorySpend, netCashTrend] = await Promise.all([
+    [summary, cashflow, categorySpend, categoryTrends, netCashTrend] = await Promise.all([
       getPeriodSummary(PERIOD_DAYS),
       getMonthlyCashflow(6),
       getCategorySpend(PERIOD_DAYS),
+      getCategoryTrends(6),
       getNetCashTrend(182),
     ]);
   } catch (err) {
@@ -130,6 +134,16 @@ export default async function DashboardPage() {
             </CardHeader>
             <CardContent>
               <CategorySpendChart data={categorySpend} from={periodFrom} to={periodTo} />
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Category trend — last 6 months</CardTitle>
+              <CardDescription>Net amount per month for one category at a time.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <CategoryTrendChart series={categoryTrends} />
             </CardContent>
           </Card>
         </>

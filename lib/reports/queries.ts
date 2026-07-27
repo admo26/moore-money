@@ -96,6 +96,62 @@ export async function getCategorySpend(days = 30): Promise<CategorySpend[]> {
   }));
 }
 
+export interface CategoryTrendSeries {
+  /** Filter value for the Transactions page's categoryId param. */
+  categoryFilter: string;
+  name: string;
+  /** Oldest first, zero-filled for months with no activity. */
+  points: { month: string; amount: number }[];
+}
+
+/**
+ * Net amount per category per month, for the last `months` months —
+ * one zero-filled series per category that had any activity in the
+ * window. "Net" (not gross outflow) so money moving back into a category
+ * doesn't inflate the trend; a positive value means net money out.
+ */
+export async function getCategoryTrends(months = 6): Promise<CategoryTrendSeries[]> {
+  const since = new Date();
+  since.setMonth(since.getMonth() - (months - 1));
+  since.setDate(1);
+  since.setHours(0, 0, 0, 0);
+
+  const rows = await db
+    .select({
+      categoryId: categories.id,
+      categoryName: categories.name,
+      month: sql<string>`to_char(date_trunc('month', ${transactions.date}), 'YYYY-MM')`,
+      amount: sql<string>`sum(-${transactions.amount})`,
+    })
+    .from(transactions)
+    .leftJoin(categories, eq(transactions.categoryId, categories.id))
+    .where(gte(transactions.date, since))
+    .groupBy(categories.id, categories.name, sql`date_trunc('month', ${transactions.date})`);
+
+  const monthKeys: string[] = [];
+  const cursor = new Date(since);
+  for (let i = 0; i < months; i++) {
+    monthKeys.push(`${cursor.getFullYear()}-${String(cursor.getMonth() + 1).padStart(2, "0")}`);
+    cursor.setMonth(cursor.getMonth() + 1);
+  }
+
+  const byCategory = new Map<string, { name: string; amounts: Map<string, number> }>();
+  for (const r of rows) {
+    const key = r.categoryId === null ? "uncategorised" : String(r.categoryId);
+    const name = r.categoryName ?? "Uncategorised";
+    if (!byCategory.has(key)) byCategory.set(key, { name, amounts: new Map() });
+    byCategory.get(key)!.amounts.set(r.month, Number(r.amount));
+  }
+
+  return [...byCategory.entries()]
+    .map(([categoryFilter, { name, amounts }]) => ({
+      categoryFilter,
+      name,
+      points: monthKeys.map((month) => ({ month, amount: amounts.get(month) ?? 0 })),
+    }))
+    .sort((a, b) => a.name.localeCompare(b.name));
+}
+
 export interface NetPositionPoint {
   /** "2026-07-24" */
   date: string;
