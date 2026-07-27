@@ -48,21 +48,19 @@ export async function getMonthlyCashflow(months = 6): Promise<MonthlyCashflow[]>
 export interface CategorySpend {
   name: string;
   amount: number;
-  /** Filter value for the Transactions page's categoryId param; null when this
-   * slice can't be filtered to a single category (the folded "Other" bucket). */
-  categoryFilter: string | null;
+  /** Filter value for the Transactions page's categoryId param. */
+  categoryFilter: string;
 }
 
-const MAX_CATEGORY_SLICES = 8;
-
 /**
- * Net spend by category over the last `days` days, top slices + an "Other"
- * bucket. Net (not gross outflow) so a category with both money out and
- * money back in — e.g. Transfers, which nets a credit card payment leaving
- * one account against it landing in another — doesn't inflate to double
- * the real amount. Categories that are net money *in* over the period
- * (Income, or a Transfers bucket that nets to an inflow) are excluded,
- * since this is a spend chart.
+ * Net spend by category over the last `days` days, every category with net
+ * outflow (no top-N folding — the UI scrolls instead). Net (not gross
+ * outflow) so a category with both money out and money back in — e.g.
+ * Transfers, which nets a credit card payment leaving one account against
+ * it landing in another — doesn't inflate to double the real amount.
+ * Categories that are net money *in* over the period (Income, or a
+ * Transfers bucket that nets to an inflow) are excluded, since this is a
+ * spend chart.
  */
 export async function getCategorySpend(days = 30): Promise<CategorySpend[]> {
   const since = new Date();
@@ -81,19 +79,11 @@ export async function getCategorySpend(days = 30): Promise<CategorySpend[]> {
     .having(sql`sum(-${transactions.amount}) > 0`)
     .orderBy(sql`sum(-${transactions.amount}) desc`);
 
-  const spend: CategorySpend[] = rows.map((r) => ({
+  return rows.map((r) => ({
     name: r.categoryName ?? "Uncategorised",
     amount: Number(r.amount),
     categoryFilter: r.categoryId === null ? "uncategorised" : String(r.categoryId),
   }));
-
-  if (spend.length <= MAX_CATEGORY_SLICES) return spend;
-
-  const top = spend.slice(0, MAX_CATEGORY_SLICES);
-  const rest = spend.slice(MAX_CATEGORY_SLICES);
-  const otherTotal = rest.reduce((sum, r) => sum + r.amount, 0);
-  top.push({ name: "Other", amount: otherTotal, categoryFilter: null });
-  return top;
 }
 
 export interface PeriodSummary {
