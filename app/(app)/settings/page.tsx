@@ -48,7 +48,7 @@ export default async function SettingsPage() {
         <h1 className="text-2xl font-semibold tracking-tight">Settings</h1>
       </div>
 
-      <div className="space-y-3">
+      <div className="max-w-md space-y-3">
         <div>
           <h2 className="text-lg font-medium">Categories</h2>
           <p className="text-sm text-muted-foreground">
@@ -64,7 +64,7 @@ export default async function SettingsPage() {
           </div>
         ) : (
           <>
-            <div className="rounded-lg border border-border bg-card p-3">
+            <div className="rounded-lg border border-border bg-card p-4">
               <AddCategoryForm />
             </div>
 
@@ -77,8 +77,8 @@ export default async function SettingsPage() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-border text-left text-muted-foreground">
-                      <th className="px-3 py-1.5 font-medium">Name</th>
-                      <th className="px-3 py-1.5" />
+                      <th className="px-4 py-2 font-medium">Name</th>
+                      <th className="px-4 py-2" />
                     </tr>
                   </thead>
                   <tbody>
