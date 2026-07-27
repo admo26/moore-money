@@ -35,7 +35,7 @@ export function Sidebar() {
           M
         </div>
         {!collapsed && (
-          <Link href="/accounts" className="text-base font-semibold tracking-tight">
+          <Link href="/dashboard" className="text-base font-semibold tracking-tight">
             Moore Money
           </Link>
         )}
