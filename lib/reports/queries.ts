@@ -1,9 +1,12 @@
 import { and, eq, gte, isNull, notInArray, or, sql } from "drizzle-orm";
 import { db } from "@/lib/db";
-import { accountBalanceSnapshots, categories, transactions } from "@/lib/db/schema";
+import { accountBalanceSnapshots, accounts, categories, transactions } from "@/lib/db/schema";
 
 /** Category names excluded from the spend chart — money moving, not being spent. */
 const NON_SPEND_CATEGORY_NAMES = ["Transfers", "Investments"];
+
+/** Akahu account types treated as investments — excluded from "net cash". */
+const INVESTMENT_ACCOUNT_TYPES = new Set(["KIWISAVER", "INVESTMENT"]);
 
 export interface MonthlyCashflow {
   /** "2026-07" */
@@ -100,25 +103,30 @@ export interface NetPositionPoint {
 }
 
 /**
- * Net worth (sum of every account's balance) for each of the last `days`
- * calendar days, using each account's most recent balance snapshot on or
- * before that day. Sourced from `account_balance_snapshots` rather than
+ * Sums balance snapshots into a daily trend, for whichever accounts pass
+ * `includeAccount`. Sourced from `account_balance_snapshots` rather than
  * transaction balances, so it covers every account type — including
  * investment/KiwiSaver accounts with no transactions at all, and
  * connections (e.g. Amex) whose transactions don't carry a running balance.
  */
-export async function getNetWorthTrend(days = 180): Promise<NetPositionPoint[]> {
+async function computeBalanceTrend(
+  days: number,
+  includeAccount: (type: string) => boolean
+): Promise<NetPositionPoint[]> {
   const rows = await db
     .select({
       accountId: accountBalanceSnapshots.accountId,
       capturedOn: accountBalanceSnapshots.capturedOn,
       balance: accountBalanceSnapshots.balance,
+      type: accounts.type,
     })
     .from(accountBalanceSnapshots)
+    .innerJoin(accounts, eq(accountBalanceSnapshots.accountId, accounts.id))
     .orderBy(accountBalanceSnapshots.accountId, accountBalanceSnapshots.capturedOn);
 
   const byAccount = new Map<string, { date: string; balance: number }[]>();
   for (const r of rows) {
+    if (!includeAccount(r.type)) continue;
     const list = byAccount.get(r.accountId) ?? [];
     list.push({ date: r.capturedOn, balance: Number(r.balance) });
     byAccount.set(r.accountId, list);
@@ -159,6 +167,21 @@ export async function getNetWorthTrend(days = 180): Promise<NetPositionPoint[]> 
   }
 
   return points;
+}
+
+/**
+ * Net cash (sum of every non-investment account's balance) for each of the
+ * last `days` calendar days — bank accounts, loans, and credit cards, but
+ * not KiwiSaver/managed-fund accounts. Those move very differently (no
+ * day-to-day transactions, valued by unit price rather than cash in/out)
+ * and would otherwise dominate a chart meant to track everyday cash
+ * position.
+ */
+export async function getNetCashTrend(days = 180): Promise<NetPositionPoint[]> {
+  return computeBalanceTrend(
+    days,
+    (type) => !INVESTMENT_ACCOUNT_TYPES.has(type.toUpperCase())
+  );
 }
 
 export interface PeriodSummary {

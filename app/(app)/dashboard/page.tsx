@@ -6,7 +6,7 @@ import { formatMoney } from "@/lib/format";
 import {
   getCategorySpend,
   getMonthlyCashflow,
-  getNetWorthTrend,
+  getNetCashTrend,
   getPeriodSummary,
 } from "@/lib/reports/queries";
 import { toDateParam } from "@/lib/reports/date-params";
@@ -18,14 +18,14 @@ export default async function DashboardPage() {
   let summary = { income: 0, expense: 0 };
   let cashflow: Awaited<ReturnType<typeof getMonthlyCashflow>> = [];
   let categorySpend: Awaited<ReturnType<typeof getCategorySpend>> = [];
-  let netWorthTrend: Awaited<ReturnType<typeof getNetWorthTrend>> = [];
+  let netCashTrend: Awaited<ReturnType<typeof getNetCashTrend>> = [];
 
   try {
-    [summary, cashflow, categorySpend, netWorthTrend] = await Promise.all([
+    [summary, cashflow, categorySpend, netCashTrend] = await Promise.all([
       getPeriodSummary(PERIOD_DAYS),
       getMonthlyCashflow(6),
       getCategorySpend(PERIOD_DAYS),
-      getNetWorthTrend(182),
+      getNetCashTrend(182),
     ]);
   } catch (err) {
     error = err instanceof Error ? err.message : "Failed to load dashboard data.";
@@ -101,16 +101,15 @@ export default async function DashboardPage() {
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Net worth — last 6 months</CardTitle>
+              <CardTitle className="text-base">Net cash — last 6 months</CardTitle>
               <CardDescription>
-                Sum of every linked account&apos;s balance (assets minus liabilities) each
-                day, from a daily snapshot taken on sync. An account only appears in the
-                trend from its first snapshot onward, so investment accounts just linked
-                will start flat and build history from today.
+                Sum of every bank, loan, and credit card balance each day, from a daily
+                snapshot taken on sync. Excludes KiwiSaver/managed-fund accounts — see the
+                Net Worth page for those.
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <NetPositionChart data={netWorthTrend} />
+              <NetPositionChart data={netCashTrend} />
             </CardContent>
           </Card>
 
