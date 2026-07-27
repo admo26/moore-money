@@ -3,9 +3,11 @@ import {
   text,
   numeric,
   timestamp,
+  date,
   jsonb,
   integer,
   serial,
+  unique,
 } from "drizzle-orm/pg-core";
 
 /**
@@ -26,6 +28,26 @@ export const accounts = pgTable("accounts", {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
+
+/**
+ * A snapshot of one account's balance on one calendar day. Written on every
+ * sync for every account (not just ones with transactions), which is what
+ * lets the net-worth trend include investment/KiwiSaver accounts — Akahu
+ * reports a balance for those but usually no transaction history at all.
+ */
+export const accountBalanceSnapshots = pgTable(
+  "account_balance_snapshots",
+  {
+    id: serial("id").primaryKey(),
+    accountId: text("account_id")
+      .notNull()
+      .references(() => accounts.id),
+    capturedOn: date("captured_on").notNull(),
+    balance: numeric("balance", { precision: 14, scale: 2 }).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [unique().on(table.accountId, table.capturedOn)]
+);
 
 /**
  * A user-defined spending/income category (Groceries, Dining, Income, ...).
@@ -120,3 +142,4 @@ export type SyncRun = typeof syncRuns.$inferSelect;
 export type Category = typeof categories.$inferSelect;
 export type Rule = typeof rules.$inferSelect;
 export type McpToken = typeof mcpTokens.$inferSelect;
+export type AccountBalanceSnapshot = typeof accountBalanceSnapshots.$inferSelect;

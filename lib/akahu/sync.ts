@@ -1,6 +1,6 @@
 import { desc, eq, sql } from "drizzle-orm";
 import { db } from "@/lib/db";
-import { accounts, syncRuns, transactions } from "@/lib/db/schema";
+import { accountBalanceSnapshots, accounts, syncRuns, transactions } from "@/lib/db/schema";
 import { categorizeUncategorized } from "@/lib/categorization";
 import { getAccounts, getTransactions } from "./client";
 import type { AkahuAccount, AkahuTransaction } from "./types";
@@ -90,6 +90,28 @@ export async function runSync(): Promise<SyncResult> {
             raw: sql`excluded.raw`,
             updatedAt: sql`excluded.updated_at`,
           },
+        });
+    }
+
+    // One balance snapshot per account per day, for every account type —
+    // including investment/KiwiSaver accounts that have no transaction
+    // history at all, and Amex-style connections whose transactions don't
+    // carry a running balance. This is what the net-worth trend is built on.
+    const snapshotRows = akahuAccounts
+      .filter((a) => a.balance?.current !== undefined)
+      .map((a) => ({
+        accountId: a._id,
+        capturedOn: startedAt.toISOString().slice(0, 10),
+        balance: toNumericString(a.balance!.current)!,
+      }));
+
+    if (snapshotRows.length > 0) {
+      await db
+        .insert(accountBalanceSnapshots)
+        .values(snapshotRows)
+        .onConflictDoUpdate({
+          target: [accountBalanceSnapshots.accountId, accountBalanceSnapshots.capturedOn],
+          set: { balance: sql`excluded.balance` },
         });
     }
 

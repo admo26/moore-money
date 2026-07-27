@@ -1,6 +1,9 @@
-import { eq, gte, isNotNull, sql } from "drizzle-orm";
+import { and, eq, gte, isNull, notInArray, or, sql } from "drizzle-orm";
 import { db } from "@/lib/db";
-import { categories, transactions } from "@/lib/db/schema";
+import { accountBalanceSnapshots, categories, transactions } from "@/lib/db/schema";
+
+/** Category names excluded from the spend chart — money moving, not being spent. */
+const NON_SPEND_CATEGORY_NAMES = ["Transfers", "Investments"];
 
 export interface MonthlyCashflow {
   /** "2026-07" */
@@ -55,12 +58,11 @@ export interface CategorySpend {
 /**
  * Net spend by category over the last `days` days, every category with net
  * outflow (no top-N folding — the UI scrolls instead). Net (not gross
- * outflow) so a category with both money out and money back in — e.g.
- * Transfers, which nets a credit card payment leaving one account against
- * it landing in another — doesn't inflate to double the real amount.
- * Categories that are net money *in* over the period (Income, or a
- * Transfers bucket that nets to an inflow) are excluded, since this is a
- * spend chart.
+ * outflow) so a category with both money out and money back in doesn't
+ * inflate to double the real amount. Transfers and Investments are excluded
+ * outright (not just netted) — they're money moving, not being spent, and a
+ * timing mismatch between two legs of a transfer could otherwise show a
+ * net outflow for a period that isn't real spending.
  */
 export async function getCategorySpend(days = 30): Promise<CategorySpend[]> {
   const since = new Date();
@@ -74,7 +76,12 @@ export async function getCategorySpend(days = 30): Promise<CategorySpend[]> {
     })
     .from(transactions)
     .leftJoin(categories, eq(transactions.categoryId, categories.id))
-    .where(gte(transactions.date, since))
+    .where(
+      and(
+        gte(transactions.date, since),
+        or(isNull(categories.name), notInArray(categories.name, NON_SPEND_CATEGORY_NAMES))
+      )
+    )
     .groupBy(categories.id, categories.name)
     .having(sql`sum(-${transactions.amount}) > 0`)
     .orderBy(sql`sum(-${transactions.amount}) desc`);
@@ -93,25 +100,27 @@ export interface NetPositionPoint {
 }
 
 /**
- * Net position (sum of every account's balance) for each of the last
- * `days` calendar days, using each account's most recent transaction
- * balance snapshot on or before that day.
+ * Net worth (sum of every account's balance) for each of the last `days`
+ * calendar days, using each account's most recent balance snapshot on or
+ * before that day. Sourced from `account_balance_snapshots` rather than
+ * transaction balances, so it covers every account type — including
+ * investment/KiwiSaver accounts with no transactions at all, and
+ * connections (e.g. Amex) whose transactions don't carry a running balance.
  */
-export async function getNetPositionTrend(days = 180): Promise<NetPositionPoint[]> {
+export async function getNetWorthTrend(days = 180): Promise<NetPositionPoint[]> {
   const rows = await db
     .select({
-      accountId: transactions.accountId,
-      date: transactions.date,
-      balance: transactions.balance,
+      accountId: accountBalanceSnapshots.accountId,
+      capturedOn: accountBalanceSnapshots.capturedOn,
+      balance: accountBalanceSnapshots.balance,
     })
-    .from(transactions)
-    .where(isNotNull(transactions.balance))
-    .orderBy(transactions.accountId, transactions.date);
+    .from(accountBalanceSnapshots)
+    .orderBy(accountBalanceSnapshots.accountId, accountBalanceSnapshots.capturedOn);
 
-  const byAccount = new Map<string, { date: Date; balance: number }[]>();
+  const byAccount = new Map<string, { date: string; balance: number }[]>();
   for (const r of rows) {
     const list = byAccount.get(r.accountId) ?? [];
-    list.push({ date: r.date, balance: Number(r.balance) });
+    list.push({ date: r.capturedOn, balance: Number(r.balance) });
     byAccount.set(r.accountId, list);
   }
 
@@ -127,13 +136,12 @@ export async function getNetPositionTrend(days = 180): Promise<NetPositionPoint[
   const points: NetPositionPoint[] = [];
 
   for (let i = 0; i < days; i++) {
-    const endOfDay = new Date(cursor);
-    endOfDay.setHours(23, 59, 59, 999);
+    const cursorKey = cursor.toISOString().slice(0, 10);
 
     for (const id of accountIds) {
       const list = byAccount.get(id)!;
       let idx = pointer.get(id)!;
-      while (idx < list.length && list[idx].date <= endOfDay) {
+      while (idx < list.length && list[idx].date <= cursorKey) {
         latestBalance.set(id, list[idx].balance);
         idx++;
       }
@@ -146,7 +154,7 @@ export async function getNetPositionTrend(days = 180): Promise<NetPositionPoint[
       if (bal !== null && bal !== undefined) netPosition += bal;
     }
 
-    points.push({ date: cursor.toISOString().slice(0, 10), netPosition });
+    points.push({ date: cursorKey, netPosition });
     cursor.setDate(cursor.getDate() + 1);
   }
 

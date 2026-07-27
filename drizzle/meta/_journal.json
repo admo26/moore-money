@@ -50,6 +50,27 @@
       "when": 1785119318204,
       "tag": "0006_add_kids_account_transfer_rules",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1785143472121,
+      "tag": "0007_typical_blonde_phantom",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1785143488421,
+      "tag": "0008_backfill_account_balance_snapshots",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1785143520615,
+      "tag": "0009_seed_investments_category",
+      "breakpoints": true
     }
   ]
 }
