@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { setTransactionCategory } from "@/app/(app)/transactions/actions";
-import { createRuleFromValues } from "@/app/(app)/rules/actions";
+import { applyRuleRetroactively, createRuleFromValues } from "@/app/(app)/rules/actions";
 import type { Category } from "@/lib/db/schema";
 
 export function CategorySelect({
@@ -44,7 +44,22 @@ export function CategorySelect({
               createRuleFromValues(trimmedPattern, category.id)
                 .then((ruleId) => {
                   toast.success("Rule created", {
+                    description: "Apply it to matching transactions you've already synced?",
                     action: {
+                      label: "Apply to all",
+                      onClick: () => {
+                        applyRuleRetroactively(ruleId)
+                          .then((count) =>
+                            toast.success(
+                              count > 0
+                                ? `Applied to ${count} transaction${count === 1 ? "" : "s"}`
+                                : "No matching transactions found"
+                            )
+                          )
+                          .catch(() => toast.error("Couldn't apply rule"));
+                      },
+                    },
+                    cancel: {
                       label: "Edit rule",
                       onClick: () => router.push(`/rules?edit=${ruleId}`),
                     },

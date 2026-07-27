@@ -5,6 +5,7 @@ import { eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { rules } from "@/lib/db/schema";
 import { getAuthorizedUser } from "@/lib/auth";
+import { applyRuleToAllTransactions } from "@/lib/categorization/apply-rule";
 
 async function insertRule(pattern: string, categoryId: number) {
   const user = await getAuthorizedUser();
@@ -41,6 +42,17 @@ export async function updateRule(id: number, pattern: string, categoryId: number
 
   await db.update(rules).set({ pattern: trimmed, categoryId }).where(eq(rules.id, id));
   revalidatePath("/rules");
+}
+
+/** Applies a rule to every existing matching transaction, not just future ones. Returns how many were updated. */
+export async function applyRuleRetroactively(ruleId: number) {
+  const user = await getAuthorizedUser();
+  if (!user) throw new Error("Unauthorized");
+
+  const count = await applyRuleToAllTransactions(ruleId);
+  revalidatePath("/rules");
+  revalidatePath("/transactions");
+  return count;
 }
 
 export async function deleteRule(formData: FormData) {

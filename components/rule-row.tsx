@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { deleteRule, updateRule } from "@/app/(app)/rules/actions";
+import { applyRuleRetroactively, deleteRule, updateRule } from "@/app/(app)/rules/actions";
 import type { Category } from "@/lib/db/schema";
 
 export interface RuleRowData {
@@ -45,6 +46,21 @@ export function RuleRow({
     formData.set("id", String(rule.id));
     startTransition(async () => {
       await deleteRule(formData);
+    });
+  }
+
+  function handleApplyToAll() {
+    startTransition(async () => {
+      try {
+        const count = await applyRuleRetroactively(rule.id);
+        toast.success(
+          count > 0
+            ? `Applied to ${count} transaction${count === 1 ? "" : "s"}`
+            : "No matching transactions found"
+        );
+      } catch {
+        toast.error("Couldn't apply rule");
+      }
     });
   }
 
@@ -90,6 +106,9 @@ export function RuleRow({
       <td className="px-4 py-2 font-mono text-xs">{rule.pattern}</td>
       <td className="px-4 py-2">{rule.categoryName}</td>
       <td className="px-4 py-2 text-right">
+        <Button size="sm" variant="ghost" onClick={handleApplyToAll} disabled={isPending}>
+          Apply to all
+        </Button>
         <Button size="sm" variant="ghost" onClick={() => setIsEditing(true)} disabled={isPending}>
           Edit
         </Button>
