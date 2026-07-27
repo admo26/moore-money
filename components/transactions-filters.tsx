@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { Account, Category } from "@/lib/db/schema";
+
+const DEBOUNCE_MS = 450;
 
 export function TransactionsFilters({
   accounts,
@@ -24,16 +25,28 @@ export function TransactionsFilters({
     maxAmount?: string;
   };
 }) {
+  const formRef = useRef<HTMLFormElement>(null);
   const hasAdvancedDefaults = Boolean(
     defaults.from || defaults.to || defaults.minAmount || defaults.maxAmount
   );
   const [showMore, setShowMore] = useState(hasAdvancedDefaults);
 
+  const [q, setQ] = useState(defaults.q ?? "");
+  const [minAmount, setMinAmount] = useState(defaults.minAmount ?? "");
+  const [maxAmount, setMaxAmount] = useState(defaults.maxAmount ?? "");
+
+  // Debounce free-typed fields so we don't reload on every keystroke; submit
+  // immediately for single-action controls (selects, dates) via onChange.
+  useDebouncedSubmit(formRef, q, defaults.q ?? "");
+  useDebouncedSubmit(formRef, minAmount, defaults.minAmount ?? "");
+  useDebouncedSubmit(formRef, maxAmount, defaults.maxAmount ?? "");
+
+  function submitNow() {
+    formRef.current?.requestSubmit();
+  }
+
   return (
-    <form
-      method="GET"
-      className="space-y-3 rounded-lg border border-border bg-card p-4"
-    >
+    <form ref={formRef} method="GET" className="space-y-3 rounded-lg border border-border bg-card p-4">
       <div className="flex flex-wrap items-end gap-3">
         <div className="flex flex-col gap-1">
           <label htmlFor="q" className="text-xs font-medium text-muted-foreground">
@@ -43,7 +56,8 @@ export function TransactionsFilters({
             id="q"
             name="q"
             placeholder="Description or merchant"
-            defaultValue={defaults.q ?? ""}
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
             className="w-56"
           />
         </div>
@@ -56,6 +70,7 @@ export function TransactionsFilters({
             id="accountId"
             name="accountId"
             defaultValue={defaults.accountId ?? ""}
+            onChange={submitNow}
             className="h-9 w-48 rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/50"
           >
             <option value="">All accounts</option>
@@ -75,6 +90,7 @@ export function TransactionsFilters({
             id="categoryId"
             name="categoryId"
             defaultValue={defaults.categoryId ?? ""}
+            onChange={submitNow}
             className="h-9 w-48 rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/50"
           >
             <option value="">All categories</option>
@@ -87,9 +103,6 @@ export function TransactionsFilters({
           </select>
         </div>
 
-        <Button type="submit" size="sm">
-          Filter
-        </Button>
         {(defaults.q ||
           defaults.accountId ||
           defaults.categoryId ||
@@ -129,14 +142,28 @@ export function TransactionsFilters({
           <label htmlFor="from" className="text-xs font-medium text-muted-foreground">
             From
           </label>
-          <Input id="from" type="date" name="from" defaultValue={defaults.from ?? ""} className="w-40" />
+          <Input
+            id="from"
+            type="date"
+            name="from"
+            defaultValue={defaults.from ?? ""}
+            onChange={submitNow}
+            className="w-40"
+          />
         </div>
 
         <div className="flex flex-col gap-1">
           <label htmlFor="to" className="text-xs font-medium text-muted-foreground">
             To
           </label>
-          <Input id="to" type="date" name="to" defaultValue={defaults.to ?? ""} className="w-40" />
+          <Input
+            id="to"
+            type="date"
+            name="to"
+            defaultValue={defaults.to ?? ""}
+            onChange={submitNow}
+            className="w-40"
+          />
         </div>
 
         <div className="flex flex-col gap-1">
@@ -149,7 +176,8 @@ export function TransactionsFilters({
             step="0.01"
             name="minAmount"
             placeholder="-100.00"
-            defaultValue={defaults.minAmount ?? ""}
+            value={minAmount}
+            onChange={(e) => setMinAmount(e.target.value)}
             className="w-32"
           />
         </div>
@@ -164,11 +192,26 @@ export function TransactionsFilters({
             step="0.01"
             name="maxAmount"
             placeholder="100.00"
-            defaultValue={defaults.maxAmount ?? ""}
+            value={maxAmount}
+            onChange={(e) => setMaxAmount(e.target.value)}
             className="w-32"
           />
         </div>
       </div>
     </form>
   );
+}
+
+function useDebouncedSubmit(
+  formRef: React.RefObject<HTMLFormElement | null>,
+  value: string,
+  initialValue: string
+) {
+  useEffect(() => {
+    if (value === initialValue) return;
+    const timeout = setTimeout(() => formRef.current?.requestSubmit(), DEBOUNCE_MS);
+    return () => clearTimeout(timeout);
+    // Only re-run when the field's own value changes — initialValue/formRef are stable per render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value]);
 }
