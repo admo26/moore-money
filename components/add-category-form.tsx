@@ -43,7 +43,7 @@ export function AddCategoryForm() {
           disabled={isPending}
         />
       </div>
-      <Button type="submit" size="sm" disabled={isPending || !name.trim()}>
+      <Button type="submit" size="xs" disabled={isPending || !name.trim()}>
         Add category
       </Button>
     </form>

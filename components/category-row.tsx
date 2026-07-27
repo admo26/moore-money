@@ -52,21 +52,23 @@ export function CategoryRow({ category }: { category: CategoryRowData }) {
   if (isEditing) {
     return (
       <tr className="border-b border-border last:border-0">
-        <td className="px-4 py-2">
+        <td className="px-3 py-1">
           <Input
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="h-8 w-56"
+            className="h-7 w-56"
             disabled={isPending}
           />
         </td>
-        <td className="px-4 py-2 text-right">
-          <Button size="sm" onClick={handleSave} disabled={isPending}>
-            Save
-          </Button>
-          <Button size="sm" variant="ghost" onClick={handleCancel} disabled={isPending}>
-            Cancel
-          </Button>
+        <td className="px-3 py-1 text-right">
+          <div className="flex justify-end gap-1">
+            <Button size="xs" onClick={handleSave} disabled={isPending}>
+              Save
+            </Button>
+            <Button size="xs" variant="ghost" onClick={handleCancel} disabled={isPending}>
+              Cancel
+            </Button>
+          </div>
         </td>
       </tr>
     );
@@ -74,14 +76,16 @@ export function CategoryRow({ category }: { category: CategoryRowData }) {
 
   return (
     <tr className="border-b border-border last:border-0">
-      <td className="px-4 py-2">{category.name}</td>
-      <td className="px-4 py-2 text-right">
-        <Button size="sm" variant="ghost" onClick={() => setIsEditing(true)} disabled={isPending}>
-          Edit
-        </Button>
-        <Button size="sm" variant="ghost" onClick={handleDelete} disabled={isPending}>
-          Delete
-        </Button>
+      <td className="px-3 py-1 text-sm">{category.name}</td>
+      <td className="px-3 py-1 text-right">
+        <div className="flex justify-end gap-1">
+          <Button size="xs" variant="ghost" onClick={() => setIsEditing(true)} disabled={isPending}>
+            Edit
+          </Button>
+          <Button size="xs" variant="ghost" onClick={handleDelete} disabled={isPending}>
+            Delete
+          </Button>
+        </div>
       </td>
     </tr>
   );
