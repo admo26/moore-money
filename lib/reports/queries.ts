@@ -1,4 +1,4 @@
-import { eq, gte, sql } from "drizzle-orm";
+import { eq, gte, isNotNull, sql } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { categories, transactions } from "@/lib/db/schema";
 
@@ -84,6 +84,65 @@ export async function getCategorySpend(days = 30): Promise<CategorySpend[]> {
     amount: Number(r.amount),
     categoryFilter: r.categoryId === null ? "uncategorised" : String(r.categoryId),
   }));
+}
+
+export interface NetPositionPoint {
+  /** "2026-07" */
+  month: string;
+  /** The date this point's balance is as-of (month-end, or today for the current month). */
+  asOf: string;
+  netPosition: number;
+}
+
+/**
+ * Net position (sum of every account's balance) at each of the last
+ * `months` month-ends, using each account's most recent transaction
+ * balance snapshot on or before that date. The final point uses today
+ * rather than the current month's end, since future balances aren't known.
+ */
+export async function getNetPositionTrend(months = 6): Promise<NetPositionPoint[]> {
+  const rows = await db
+    .select({
+      accountId: transactions.accountId,
+      date: transactions.date,
+      balance: transactions.balance,
+    })
+    .from(transactions)
+    .where(isNotNull(transactions.balance))
+    .orderBy(transactions.accountId, transactions.date);
+
+  const byAccount = new Map<string, { date: Date; balance: number }[]>();
+  for (const r of rows) {
+    const list = byAccount.get(r.accountId) ?? [];
+    list.push({ date: r.date, balance: Number(r.balance) });
+    byAccount.set(r.accountId, list);
+  }
+
+  const today = new Date();
+  const points: NetPositionPoint[] = [];
+
+  for (let i = months - 1; i >= 0; i--) {
+    const monthStart = new Date(today.getFullYear(), today.getMonth() - i, 1);
+    const isCurrentMonth = i === 0;
+    const asOf = isCurrentMonth
+      ? today
+      : new Date(monthStart.getFullYear(), monthStart.getMonth() + 1, 0);
+    const monthKey = `${monthStart.getFullYear()}-${String(monthStart.getMonth() + 1).padStart(2, "0")}`;
+
+    let netPosition = 0;
+    for (const list of byAccount.values()) {
+      let latest: number | null = null;
+      for (const entry of list) {
+        if (entry.date <= asOf) latest = entry.balance;
+        else break;
+      }
+      if (latest !== null) netPosition += latest;
+    }
+
+    points.push({ month: monthKey, asOf: asOf.toISOString().slice(0, 10), netPosition });
+  }
+
+  return points;
 }
 
 export interface PeriodSummary {

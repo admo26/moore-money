@@ -1,8 +1,14 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { CashflowChart } from "@/components/charts/cashflow-chart";
 import { CategorySpendChart } from "@/components/charts/category-spend-chart";
+import { NetPositionChart } from "@/components/charts/net-position-chart";
 import { formatMoney } from "@/lib/format";
-import { getCategorySpend, getMonthlyCashflow, getPeriodSummary } from "@/lib/reports/queries";
+import {
+  getCategorySpend,
+  getMonthlyCashflow,
+  getNetPositionTrend,
+  getPeriodSummary,
+} from "@/lib/reports/queries";
 import { toDateParam } from "@/lib/reports/date-params";
 
 const PERIOD_DAYS = 30;
@@ -12,12 +18,14 @@ export default async function DashboardPage() {
   let summary = { income: 0, expense: 0 };
   let cashflow: Awaited<ReturnType<typeof getMonthlyCashflow>> = [];
   let categorySpend: Awaited<ReturnType<typeof getCategorySpend>> = [];
+  let netPositionTrend: Awaited<ReturnType<typeof getNetPositionTrend>> = [];
 
   try {
-    [summary, cashflow, categorySpend] = await Promise.all([
+    [summary, cashflow, categorySpend, netPositionTrend] = await Promise.all([
       getPeriodSummary(PERIOD_DAYS),
       getMonthlyCashflow(6),
       getCategorySpend(PERIOD_DAYS),
+      getNetPositionTrend(6),
     ]);
   } catch (err) {
     error = err instanceof Error ? err.message : "Failed to load dashboard data.";
@@ -90,6 +98,20 @@ export default async function DashboardPage() {
               </CardContent>
             </Card>
           </div>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Net position — last 6 months</CardTitle>
+              <CardDescription>
+                Sum of every linked account&apos;s balance at each month-end. Currently
+                deeply negative because only loan and credit card (liability) accounts
+                are linked — no savings or everyday account yet.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <NetPositionChart data={netPositionTrend} />
+            </CardContent>
+          </Card>
 
           <Card>
             <CardHeader>
