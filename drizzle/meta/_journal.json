@@ -29,6 +29,27 @@
       "when": 1785115714217,
       "tag": "0003_glossy_bloodstorm",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1785117039845,
+      "tag": "0004_add_pocket_money",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1785118513081,
+      "tag": "0005_add_holly_holly_pocket_money_rule",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1785119318204,
+      "tag": "0006_add_kids_account_transfer_rules",
+      "breakpoints": true
     }
   ]
 }

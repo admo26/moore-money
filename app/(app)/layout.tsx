@@ -1,6 +1,7 @@
 import { Sidebar } from "@/components/sidebar";
 import { MobileNav } from "@/components/mobile-nav";
 import { SyncButton } from "@/components/sync-button";
+import { RecategorizeTransfersButton } from "@/components/recategorize-transfers-button";
 import { SignOutButton } from "@/components/sign-out-button";
 import { getAuthorizedUser } from "@/lib/auth";
 
@@ -18,6 +19,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
             <div className="truncate text-sm text-muted-foreground">{user?.email}</div>
           </div>
           <div className="flex items-center gap-2">
+            <RecategorizeTransfersButton />
             <SyncButton />
             <SignOutButton />
           </div>

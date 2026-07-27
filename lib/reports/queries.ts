@@ -1,4 +1,4 @@
-import { and, eq, gte, sql } from "drizzle-orm";
+import { eq, gte, sql } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { categories, transactions } from "@/lib/db/schema";
 
@@ -55,7 +55,15 @@ export interface CategorySpend {
 
 const MAX_CATEGORY_SLICES = 8;
 
-/** Spend (money out only) by category over the last `days` days, top slices + an "Other" bucket. */
+/**
+ * Net spend by category over the last `days` days, top slices + an "Other"
+ * bucket. Net (not gross outflow) so a category with both money out and
+ * money back in — e.g. Transfers, which nets a credit card payment leaving
+ * one account against it landing in another — doesn't inflate to double
+ * the real amount. Categories that are net money *in* over the period
+ * (Income, or a Transfers bucket that nets to an inflow) are excluded,
+ * since this is a spend chart.
+ */
 export async function getCategorySpend(days = 30): Promise<CategorySpend[]> {
   const since = new Date();
   since.setDate(since.getDate() - days);
@@ -68,8 +76,9 @@ export async function getCategorySpend(days = 30): Promise<CategorySpend[]> {
     })
     .from(transactions)
     .leftJoin(categories, eq(transactions.categoryId, categories.id))
-    .where(and(gte(transactions.date, since), sql`${transactions.amount} < 0`))
+    .where(gte(transactions.date, since))
     .groupBy(categories.id, categories.name)
+    .having(sql`sum(-${transactions.amount}) > 0`)
     .orderBy(sql`sum(-${transactions.amount}) desc`);
 
   const spend: CategorySpend[] = rows.map((r) => ({
