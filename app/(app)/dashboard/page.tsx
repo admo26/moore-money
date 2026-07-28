@@ -59,38 +59,34 @@ export default async function DashboardPage() {
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
+          <Card>
+            <CardContent className="flex flex-wrap items-center justify-center gap-3 py-2 sm:justify-between sm:gap-2">
+              <div className="text-center sm:text-left">
+                <div className="text-sm font-medium text-muted-foreground">
                   Money in <span className="font-normal">· last {PERIOD_DAYS} days</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
+                </div>
                 <div className="text-2xl font-semibold text-positive">
                   {formatMoney(summary.income)}
                 </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
+              </div>
+
+              <div className="text-xl font-medium text-muted-foreground">−</div>
+
+              <div className="text-center sm:text-left">
+                <div className="text-sm font-medium text-muted-foreground">
                   Money out <span className="font-normal">· last {PERIOD_DAYS} days</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
+                </div>
                 <div className="text-2xl font-semibold text-negative">
                   {formatMoney(summary.expense)}
                 </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
+              </div>
+
+              <div className="text-xl font-medium text-muted-foreground">=</div>
+
+              <div className="text-center sm:text-left">
+                <div className="text-sm font-medium text-muted-foreground">
                   Net <span className="font-normal">· last {PERIOD_DAYS} days</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
+                </div>
                 <div
                   className={
                     net < 0
@@ -101,9 +97,9 @@ export default async function DashboardPage() {
                   {net > 0 ? "+" : ""}
                   {formatMoney(net)}
                 </div>
-              </CardContent>
-            </Card>
-          </div>
+              </div>
+            </CardContent>
+          </Card>
 
           <Card>
             <CardHeader>
