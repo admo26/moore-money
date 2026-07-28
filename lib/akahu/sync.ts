@@ -2,8 +2,15 @@ import { desc, eq, sql } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { accountBalanceSnapshots, accounts, syncRuns, transactions } from "@/lib/db/schema";
 import { categorizeUncategorized } from "@/lib/categorization";
-import { getAccounts, getTransactions } from "./client";
+import { getAccounts, getTransactions, refreshAll } from "./client";
 import type { AkahuAccount, AkahuTransaction } from "./types";
+
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/** Give Akahu's async refresh a moment to land before we read the data it triggers. */
+const REFRESH_SETTLE_MS = 8000;
 
 function toNumericString(n: number | undefined | null): string | null {
   return n === undefined || n === null ? null : n.toString();
@@ -71,6 +78,16 @@ export async function runSync(): Promise<SyncResult> {
 
   try {
     const since = await getLastHighWaterMark();
+
+    // Best-effort: ask Akahu to pull fresh data from the bank before we read
+    // it. Personal apps throttle this to ~hourly, so a 429 here is normal
+    // and just means the last refresh is still recent — not a sync failure.
+    try {
+      await refreshAll();
+      await sleep(REFRESH_SETTLE_MS);
+    } catch (err) {
+      console.error("Akahu refresh trigger failed", err);
+    }
 
     const akahuAccounts = await getAccounts();
     if (akahuAccounts.length > 0) {

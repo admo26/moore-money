@@ -56,6 +56,30 @@ export async function getMe(): Promise<AkahuMeResponse> {
   return akahuFetch<AkahuMeResponse>("/me");
 }
 
+/**
+ * Asks Akahu to refresh every connected account from the bank. This is
+ * async on Akahu's side — it doesn't block until the refresh finishes, it
+ * just kicks it off. Personal apps throttle manual refreshes to roughly
+ * once per hour, so a 429 here is expected if triggered too often; callers
+ * should treat that as "already fresh enough" rather than a real failure.
+ */
+export async function refreshAll(): Promise<void> {
+  const { appToken, userToken } = getCredentials();
+
+  const res = await fetch(`${AKAHU_BASE_URL}/refresh`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${userToken}`,
+      "X-Akahu-Id": appToken,
+    },
+  });
+
+  if (!res.ok && res.status !== 429) {
+    const body = await res.text().catch(() => "");
+    throw new Error(`Akahu /refresh failed: ${res.status} ${res.statusText} ${body}`);
+  }
+}
+
 /** All connected accounts (ANZ, Amex, etc). */
 export async function getAccounts(): Promise<AkahuAccount[]> {
   const res = await akahuFetch<AkahuListResponse<AkahuAccount>>("/accounts");
