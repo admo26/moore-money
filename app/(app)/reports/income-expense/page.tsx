@@ -17,15 +17,14 @@ function StatementRows({
   return (
     <>
       {rows.map((row) => (
-        <div key={row.categoryFilter} className="flex items-center justify-between py-1.5 text-sm">
-          <Link
-            href={`/transactions?categoryId=${row.categoryFilter}&from=${from}&to=${to}`}
-            className="text-foreground hover:underline"
-          >
-            {row.name}
-          </Link>
+        <Link
+          key={row.categoryFilter}
+          href={`/transactions?categoryId=${row.categoryFilter}&from=${from}&to=${to}`}
+          className="flex items-center justify-between rounded-md py-1.5 text-sm hover:bg-accent"
+        >
+          <span>{row.name}</span>
           <span>{formatMoney(row.amount)}</span>
-        </div>
+        </Link>
       ))}
     </>
   );
@@ -38,6 +37,7 @@ export default async function IncomeExpensePage({
 }) {
   const params = await searchParams;
   const period = periodFromSearchParams(params);
+  const periodHref = `/transactions?from=${period.from}&to=${period.to}`;
 
   let report: Awaited<ReturnType<typeof getIncomeExpenseReport>> | null = null;
   let error: string | null = null;
@@ -82,10 +82,13 @@ export default async function IncomeExpensePage({
               ) : (
                 <StatementRows rows={report.income} from={period.from} to={period.to} />
               )}
-              <div className="mt-1 flex items-center justify-between border-t border-border py-1.5 text-sm font-medium">
+              <Link
+                href={periodHref}
+                className="mt-1 flex items-center justify-between rounded-md border-t border-border py-1.5 text-sm font-medium hover:bg-accent"
+              >
                 <span>Total income</span>
                 <span className="text-positive">{formatMoney(report.totalIncome)}</span>
-              </div>
+              </Link>
             </div>
 
             <div>
@@ -95,19 +98,25 @@ export default async function IncomeExpensePage({
               ) : (
                 <StatementRows rows={report.expenses} from={period.from} to={period.to} />
               )}
-              <div className="mt-1 flex items-center justify-between border-t border-border py-1.5 text-sm font-medium">
+              <Link
+                href={periodHref}
+                className="mt-1 flex items-center justify-between rounded-md border-t border-border py-1.5 text-sm font-medium hover:bg-accent"
+              >
                 <span>Total expenses</span>
                 <span className="text-negative">{formatMoney(report.totalExpenses)}</span>
-              </div>
+              </Link>
             </div>
 
-            <div className="flex items-center justify-between border-t border-border pt-3 text-base font-semibold">
+            <Link
+              href={periodHref}
+              className="flex items-center justify-between rounded-md border-t border-border pt-3 text-base font-semibold hover:bg-accent"
+            >
               <span>Net</span>
               <span className={report.net < 0 ? "text-negative" : "text-positive"}>
                 {report.net > 0 ? "+" : ""}
                 {formatMoney(report.net)}
               </span>
-            </div>
+            </Link>
           </CardContent>
         </Card>
       ) : null}

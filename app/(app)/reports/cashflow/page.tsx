@@ -31,6 +31,7 @@ export default async function CashflowPage({
 }) {
   const params = await searchParams;
   const period = periodFromSearchParams(params);
+  const periodHref = `/transactions?from=${period.from}&to=${period.to}`;
 
   let statement: Awaited<ReturnType<typeof getCashflowStatement>> | null = null;
   let error: string | null = null;
@@ -84,28 +85,39 @@ export default async function CashflowPage({
               ) : (
                 statement.months.map((month) => {
                   const range = monthRange(month.month);
+                  const monthHref = `/transactions?from=${range.from}&to=${range.to}`;
                   return (
                     <div
                       key={month.month}
-                      className="flex items-center justify-between py-1.5 text-sm"
+                      className="flex items-center justify-between rounded-md py-1.5 text-sm"
                     >
-                      <Link
-                        href={`/transactions?from=${range.from}&to=${range.to}`}
-                        className="text-foreground hover:underline"
-                      >
+                      <Link href={monthHref} className="text-foreground hover:underline">
                         {monthLabel(month.month)}
                       </Link>
                       <div className="flex gap-6 tabular-nums">
-                        <span className="text-positive">+{formatMoney(month.cashIn)}</span>
-                        <span className="text-negative">−{formatMoney(month.cashOut)}</span>
-                        <span
+                        <Link
+                          href={`${monthHref}&minAmount=0.01`}
+                          className="text-positive hover:underline"
+                        >
+                          +{formatMoney(month.cashIn)}
+                        </Link>
+                        <Link
+                          href={`${monthHref}&maxAmount=-0.01`}
+                          className="text-negative hover:underline"
+                        >
+                          −{formatMoney(month.cashOut)}
+                        </Link>
+                        <Link
+                          href={monthHref}
                           className={
-                            month.net < 0 ? "text-negative font-medium" : "text-positive font-medium"
+                            month.net < 0
+                              ? "font-medium text-negative hover:underline"
+                              : "font-medium text-positive hover:underline"
                           }
                         >
                           {month.net > 0 ? "+" : ""}
                           {formatMoney(month.net)}
-                        </span>
+                        </Link>
                       </div>
                     </div>
                   );
@@ -113,13 +125,16 @@ export default async function CashflowPage({
               )}
             </div>
 
-            <div className="flex items-center justify-between border-t border-border py-1.5 text-sm font-medium">
+            <Link
+              href={periodHref}
+              className="flex items-center justify-between rounded-md border-t border-border py-1.5 text-sm font-medium hover:bg-accent"
+            >
               <span>Total cash movement</span>
               <span className={statement.totalNet < 0 ? "text-negative" : "text-positive"}>
                 {statement.totalNet > 0 ? "+" : ""}
                 {formatMoney(statement.totalNet)}
               </span>
-            </div>
+            </Link>
 
             {statement.otherChanges !== null && (
               <div className="flex items-center justify-between py-1.5 text-sm text-muted-foreground">
