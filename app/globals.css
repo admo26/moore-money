@@ -53,47 +53,47 @@
 }
 
 :root {
-  /* Xero-inspired palette: light grey canvas, white cards, cyan-blue accent. */
-  --background: #f4f5f7;
-  --foreground: #1a1f2b;
+  /* Fresh, modern palette: warm off-white canvas, white cards, teal-green accent. */
+  --background: #f7f8f5;
+  --foreground: #1f2422;
   --card: #ffffff;
-  --card-foreground: #1a1f2b;
+  --card-foreground: #1f2422;
   --popover: #ffffff;
-  --popover-foreground: #1a1f2b;
-  --primary: #13b5ea;
+  --popover-foreground: #1f2422;
+  --primary: #0f9d70;
   --primary-foreground: #ffffff;
-  --secondary: #e7f7fc;
-  --secondary-foreground: #0b6a86;
+  --secondary: #e6f6ef;
+  --secondary-foreground: #0f6b4f;
   --muted: #eceef1;
   --muted-foreground: #6b7280;
-  --accent: #e7f7fc;
-  --accent-foreground: #0b6a86;
+  --accent: #e6f6ef;
+  --accent-foreground: #0f6b4f;
   --destructive: #d64550;
-  --border: #e2e5ea;
-  --input: #e2e5ea;
-  --ring: #13b5ea;
-  --chart-1: #13b5ea;
-  --chart-2: #1b9e63;
-  --chart-3: #f2994a;
+  --border: #e6e8e3;
+  --input: #e6e8e3;
+  --ring: #0f9d70;
+  --chart-1: #0f9d70;
+  --chart-2: #f2994a;
+  --chart-3: #4f8fd1;
   --chart-4: #9b6bd6;
   --chart-5: #d64550;
   --radius: 0.5rem;
 
   /* Money in/out */
-  --positive: #1b9e63;
+  --positive: #16a34a;
   --positive-foreground: #ffffff;
   --negative: #d64550;
   --negative-foreground: #ffffff;
 
-  /* Sidebar: dark navy nav, matching Xero's left rail */
-  --sidebar: #16222c;
-  --sidebar-foreground: #d7e2ea;
-  --sidebar-primary: #13b5ea;
+  /* Sidebar: light, matching the fresh canvas rather than dark chrome */
+  --sidebar: #ffffff;
+  --sidebar-foreground: #3f4a45;
+  --sidebar-primary: #0f9d70;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #1f303c;
-  --sidebar-accent-foreground: #ffffff;
-  --sidebar-border: #223342;
-  --sidebar-ring: #13b5ea;
+  --sidebar-accent: #e6f6ef;
+  --sidebar-accent-foreground: #0f6b4f;
+  --sidebar-border: #e6e8e3;
+  --sidebar-ring: #0f9d70;
 }
 
 .dark {
@@ -103,37 +103,37 @@
   --card-foreground: #e5eaf0;
   --popover: #16202a;
   --popover-foreground: #e5eaf0;
-  --primary: #13b5ea;
-  --primary-foreground: #06222c;
+  --primary: #1bbf8a;
+  --primary-foreground: #06221a;
   --secondary: #1b2b36;
-  --secondary-foreground: #7fd8f5;
+  --secondary-foreground: #6fe3b8;
   --muted: #1b2530;
   --muted-foreground: #8b98a6;
   --accent: #1b2b36;
-  --accent-foreground: #7fd8f5;
+  --accent-foreground: #6fe3b8;
   --destructive: #e5707a;
   --border: #223342;
   --input: #223342;
-  --ring: #13b5ea;
-  --chart-1: #13b5ea;
-  --chart-2: #34c286;
-  --chart-3: #f2b26a;
+  --ring: #1bbf8a;
+  --chart-1: #1bbf8a;
+  --chart-2: #f2b26a;
+  --chart-3: #7fabe0;
   --chart-4: #b490e6;
   --chart-5: #e5707a;
 
-  --positive: #34c286;
+  --positive: #2fbf6a;
   --positive-foreground: #06221a;
   --negative: #e5707a;
   --negative-foreground: #2a0a0d;
 
   --sidebar: #0d1620;
   --sidebar-foreground: #d7e2ea;
-  --sidebar-primary: #13b5ea;
-  --sidebar-primary-foreground: #06222c;
+  --sidebar-primary: #1bbf8a;
+  --sidebar-primary-foreground: #06221a;
   --sidebar-accent: #17242f;
   --sidebar-accent-foreground: #ffffff;
   --sidebar-border: #1c2933;
-  --sidebar-ring: #13b5ea;
+  --sidebar-ring: #1bbf8a;
 }
 
 @layer base {

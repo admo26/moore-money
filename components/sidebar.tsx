@@ -27,7 +27,7 @@ export function Sidebar() {
     <aside
       suppressHydrationWarning
       className={cn(
-        "hidden flex-col bg-sidebar text-sidebar-foreground transition-[width] duration-150 md:flex",
+        "hidden flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground transition-[width] duration-150 md:flex",
         collapsed ? "w-16" : "w-60"
       )}
     >
