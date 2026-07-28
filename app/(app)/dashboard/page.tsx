@@ -62,7 +62,7 @@ export default async function DashboardPage() {
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">
-                Money in − Money out = Net
+                Money in and out · last {PERIOD_DAYS} days
               </CardTitle>
             </CardHeader>
             <CardContent className="py-2">
@@ -86,7 +86,6 @@ export default async function DashboardPage() {
                   {formatMoney(net)}
                 </div>
               </div>
-              <div className="mt-1 text-xs text-muted-foreground">Last {PERIOD_DAYS} days</div>
             </CardContent>
           </Card>
 
