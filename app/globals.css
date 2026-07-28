@@ -53,8 +53,8 @@
 }
 
 :root {
-  /* Fresh, modern palette: warm off-white canvas, white cards, teal-green accent. */
-  --background: #f7f8f5;
+  /* Fresh, modern palette: white canvas, white cards, teal-green accent. */
+  --background: #ffffff;
   --foreground: #1f2422;
   --card: #ffffff;
   --card-foreground: #1f2422;
