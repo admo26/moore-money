@@ -62,29 +62,31 @@ export default async function DashboardPage() {
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">
-                Money in − Money out = Net{" "}
-                <span className="font-normal">· last {PERIOD_DAYS} days</span>
+                Money in − Money out = Net
               </CardTitle>
             </CardHeader>
-            <CardContent className="flex items-center gap-3 py-2">
-              <div className="text-2xl font-semibold text-positive">
-                {formatMoney(summary.income)}
+            <CardContent className="py-2">
+              <div className="flex items-center gap-3">
+                <div className="text-2xl font-semibold text-positive">
+                  {formatMoney(summary.income)}
+                </div>
+                <div className="text-xl font-medium text-muted-foreground">−</div>
+                <div className="text-2xl font-semibold text-negative">
+                  {formatMoney(summary.expense)}
+                </div>
+                <div className="text-xl font-medium text-muted-foreground">=</div>
+                <div
+                  className={
+                    net < 0
+                      ? "text-2xl font-semibold text-negative"
+                      : "text-2xl font-semibold text-positive"
+                  }
+                >
+                  {net > 0 ? "+" : ""}
+                  {formatMoney(net)}
+                </div>
               </div>
-              <div className="text-xl font-medium text-muted-foreground">−</div>
-              <div className="text-2xl font-semibold text-negative">
-                {formatMoney(summary.expense)}
-              </div>
-              <div className="text-xl font-medium text-muted-foreground">=</div>
-              <div
-                className={
-                  net < 0
-                    ? "text-2xl font-semibold text-negative"
-                    : "text-2xl font-semibold text-positive"
-                }
-              >
-                {net > 0 ? "+" : ""}
-                {formatMoney(net)}
-              </div>
+              <div className="mt-1 text-xs text-muted-foreground">Last {PERIOD_DAYS} days</div>
             </CardContent>
           </Card>
 
