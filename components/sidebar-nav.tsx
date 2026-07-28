@@ -19,7 +19,7 @@ const NAV_ITEMS = [
   { href: "/net-worth", label: "Net Worth", icon: PiggyBank, disabled: false },
   { href: "/transactions", label: "Transactions", icon: ArrowLeftRight, disabled: false },
   { href: "/rules", label: "Rules", icon: Tag, disabled: false },
-  { href: "/reports", label: "Reports", icon: PieChart, disabled: true },
+  { href: "/reports", label: "Reports", icon: PieChart, disabled: false },
   { href: "/settings", label: "Settings", icon: Settings, disabled: false },
 ] as const;
 

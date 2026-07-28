@@ -1,12 +1,7 @@
 import { and, eq, gte, isNull, notInArray, or, sql } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { accountBalanceSnapshots, accounts, categories, transactions } from "@/lib/db/schema";
-
-/** Category names excluded from the spend chart — money moving, not being spent. */
-const NON_SPEND_CATEGORY_NAMES = ["Transfers", "Investments"];
-
-/** Akahu account types treated as investments — excluded from "net cash". */
-const INVESTMENT_ACCOUNT_TYPES = new Set(["KIWISAVER", "INVESTMENT"]);
+import { INVESTMENT_ACCOUNT_TYPES, NON_SPEND_CATEGORY_NAMES } from "./constants";
 
 export interface MonthlyCashflow {
   /** "2026-07" */
