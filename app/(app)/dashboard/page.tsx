@@ -60,12 +60,10 @@ export default async function DashboardPage() {
       ) : (
         <>
           <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Money in and out · last {PERIOD_DAYS} days
-              </CardTitle>
+            <CardHeader>
+              <CardTitle className="text-base">Money in and out — last {PERIOD_DAYS} days</CardTitle>
             </CardHeader>
-            <CardContent className="py-2">
+            <CardContent>
               <div className="flex items-center gap-3">
                 <div className="text-2xl font-semibold text-positive">
                   {formatMoney(summary.income)}
