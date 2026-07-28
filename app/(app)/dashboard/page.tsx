@@ -60,43 +60,30 @@ export default async function DashboardPage() {
       ) : (
         <>
           <Card>
-            <CardContent className="flex flex-wrap items-center justify-center gap-3 py-2 sm:justify-between sm:gap-2">
-              <div className="text-center sm:text-left">
-                <div className="text-sm font-medium text-muted-foreground">
-                  Money in <span className="font-normal">· last {PERIOD_DAYS} days</span>
-                </div>
-                <div className="text-2xl font-semibold text-positive">
-                  {formatMoney(summary.income)}
-                </div>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Money in − Money out = Net{" "}
+                <span className="font-normal">· last {PERIOD_DAYS} days</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="flex items-center gap-3 py-2">
+              <div className="text-2xl font-semibold text-positive">
+                {formatMoney(summary.income)}
               </div>
-
               <div className="text-xl font-medium text-muted-foreground">−</div>
-
-              <div className="text-center sm:text-left">
-                <div className="text-sm font-medium text-muted-foreground">
-                  Money out <span className="font-normal">· last {PERIOD_DAYS} days</span>
-                </div>
-                <div className="text-2xl font-semibold text-negative">
-                  {formatMoney(summary.expense)}
-                </div>
+              <div className="text-2xl font-semibold text-negative">
+                {formatMoney(summary.expense)}
               </div>
-
               <div className="text-xl font-medium text-muted-foreground">=</div>
-
-              <div className="text-center sm:text-left">
-                <div className="text-sm font-medium text-muted-foreground">
-                  Net <span className="font-normal">· last {PERIOD_DAYS} days</span>
-                </div>
-                <div
-                  className={
-                    net < 0
-                      ? "text-2xl font-semibold text-negative"
-                      : "text-2xl font-semibold text-positive"
-                  }
-                >
-                  {net > 0 ? "+" : ""}
-                  {formatMoney(net)}
-                </div>
+              <div
+                className={
+                  net < 0
+                    ? "text-2xl font-semibold text-negative"
+                    : "text-2xl font-semibold text-positive"
+                }
+              >
+                {net > 0 ? "+" : ""}
+                {formatMoney(net)}
               </div>
             </CardContent>
           </Card>
