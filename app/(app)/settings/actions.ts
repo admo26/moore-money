@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
 import { db } from "@/lib/db";
-import { categories, mcpTokens, rules, transactions } from "@/lib/db/schema";
+import { categories, mcpOauthTokens, mcpTokens, rules, transactions } from "@/lib/db/schema";
 import { getAuthorizedUser } from "@/lib/auth";
 import { generateToken, hashToken } from "@/lib/mcp/tokens";
 
@@ -31,6 +31,15 @@ export async function revokeMcpToken(id: number) {
   if (!user) throw new Error("Unauthorized");
 
   await db.update(mcpTokens).set({ revokedAt: new Date() }).where(eq(mcpTokens.id, id));
+  revalidatePath("/settings");
+}
+
+/** Revokes an OAuth connected-app grant (e.g. a Claude.ai custom connector). */
+export async function revokeMcpOauthGrant(id: number) {
+  const user = await getAuthorizedUser();
+  if (!user) throw new Error("Unauthorized");
+
+  await db.update(mcpOauthTokens).set({ revokedAt: new Date() }).where(eq(mcpOauthTokens.id, id));
   revalidatePath("/settings");
 }
 

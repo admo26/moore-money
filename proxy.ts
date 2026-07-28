@@ -2,7 +2,16 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { isEmailAllowed } from "@/lib/auth";
 
-const PUBLIC_PATHS = ["/login", "/auth/callback"];
+const PUBLIC_PATHS = [
+  "/login",
+  "/auth/callback",
+  // OAuth discovery must be reachable unauthenticated (clients fetch it
+  // before any user is signed in); /oauth/authorize handles its own auth
+  // check and redirects to /login?next=... itself, so it can return here
+  // after sign-in instead of landing on a bare /login.
+  "/.well-known",
+  "/oauth",
+];
 
 export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });

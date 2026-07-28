@@ -15,6 +15,12 @@ export function LoginForm() {
     searchParams.get("error") === "auth_failed"
       ? searchParams.get("error_description")
       : null;
+  // Only ever a relative path (e.g. back into the OAuth consent flow) —
+  // validated again server-side in the callback route before use.
+  const next = searchParams.get("next");
+  function callbackUrl() {
+    return `${window.location.origin}/auth/callback${next ? `?next=${encodeURIComponent(next)}` : ""}`;
+  }
 
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
@@ -27,7 +33,7 @@ export function LoginForm() {
     const { error: signInError } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
+        redirectTo: callbackUrl(),
         // Always show Google's account picker instead of silently reusing
         // whichever Google account the browser is already signed into.
         queryParams: { prompt: "select_account" },
@@ -49,7 +55,7 @@ export function LoginForm() {
     const { error: signInError } = await supabase.auth.signInWithOtp({
       email,
       options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
+        emailRedirectTo: callbackUrl(),
       },
     });
 

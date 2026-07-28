@@ -138,6 +138,57 @@ export const mcpTokens = pgTable("mcp_tokens", {
   revokedAt: timestamp("revoked_at", { withTimezone: true }),
 });
 
+/**
+ * An OAuth 2.0 client dynamically registered against the MCP authorization
+ * server (e.g. Claude.ai adding this as a custom connector). Public clients
+ * only — auth is PKCE-based, so no client secret is stored.
+ */
+export const mcpOauthClients = pgTable("mcp_oauth_clients", {
+  id: text("id").primaryKey(),
+  clientName: text("client_name"),
+  redirectUris: jsonb("redirect_uris").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+/**
+ * A short-lived, single-use authorization code issued after a user approves
+ * an OAuth client at the consent screen. Exchanged for tokens at the token
+ * endpoint; `codeChallenge` binds the exchange to the PKCE verifier the
+ * client generated at the start of the flow.
+ */
+export const mcpOauthCodes = pgTable("mcp_oauth_codes", {
+  id: serial("id").primaryKey(),
+  codeHash: text("code_hash").notNull().unique(),
+  clientId: text("client_id")
+    .notNull()
+    .references(() => mcpOauthClients.id),
+  email: text("email").notNull(),
+  redirectUri: text("redirect_uri").notNull(),
+  codeChallenge: text("code_challenge").notNull(),
+  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+  consumedAt: timestamp("consumed_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+/**
+ * An access/refresh token pair issued to an OAuth client. Mirrors
+ * `mcpTokens`' revocation/allowlist semantics but supports expiry and
+ * refresh-token rotation, since these are minted automatically rather than
+ * user-managed.
+ */
+export const mcpOauthTokens = pgTable("mcp_oauth_tokens", {
+  id: serial("id").primaryKey(),
+  accessTokenHash: text("access_token_hash").notNull().unique(),
+  refreshTokenHash: text("refresh_token_hash").unique(),
+  clientId: text("client_id")
+    .notNull()
+    .references(() => mcpOauthClients.id),
+  email: text("email").notNull(),
+  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+  revokedAt: timestamp("revoked_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
 export type Account = typeof accounts.$inferSelect;
 export type NewAccount = typeof accounts.$inferInsert;
 export type Transaction = typeof transactions.$inferSelect;
@@ -147,3 +198,6 @@ export type Category = typeof categories.$inferSelect;
 export type Rule = typeof rules.$inferSelect;
 export type McpToken = typeof mcpTokens.$inferSelect;
 export type AccountBalanceSnapshot = typeof accountBalanceSnapshots.$inferSelect;
+export type McpOauthClient = typeof mcpOauthClients.$inferSelect;
+export type McpOauthCode = typeof mcpOauthCodes.$inferSelect;
+export type McpOauthToken = typeof mcpOauthTokens.$inferSelect;

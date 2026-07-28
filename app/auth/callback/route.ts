@@ -2,28 +2,36 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { isEmailAllowed } from "@/lib/auth";
 
+/** Only ever follow a same-app relative path, never an absolute/external URL. */
+function safeNextPath(next: string | null): string | null {
+  if (!next || !next.startsWith("/") || next.startsWith("//")) return null;
+  return next;
+}
+
 /** Exchanges the magic-link/OAuth code for a session, then enforces the email allowlist. */
 export async function GET(request: NextRequest) {
   const code = request.nextUrl.searchParams.get("code");
   const upstreamError = request.nextUrl.searchParams.get("error_description");
+  const next = safeNextPath(request.nextUrl.searchParams.get("next"));
   const supabase = await createClient();
+
+  const loginUrl = (params: Record<string, string>) => {
+    const url = new URL("/login", request.url);
+    for (const [key, value] of Object.entries(params)) url.searchParams.set(key, value);
+    if (next) url.searchParams.set("next", next);
+    return url;
+  };
 
   // Google/Supabase can redirect here with an error instead of a code (e.g.
   // OAuth misconfiguration) — surface that distinctly from "not allowlisted".
   if (upstreamError) {
-    const url = new URL("/login", request.url);
-    url.searchParams.set("error", "auth_failed");
-    url.searchParams.set("error_description", upstreamError);
-    return NextResponse.redirect(url);
+    return NextResponse.redirect(loginUrl({ error: "auth_failed", error_description: upstreamError }));
   }
 
   if (code) {
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     if (error) {
-      const url = new URL("/login", request.url);
-      url.searchParams.set("error", "auth_failed");
-      url.searchParams.set("error_description", error.message);
-      return NextResponse.redirect(url);
+      return NextResponse.redirect(loginUrl({ error: "auth_failed", error_description: error.message }));
     }
   }
 
@@ -31,10 +39,8 @@ export async function GET(request: NextRequest) {
 
   if (!isEmailAllowed(data.user?.email)) {
     await supabase.auth.signOut();
-    const url = new URL("/login", request.url);
-    url.searchParams.set("error", "not_allowed");
-    return NextResponse.redirect(url);
+    return NextResponse.redirect(loginUrl({ error: "not_allowed" }));
   }
 
-  return NextResponse.redirect(new URL("/dashboard", request.url));
+  return NextResponse.redirect(new URL(next ?? "/dashboard", request.url));
 }

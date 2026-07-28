@@ -1,8 +1,9 @@
-import { asc, desc } from "drizzle-orm";
+import { asc, desc, eq, isNull } from "drizzle-orm";
 import { db } from "@/lib/db";
-import { categories, mcpTokens } from "@/lib/db/schema";
+import { categories, mcpOauthClients, mcpOauthTokens, mcpTokens } from "@/lib/db/schema";
 import { McpTokenDialog } from "@/components/mcp-token-dialog";
 import { McpTokenRow } from "@/components/mcp-token-row";
+import { McpOauthGrantRow } from "@/components/mcp-oauth-grant-row";
 import { AddCategoryForm } from "@/components/add-category-form";
 import { CategoryRow } from "@/components/category-row";
 import { RecategorizeTransfersButton } from "@/components/recategorize-transfers-button";
@@ -21,20 +22,43 @@ async function loadTokens() {
     .orderBy(desc(mcpTokens.createdAt));
 }
 
+async function loadOauthGrants() {
+  return db
+    .select({
+      id: mcpOauthTokens.id,
+      email: mcpOauthTokens.email,
+      clientName: mcpOauthClients.clientName,
+      createdAt: mcpOauthTokens.createdAt,
+      expiresAt: mcpOauthTokens.expiresAt,
+    })
+    .from(mcpOauthTokens)
+    .innerJoin(mcpOauthClients, eq(mcpOauthTokens.clientId, mcpOauthClients.id))
+    .where(isNull(mcpOauthTokens.revokedAt))
+    .orderBy(desc(mcpOauthTokens.createdAt));
+}
+
 async function loadCategories() {
   return db.select().from(categories).orderBy(asc(categories.name));
 }
 
 export default async function SettingsPage() {
   let tokens: Awaited<ReturnType<typeof loadTokens>> = [];
+  let oauthGrants: Awaited<ReturnType<typeof loadOauthGrants>> = [];
   let categoriesList: Awaited<ReturnType<typeof loadCategories>> = [];
   let error: string | null = null;
+  let oauthError: string | null = null;
   let categoriesError: string | null = null;
 
   try {
     tokens = await loadTokens();
   } catch (err) {
     error = err instanceof Error ? err.message : "Failed to load tokens.";
+  }
+
+  try {
+    oauthGrants = await loadOauthGrants();
+  } catch (err) {
+    oauthError = err instanceof Error ? err.message : "Failed to load connected apps.";
   }
 
   try {
@@ -162,6 +186,46 @@ export default async function SettingsPage() {
               </div>
             )}
           </>
+        )}
+      </div>
+
+      <div className="space-y-3">
+        <div>
+          <h2 className="text-lg font-medium">Connected apps</h2>
+          <p className="text-sm text-muted-foreground">
+            Apps you&apos;ve authorised via OAuth (e.g. adding this as a Claude.ai custom
+            connector) — no manual token needed. Add one from your MCP client using{" "}
+            <code className="rounded bg-muted px-1 py-0.5 text-xs">/api/mcp</code> as the
+            server URL.
+          </p>
+        </div>
+
+        {oauthError ? (
+          <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">
+            Couldn&apos;t load connected apps: {oauthError}
+          </div>
+        ) : oauthGrants.length === 0 ? (
+          <div className="rounded-lg border border-border bg-card p-6 text-sm text-muted-foreground">
+            No connected apps yet.
+          </div>
+        ) : (
+          <div className="overflow-hidden rounded-lg border border-border bg-card">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-border text-left text-muted-foreground">
+                  <th className="px-4 py-2 font-medium">App</th>
+                  <th className="px-4 py-2 font-medium">Email</th>
+                  <th className="px-4 py-2 font-medium">Connected</th>
+                  <th className="px-4 py-2" />
+                </tr>
+              </thead>
+              <tbody>
+                {oauthGrants.map((grant) => (
+                  <McpOauthGrantRow key={grant.id} grant={grant} />
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
     </div>
