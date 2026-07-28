@@ -1,3 +1,4 @@
+import type { User } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
 
 /** Emails allowed to sign in, from the comma-separated ALLOWED_EMAILS env var. */
@@ -30,4 +31,14 @@ export async function getAuthorizedUser() {
   }
 
   return data.user;
+}
+
+/** First name for greeting, from the Google profile if signed in that way, else the email's local part. */
+export function getFirstName(user: Pick<User, "user_metadata" | "email"> | null | undefined): string {
+  const fullName = (user?.user_metadata?.full_name ?? user?.user_metadata?.name) as
+    | string
+    | undefined;
+  if (fullName) return fullName.split(" ")[0];
+
+  return user?.email?.split("@")[0] ?? "";
 }
