@@ -53,87 +53,93 @@
 }
 
 :root {
-  /* Fresh, modern palette: white canvas, white cards, teal-green accent. */
+  /* Atlassian Design System palette (from @atlaskit/tokens' published
+     default values) — brand blue accent, ADS neutral text/border, and the
+     8-color categorical chart sequence. */
   --background: #ffffff;
-  --foreground: #1f2422;
+  --foreground: #292a2e;
   --card: #ffffff;
-  --card-foreground: #1f2422;
+  --card-foreground: #292a2e;
   --popover: #ffffff;
-  --popover-foreground: #1f2422;
-  --primary: #0f9d70;
+  --popover-foreground: #292a2e;
+  --primary: #1868db;
   --primary-foreground: #ffffff;
-  --secondary: #e6f6ef;
-  --secondary-foreground: #0f6b4f;
-  --muted: #eceef1;
-  --muted-foreground: #6b7280;
-  --accent: #e6f6ef;
-  --accent-foreground: #0f6b4f;
-  --destructive: #d64550;
-  --border: #e6e8e3;
-  --input: #e6e8e3;
-  --ring: #0f9d70;
-  --chart-1: #0f9d70;
-  --chart-2: #f2994a;
-  --chart-3: #4f8fd1;
-  --chart-4: #9b6bd6;
-  --chart-5: #d64550;
+  --secondary: #adcbfb;
+  --secondary-foreground: #1558bc;
+  --muted: #f1f2f4;
+  --muted-foreground: #505258;
+  --accent: #adcbfb;
+  --accent-foreground: #1558bc;
+  --destructive: #ae2e24;
+  --border: #dee1e5;
+  --input: #dee1e5;
+  --ring: #1868db;
+  --chart-1: #357de8;
+  --chart-2: #82b536;
+  --chart-3: #bf63f3;
+  --chart-4: #f68909;
+  --chart-5: #42b2d7;
   --radius: 0.5rem;
 
-  /* Money in/out */
-  --positive: #16a34a;
+  /* Money in/out — reuse ADS's own green/red accent text tokens. */
+  --positive: #216e4e;
   --positive-foreground: #ffffff;
-  --negative: #d64550;
+  --negative: #ae2e24;
   --negative-foreground: #ffffff;
 
-  /* Sidebar: light, matching the fresh canvas rather than dark chrome */
+  /* Sidebar: light, matching the canvas; active/hover state uses the same
+     blue accent wash Jira/Confluence use for the selected nav item. */
   --sidebar: #ffffff;
-  --sidebar-foreground: #3f4a45;
-  --sidebar-primary: #0f9d70;
+  --sidebar-foreground: #505258;
+  --sidebar-primary: #1868db;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #e6f6ef;
-  --sidebar-accent-foreground: #0f6b4f;
-  --sidebar-border: #e6e8e3;
-  --sidebar-ring: #0f9d70;
+  --sidebar-accent: #eaf1fe;
+  --sidebar-accent-foreground: #1558bc;
+  --sidebar-border: #dee1e5;
+  --sidebar-ring: #1868db;
 }
 
 .dark {
+  /* Best-effort dark equivalents (this app has no dark-mode toggle wired
+     up yet, so these aren't reachable/testable — kept directionally
+     consistent with ADS's light-blue-on-dark convention). */
   --background: #0f1620;
   --foreground: #e5eaf0;
   --card: #16202a;
   --card-foreground: #e5eaf0;
   --popover: #16202a;
   --popover-foreground: #e5eaf0;
-  --primary: #1bbf8a;
-  --primary-foreground: #06221a;
+  --primary: #579dff;
+  --primary-foreground: #051d33;
   --secondary: #1b2b36;
-  --secondary-foreground: #6fe3b8;
+  --secondary-foreground: #85b8ff;
   --muted: #1b2530;
   --muted-foreground: #8b98a6;
   --accent: #1b2b36;
-  --accent-foreground: #6fe3b8;
-  --destructive: #e5707a;
+  --accent-foreground: #85b8ff;
+  --destructive: #f87168;
   --border: #223342;
   --input: #223342;
-  --ring: #1bbf8a;
-  --chart-1: #1bbf8a;
-  --chart-2: #f2b26a;
-  --chart-3: #7fabe0;
-  --chart-4: #b490e6;
-  --chart-5: #e5707a;
+  --ring: #579dff;
+  --chart-1: #579dff;
+  --chart-2: #94c748;
+  --chart-3: #d38aff;
+  --chart-4: #ffa856;
+  --chart-5: #6cc3e0;
 
-  --positive: #2fbf6a;
-  --positive-foreground: #06221a;
-  --negative: #e5707a;
+  --positive: #4bce97;
+  --positive-foreground: #051d15;
+  --negative: #f87168;
   --negative-foreground: #2a0a0d;
 
   --sidebar: #0d1620;
   --sidebar-foreground: #d7e2ea;
-  --sidebar-primary: #1bbf8a;
-  --sidebar-primary-foreground: #06221a;
+  --sidebar-primary: #579dff;
+  --sidebar-primary-foreground: #051d33;
   --sidebar-accent: #17242f;
   --sidebar-accent-foreground: #ffffff;
   --sidebar-border: #1c2933;
-  --sidebar-ring: #1bbf8a;
+  --sidebar-ring: #579dff;
 }
 
 @layer base {
