@@ -296,6 +296,7 @@ export function CategoryTrendChart({
                   stroke={colorByCategory.get(s.categoryFilter)}
                   strokeWidth={2}
                   dot={ClickableDot(s.categoryFilter, colorByCategory.get(s.categoryFilter), goToTransactions)}
+                  activeDot={false}
                 />
               ))}
             </LineChart>
