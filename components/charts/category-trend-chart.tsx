@@ -2,6 +2,8 @@
 
 import { useMemo, useState } from "react";
 import {
+  Bar,
+  BarChart,
   CartesianGrid,
   Legend,
   Line,
@@ -14,6 +16,8 @@ import {
 import { formatMoney } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import type { CategoryTrendSeries } from "@/lib/reports/queries";
+
+type ChartType = "line" | "bar";
 
 const MAX_SELECTED = 5;
 // Fixed order, never cycled — matches the app's validated categorical palette.
@@ -82,6 +86,7 @@ export function CategoryTrendChart({ series }: { series: CategoryTrendSeries[] }
   }, [series]);
 
   const [selected, setSelected] = useState<string[]>(defaultSelected);
+  const [chartType, setChartType] = useState<ChartType>("line");
 
   function toggle(categoryFilter: string) {
     setSelected((prev) => {
@@ -114,30 +119,50 @@ export function CategoryTrendChart({ series }: { series: CategoryTrendSeries[] }
 
   return (
     <div className="space-y-3">
-      <div className="flex flex-wrap gap-1.5">
-        {series.map((s) => {
-          const isSelected = selected.includes(s.categoryFilter);
-          const atLimit = !isSelected && selected.length >= MAX_SELECTED;
-          return (
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex flex-wrap gap-1.5">
+          {series.map((s) => {
+            const isSelected = selected.includes(s.categoryFilter);
+            const atLimit = !isSelected && selected.length >= MAX_SELECTED;
+            return (
+              <button
+                key={s.categoryFilter}
+                type="button"
+                onClick={() => toggle(s.categoryFilter)}
+                disabled={atLimit}
+                title={atLimit ? `Up to ${MAX_SELECTED} categories at a time` : undefined}
+                className={cn(
+                  "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors",
+                  isSelected
+                    ? "border-transparent text-white"
+                    : "border-border bg-transparent text-muted-foreground hover:bg-accent hover:text-accent-foreground",
+                  atLimit && "opacity-40"
+                )}
+                style={isSelected ? { backgroundColor: colorByCategory.get(s.categoryFilter) } : undefined}
+              >
+                {s.name}
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="flex shrink-0 gap-0.5 rounded-full border border-border p-0.5">
+          {(["line", "bar"] as const).map((type) => (
             <button
-              key={s.categoryFilter}
+              key={type}
               type="button"
-              onClick={() => toggle(s.categoryFilter)}
-              disabled={atLimit}
-              title={atLimit ? `Up to ${MAX_SELECTED} categories at a time` : undefined}
+              onClick={() => setChartType(type)}
               className={cn(
-                "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors",
-                isSelected
-                  ? "border-transparent text-white"
-                  : "border-border bg-transparent text-muted-foreground hover:bg-accent hover:text-accent-foreground",
-                atLimit && "opacity-40"
+                "rounded-full px-2.5 py-1 text-xs font-medium capitalize transition-colors",
+                chartType === type
+                  ? "bg-accent text-accent-foreground"
+                  : "text-muted-foreground hover:text-accent-foreground"
               )}
-              style={isSelected ? { backgroundColor: colorByCategory.get(s.categoryFilter) } : undefined}
             >
-              {s.name}
+              {type}
             </button>
-          );
-        })}
+          ))}
+        </div>
       </div>
 
       {selectedSeries.length === 0 ? (
@@ -146,43 +171,87 @@ export function CategoryTrendChart({ series }: { series: CategoryTrendSeries[] }
         </div>
       ) : (
         <ResponsiveContainer width="100%" height={240}>
-          <LineChart data={chartData} margin={{ left: 8, right: 8, top: 8 }}>
-            <CartesianGrid vertical={false} stroke="var(--border)" />
-            <XAxis
-              dataKey="month"
-              tickFormatter={monthLabel}
-              tick={{ fill: "var(--muted-foreground)", fontSize: 12 }}
-              axisLine={{ stroke: "var(--border)" }}
-              tickLine={false}
-            />
-            <YAxis
-              tick={{ fill: "var(--muted-foreground)", fontSize: 12 }}
-              axisLine={false}
-              tickLine={false}
-              tickFormatter={(v) => new Intl.NumberFormat("en-NZ").format(v)}
-            />
-            <Tooltip content={<TrendTooltip />} cursor={{ fill: "var(--accent)" }} />
-            {selectedSeries.length > 1 && (
-              <Legend
-                formatter={(value) => (
-                  <span className="text-xs text-muted-foreground">
-                    {series.find((s) => s.categoryFilter === value)?.name ?? value}
-                  </span>
-                )}
+          {chartType === "line" ? (
+            <LineChart data={chartData} margin={{ left: 8, right: 8, top: 8 }}>
+              <CartesianGrid vertical={false} stroke="var(--border)" />
+              <XAxis
+                dataKey="month"
+                tickFormatter={monthLabel}
+                tick={{ fill: "var(--muted-foreground)", fontSize: 12 }}
+                axisLine={{ stroke: "var(--border)" }}
+                tickLine={false}
               />
-            )}
-            {selectedSeries.map((s) => (
-              <Line
-                key={s.categoryFilter}
-                type="monotone"
-                dataKey={s.categoryFilter}
-                name={s.categoryFilter}
-                stroke={colorByCategory.get(s.categoryFilter)}
-                strokeWidth={2}
-                dot={false}
+              <YAxis
+                tick={{ fill: "var(--muted-foreground)", fontSize: 12 }}
+                axisLine={false}
+                tickLine={false}
+                tickFormatter={(v) => new Intl.NumberFormat("en-NZ").format(v)}
               />
-            ))}
-          </LineChart>
+              <Tooltip content={<TrendTooltip />} cursor={{ stroke: "var(--border)" }} />
+              {selectedSeries.length > 1 && (
+                <Legend
+                  formatter={(value) => (
+                    <span className="text-xs text-muted-foreground">
+                      {series.find((s) => s.categoryFilter === value)?.name ?? value}
+                    </span>
+                  )}
+                />
+              )}
+              {selectedSeries.map((s) => (
+                <Line
+                  key={s.categoryFilter}
+                  type="monotone"
+                  dataKey={s.categoryFilter}
+                  name={s.categoryFilter}
+                  stroke={colorByCategory.get(s.categoryFilter)}
+                  strokeWidth={2}
+                  dot={false}
+                />
+              ))}
+            </LineChart>
+          ) : (
+            <BarChart
+              data={chartData}
+              margin={{ left: 8, right: 8, top: 8 }}
+              barGap={2}
+              barCategoryGap="20%"
+            >
+              <CartesianGrid vertical={false} stroke="var(--border)" />
+              <XAxis
+                dataKey="month"
+                tickFormatter={monthLabel}
+                tick={{ fill: "var(--muted-foreground)", fontSize: 12 }}
+                axisLine={{ stroke: "var(--border)" }}
+                tickLine={false}
+              />
+              <YAxis
+                tick={{ fill: "var(--muted-foreground)", fontSize: 12 }}
+                axisLine={false}
+                tickLine={false}
+                tickFormatter={(v) => new Intl.NumberFormat("en-NZ").format(v)}
+              />
+              <Tooltip content={<TrendTooltip />} cursor={{ fill: "var(--accent)" }} />
+              {selectedSeries.length > 1 && (
+                <Legend
+                  formatter={(value) => (
+                    <span className="text-xs text-muted-foreground">
+                      {series.find((s) => s.categoryFilter === value)?.name ?? value}
+                    </span>
+                  )}
+                />
+              )}
+              {selectedSeries.map((s) => (
+                <Bar
+                  key={s.categoryFilter}
+                  dataKey={s.categoryFilter}
+                  name={s.categoryFilter}
+                  fill={colorByCategory.get(s.categoryFilter)}
+                  radius={[4, 4, 0, 0]}
+                  maxBarSize={selectedSeries.length > 1 ? 20 : 32}
+                />
+              ))}
+            </BarChart>
+          )}
         </ResponsiveContainer>
       )}
     </div>
