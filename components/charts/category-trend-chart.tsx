@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { Plus, X } from "lucide-react";
 import {
   Bar,
   BarChart,
@@ -13,6 +14,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { formatMoney } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import type { CategoryTrendSeries } from "@/lib/reports/queries";
@@ -97,6 +99,8 @@ export function CategoryTrendChart({ series }: { series: CategoryTrendSeries[] }
   }
 
   const selectedSeries = series.filter((s) => selected.includes(s.categoryFilter));
+  const unselectedSeries = series.filter((s) => !selected.includes(s.categoryFilter));
+  const atLimit = selected.length >= MAX_SELECTED;
 
   const chartData = useMemo(() => {
     if (selectedSeries.length === 0) return [];
@@ -120,30 +124,57 @@ export function CategoryTrendChart({ series }: { series: CategoryTrendSeries[] }
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between gap-2">
-        <div className="flex flex-wrap gap-1.5">
-          {series.map((s) => {
-            const isSelected = selected.includes(s.categoryFilter);
-            const atLimit = !isSelected && selected.length >= MAX_SELECTED;
-            return (
+        <div className="flex flex-wrap items-center gap-1.5">
+          {selectedSeries.map((s) => (
+            <span
+              key={s.categoryFilter}
+              className="inline-flex items-center gap-1 rounded-full py-1 pl-2.5 pr-1.5 text-xs font-medium text-white"
+              style={{ backgroundColor: colorByCategory.get(s.categoryFilter) }}
+            >
+              {s.name}
               <button
-                key={s.categoryFilter}
                 type="button"
                 onClick={() => toggle(s.categoryFilter)}
-                disabled={atLimit}
-                title={atLimit ? `Up to ${MAX_SELECTED} categories at a time` : undefined}
-                className={cn(
-                  "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors",
-                  isSelected
-                    ? "border-transparent text-white"
-                    : "border-border bg-transparent text-muted-foreground hover:bg-accent hover:text-accent-foreground",
-                  atLimit && "opacity-40"
-                )}
-                style={isSelected ? { backgroundColor: colorByCategory.get(s.categoryFilter) } : undefined}
+                aria-label={`Remove ${s.name}`}
+                className="rounded-full p-0.5 hover:bg-white/20"
               >
-                {s.name}
+                <X className="h-3 w-3" />
               </button>
-            );
-          })}
+            </span>
+          ))}
+
+          {unselectedSeries.length > 0 && (
+            <Popover>
+              <PopoverTrigger className="inline-flex items-center gap-1 rounded-full border border-dashed border-border px-2.5 py-1 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground">
+                <Plus className="h-3 w-3" />
+                More
+              </PopoverTrigger>
+              <PopoverContent>
+                <div className="max-h-64 space-y-0.5 overflow-y-auto p-1">
+                  {atLimit && (
+                    <p className="px-2 py-1 text-xs text-muted-foreground">
+                      Up to {MAX_SELECTED} categories at a time — remove one to add another.
+                    </p>
+                  )}
+                  {unselectedSeries.map((s) => (
+                    <button
+                      key={s.categoryFilter}
+                      type="button"
+                      onClick={() => toggle(s.categoryFilter)}
+                      disabled={atLimit}
+                      className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm text-foreground transition-colors hover:bg-accent disabled:opacity-40"
+                    >
+                      <span
+                        className="h-2 w-2 shrink-0 rounded-full"
+                        style={{ backgroundColor: colorByCategory.get(s.categoryFilter) }}
+                      />
+                      {s.name}
+                    </button>
+                  ))}
+                </div>
+              </PopoverContent>
+            </Popover>
+          )}
         </div>
 
         <div className="flex shrink-0 gap-0.5 rounded-full border border-border p-0.5">
