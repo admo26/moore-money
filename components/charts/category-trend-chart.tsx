@@ -19,7 +19,35 @@ import { formatMoney } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import type { CategoryTrendSeries } from "@/lib/reports/queries";
 
-type ChartType = "line" | "bar";
+export type ChartType = "line" | "bar";
+
+export function ChartTypeToggle({
+  value,
+  onChange,
+}: {
+  value: ChartType;
+  onChange: (type: ChartType) => void;
+}) {
+  return (
+    <div className="flex shrink-0 gap-0.5 rounded-full border border-border p-0.5">
+      {(["line", "bar"] as const).map((type) => (
+        <button
+          key={type}
+          type="button"
+          onClick={() => onChange(type)}
+          className={cn(
+            "rounded-full px-2.5 py-1 text-xs font-medium capitalize transition-colors",
+            value === type
+              ? "bg-accent text-accent-foreground"
+              : "text-muted-foreground hover:text-accent-foreground"
+          )}
+        >
+          {type}
+        </button>
+      ))}
+    </div>
+  );
+}
 
 const MAX_SELECTED = 5;
 // Fixed order, never cycled — matches the app's validated categorical palette.
@@ -61,7 +89,13 @@ function TrendTooltip({
   );
 }
 
-export function CategoryTrendChart({ series }: { series: CategoryTrendSeries[] }) {
+export function CategoryTrendChart({
+  series,
+  chartType,
+}: {
+  series: CategoryTrendSeries[];
+  chartType: ChartType;
+}) {
   const defaultSelected = useMemo(() => {
     if (series.length === 0) return [];
 
@@ -80,7 +114,6 @@ export function CategoryTrendChart({ series }: { series: CategoryTrendSeries[] }
   }, [series]);
 
   const [selected, setSelected] = useState<string[]>(defaultSelected);
-  const [chartType, setChartType] = useState<ChartType>("line");
 
   function toggle(categoryFilter: string) {
     setSelected((prev) => {
@@ -129,77 +162,57 @@ export function CategoryTrendChart({ series }: { series: CategoryTrendSeries[] }
 
   return (
     <div className="space-y-3">
-      <div className="flex items-center justify-between gap-2">
-        <div className="flex flex-wrap items-center gap-1.5">
-          {selectedSeries.map((s) => (
-            <span
-              key={s.categoryFilter}
-              className="inline-flex items-center gap-1 rounded-full py-1 pl-2.5 pr-1.5 text-xs font-medium text-white"
-              style={{ backgroundColor: colorByCategory.get(s.categoryFilter) }}
-            >
-              {s.name}
-              <button
-                type="button"
-                onClick={() => toggle(s.categoryFilter)}
-                aria-label={`Remove ${s.name}`}
-                className="rounded-full p-0.5 hover:bg-white/20"
-              >
-                <X className="h-3 w-3" />
-              </button>
-            </span>
-          ))}
-
-          {unselectedSeries.length > 0 && (
-            <Popover>
-              <PopoverTrigger className="inline-flex items-center gap-1 rounded-full border border-dashed border-border px-2.5 py-1 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground">
-                <Plus className="h-3 w-3" />
-                More
-              </PopoverTrigger>
-              <PopoverContent>
-                <div className="max-h-64 space-y-0.5 overflow-y-auto p-1">
-                  {atLimit && (
-                    <p className="px-2 py-1 text-xs text-muted-foreground">
-                      Up to {MAX_SELECTED} categories at a time — remove one to add another.
-                    </p>
-                  )}
-                  {unselectedSeries.map((s) => (
-                    <button
-                      key={s.categoryFilter}
-                      type="button"
-                      onClick={() => toggle(s.categoryFilter)}
-                      disabled={atLimit}
-                      className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm text-foreground transition-colors hover:bg-accent disabled:opacity-40"
-                    >
-                      <span
-                        className="h-2 w-2 shrink-0 rounded-full"
-                        style={{ backgroundColor: atLimit ? "var(--muted-foreground)" : nextColor }}
-                      />
-                      {s.name}
-                    </button>
-                  ))}
-                </div>
-              </PopoverContent>
-            </Popover>
-          )}
-        </div>
-
-        <div className="flex shrink-0 gap-0.5 rounded-full border border-border p-0.5">
-          {(["line", "bar"] as const).map((type) => (
+      <div className="flex flex-wrap items-center gap-1.5">
+        {selectedSeries.map((s) => (
+          <span
+            key={s.categoryFilter}
+            className="inline-flex items-center gap-1 rounded-full py-1 pl-2.5 pr-1.5 text-xs font-medium text-white"
+            style={{ backgroundColor: colorByCategory.get(s.categoryFilter) }}
+          >
+            {s.name}
             <button
-              key={type}
               type="button"
-              onClick={() => setChartType(type)}
-              className={cn(
-                "rounded-full px-2.5 py-1 text-xs font-medium capitalize transition-colors",
-                chartType === type
-                  ? "bg-accent text-accent-foreground"
-                  : "text-muted-foreground hover:text-accent-foreground"
-              )}
+              onClick={() => toggle(s.categoryFilter)}
+              aria-label={`Remove ${s.name}`}
+              className="rounded-full p-0.5 hover:bg-white/20"
             >
-              {type}
+              <X className="h-3 w-3" />
             </button>
-          ))}
-        </div>
+          </span>
+        ))}
+
+        {unselectedSeries.length > 0 && (
+          <Popover>
+            <PopoverTrigger className="inline-flex items-center gap-1 rounded-full border border-dashed border-border px-2.5 py-1 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground">
+              <Plus className="h-3 w-3" />
+              More
+            </PopoverTrigger>
+            <PopoverContent>
+              <div className="max-h-64 space-y-0.5 overflow-y-auto p-1">
+                {atLimit && (
+                  <p className="px-2 py-1 text-xs text-muted-foreground">
+                    Up to {MAX_SELECTED} categories at a time — remove one to add another.
+                  </p>
+                )}
+                {unselectedSeries.map((s) => (
+                  <button
+                    key={s.categoryFilter}
+                    type="button"
+                    onClick={() => toggle(s.categoryFilter)}
+                    disabled={atLimit}
+                    className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm text-foreground transition-colors hover:bg-accent disabled:opacity-40"
+                  >
+                    <span
+                      className="h-2 w-2 shrink-0 rounded-full"
+                      style={{ backgroundColor: atLimit ? "var(--muted-foreground)" : nextColor }}
+                    />
+                    {s.name}
+                  </button>
+                ))}
+              </div>
+            </PopoverContent>
+          </Popover>
+        )}
       </div>
 
       {selectedSeries.length === 0 ? (

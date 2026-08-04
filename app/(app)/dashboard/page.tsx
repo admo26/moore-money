@@ -1,7 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { CashflowChart } from "@/components/charts/cashflow-chart";
 import { CategorySpendChart } from "@/components/charts/category-spend-chart";
-import { CategoryTrendChart } from "@/components/charts/category-trend-chart";
+import { CategoryTrendCard } from "@/components/charts/category-trend-card";
 import { NetPositionChart } from "@/components/charts/net-position-chart";
 import { formatMoney } from "@/lib/format";
 import {
@@ -119,17 +119,7 @@ export default async function DashboardPage() {
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Category trend — last 6 months</CardTitle>
-              <CardDescription>
-                Net amount per month — click categories below to compare up to 5 at once.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <CategoryTrendChart series={categoryTrends} />
-            </CardContent>
-          </Card>
+          <CategoryTrendCard series={categoryTrends} />
         </>
       )}
     </div>
