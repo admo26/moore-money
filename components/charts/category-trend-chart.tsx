@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Plus, X } from "lucide-react";
 import {
   Bar,
@@ -13,9 +14,11 @@ import {
   Tooltip,
   XAxis,
   YAxis,
+  type DotItemDotProps,
 } from "recharts";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { formatMoney } from "@/lib/format";
+import { monthRange } from "@/lib/reports/date-params";
 import { cn } from "@/lib/utils";
 import type { CategoryTrendSeries } from "@/lib/reports/queries";
 
@@ -59,6 +62,30 @@ const CHART_COLORS = [
   "var(--chart-5)",
 ];
 
+/** A small filled circle at each point, clickable through to that month's filtered transactions. */
+function ClickableDot(
+  categoryFilter: string,
+  color: string | undefined,
+  onDotClick: (categoryFilter: string, month: string) => void
+) {
+  function Dot({ cx, cy, payload }: DotItemDotProps) {
+    if (cx == null || cy == null) return null;
+    return (
+      <circle
+        cx={cx}
+        cy={cy}
+        r={4}
+        fill={color}
+        stroke="var(--card)"
+        strokeWidth={1.5}
+        style={{ cursor: "pointer" }}
+        onClick={() => onDotClick(categoryFilter, payload.month)}
+      />
+    );
+  }
+  return Dot;
+}
+
 function monthLabel(month: string) {
   const [year, m] = month.split("-");
   return new Date(Number(year), Number(m) - 1, 1).toLocaleDateString("en-NZ", {
@@ -70,10 +97,12 @@ function TrendTooltip({
   active,
   payload,
   label,
+  resolveName,
 }: {
   active?: boolean;
   payload?: { name: string; value: number; color: string }[];
   label?: string;
+  resolveName: (categoryFilter: string) => string;
 }) {
   if (!active || !payload?.length) return null;
   return (
@@ -82,7 +111,7 @@ function TrendTooltip({
       {payload.map((p) => (
         <div key={p.name} className="flex items-center gap-2 text-muted-foreground">
           <span className="h-2 w-2 rounded-full" style={{ backgroundColor: p.color }} />
-          {p.name}: <span className="font-medium text-foreground">{formatMoney(p.value)}</span>
+          {resolveName(p.name)}: <span className="font-medium text-foreground">{formatMoney(p.value)}</span>
         </div>
       ))}
     </div>
@@ -96,6 +125,13 @@ export function CategoryTrendChart({
   series: CategoryTrendSeries[];
   chartType: ChartType;
 }) {
+  const router = useRouter();
+
+  function goToTransactions(categoryFilter: string, month: string) {
+    const { from, to } = monthRange(month);
+    router.push(`/transactions?categoryId=${categoryFilter}&from=${from}&to=${to}`);
+  }
+
   const defaultSelected = useMemo(() => {
     if (series.length === 0) return [];
 
@@ -133,6 +169,10 @@ export function CategoryTrendChart({
     selected.forEach((categoryFilter, i) => map.set(categoryFilter, CHART_COLORS[i % CHART_COLORS.length]));
     return map;
   }, [selected]);
+
+  function resolveName(categoryFilter: string) {
+    return series.find((s) => s.categoryFilter === categoryFilter)?.name ?? categoryFilter;
+  }
 
   const selectedSeries = series.filter((s) => selected.includes(s.categoryFilter));
   const unselectedSeries = series.filter((s) => !selected.includes(s.categoryFilter));
@@ -237,12 +277,12 @@ export function CategoryTrendChart({
                 tickLine={false}
                 tickFormatter={(v) => new Intl.NumberFormat("en-NZ").format(v)}
               />
-              <Tooltip content={<TrendTooltip />} cursor={{ stroke: "var(--border)" }} />
+              <Tooltip content={<TrendTooltip resolveName={resolveName} />} cursor={{ stroke: "var(--border)" }} />
               {selectedSeries.length > 1 && (
                 <Legend
                   formatter={(value) => (
                     <span className="text-xs text-muted-foreground">
-                      {series.find((s) => s.categoryFilter === value)?.name ?? value}
+                      {resolveName(value)}
                     </span>
                   )}
                 />
@@ -255,7 +295,7 @@ export function CategoryTrendChart({
                   name={s.categoryFilter}
                   stroke={colorByCategory.get(s.categoryFilter)}
                   strokeWidth={2}
-                  dot={false}
+                  dot={ClickableDot(s.categoryFilter, colorByCategory.get(s.categoryFilter), goToTransactions)}
                 />
               ))}
             </LineChart>
@@ -280,12 +320,12 @@ export function CategoryTrendChart({
                 tickLine={false}
                 tickFormatter={(v) => new Intl.NumberFormat("en-NZ").format(v)}
               />
-              <Tooltip content={<TrendTooltip />} cursor={{ fill: "var(--accent)" }} />
+              <Tooltip content={<TrendTooltip resolveName={resolveName} />} cursor={{ fill: "var(--accent)" }} />
               {selectedSeries.length > 1 && (
                 <Legend
                   formatter={(value) => (
                     <span className="text-xs text-muted-foreground">
-                      {series.find((s) => s.categoryFilter === value)?.name ?? value}
+                      {resolveName(value)}
                     </span>
                   )}
                 />
@@ -298,6 +338,8 @@ export function CategoryTrendChart({
                   fill={colorByCategory.get(s.categoryFilter)}
                   radius={[4, 4, 0, 0]}
                   maxBarSize={selectedSeries.length > 1 ? 20 : 32}
+                  className="cursor-pointer"
+                  onClick={(data) => goToTransactions(s.categoryFilter, data.payload.month)}
                 />
               ))}
             </BarChart>

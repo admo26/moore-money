@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { ReportPeriodPicker } from "@/components/reports/report-period-picker";
 import { getCashflowStatement } from "@/lib/reports/statements";
 import { periodFromSearchParams } from "@/lib/reports/period";
+import { monthRange } from "@/lib/reports/date-params";
 import { formatDate, formatMoney } from "@/lib/format";
 
 function monthLabel(month: string) {
@@ -11,17 +12,6 @@ function monthLabel(month: string) {
     month: "short",
     year: "numeric",
   });
-}
-
-/** [first day of month, last day of month] as YYYY-MM-DD params. */
-function monthRange(month: string) {
-  const [year, m] = month.split("-").map(Number);
-  const from = new Date(year, m - 1, 1);
-  const to = new Date(year, m, 0);
-  return {
-    from: from.toISOString().slice(0, 10),
-    to: to.toISOString().slice(0, 10),
-  };
 }
 
 export default async function CashflowPage({
