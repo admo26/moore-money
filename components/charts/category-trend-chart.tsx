@@ -62,14 +62,6 @@ function TrendTooltip({
 }
 
 export function CategoryTrendChart({ series }: { series: CategoryTrendSeries[] }) {
-  // Stable color per category (by position in the full list), so toggling a
-  // selection never repaints the colors of categories already shown.
-  const colorByCategory = useMemo(() => {
-    const map = new Map<string, string>();
-    series.forEach((s, i) => map.set(s.categoryFilter, CHART_COLORS[i % CHART_COLORS.length]));
-    return map;
-  }, [series]);
-
   const defaultSelected = useMemo(() => {
     if (series.length === 0) return [];
 
@@ -98,9 +90,23 @@ export function CategoryTrendChart({ series }: { series: CategoryTrendSeries[] }
     });
   }
 
+  // Colored by position within the current *selection*, not the full
+  // category list — since at most MAX_SELECTED (= CHART_COLORS.length) can
+  // be shown at once, every category on screen gets a distinct color.
+  // Selection order is append-on-add/filter-on-remove, so an existing pick
+  // keeps its color as others are toggled around it.
+  const colorByCategory = useMemo(() => {
+    const map = new Map<string, string>();
+    selected.forEach((categoryFilter, i) => map.set(categoryFilter, CHART_COLORS[i % CHART_COLORS.length]));
+    return map;
+  }, [selected]);
+
   const selectedSeries = series.filter((s) => selected.includes(s.categoryFilter));
   const unselectedSeries = series.filter((s) => !selected.includes(s.categoryFilter));
   const atLimit = selected.length >= MAX_SELECTED;
+  // What an unselected category would become if picked next — lets the
+  // popover preview its color before it's added.
+  const nextColor = CHART_COLORS[selected.length % CHART_COLORS.length];
 
   const chartData = useMemo(() => {
     if (selectedSeries.length === 0) return [];
@@ -166,7 +172,7 @@ export function CategoryTrendChart({ series }: { series: CategoryTrendSeries[] }
                     >
                       <span
                         className="h-2 w-2 shrink-0 rounded-full"
-                        style={{ backgroundColor: colorByCategory.get(s.categoryFilter) }}
+                        style={{ backgroundColor: atLimit ? "var(--muted-foreground)" : nextColor }}
                       />
                       {s.name}
                     </button>
