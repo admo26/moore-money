@@ -64,20 +64,20 @@ export default async function DashboardPage() {
               <CardTitle className="text-base">Money in and out — last {PERIOD_DAYS} days</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="flex items-center gap-3">
-                <div className="text-2xl font-semibold text-positive">
+              <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                <div className="text-lg font-semibold text-positive sm:text-2xl">
                   {formatMoney(summary.income)}
                 </div>
-                <div className="text-xl font-medium text-muted-foreground">−</div>
-                <div className="text-2xl font-semibold text-negative">
+                <div className="text-base font-medium text-muted-foreground sm:text-xl">−</div>
+                <div className="text-lg font-semibold text-negative sm:text-2xl">
                   {formatMoney(summary.expense)}
                 </div>
-                <div className="text-xl font-medium text-muted-foreground">=</div>
+                <div className="text-base font-medium text-muted-foreground sm:text-xl">=</div>
                 <div
                   className={
                     net < 0
-                      ? "text-2xl font-semibold text-negative"
-                      : "text-2xl font-semibold text-positive"
+                      ? "text-lg font-semibold text-negative sm:text-2xl"
+                      : "text-lg font-semibold text-positive sm:text-2xl"
                   }
                 >
                   {net > 0 ? "+" : ""}
