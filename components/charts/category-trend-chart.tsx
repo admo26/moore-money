@@ -2,10 +2,10 @@
 
 import { useMemo, useState } from "react";
 import {
-  Bar,
-  BarChart,
   CartesianGrid,
   Legend,
+  Line,
+  LineChart,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -146,7 +146,7 @@ export function CategoryTrendChart({ series }: { series: CategoryTrendSeries[] }
         </div>
       ) : (
         <ResponsiveContainer width="100%" height={240}>
-          <BarChart data={chartData} margin={{ left: 8, right: 8, top: 8 }} barGap={2} barCategoryGap="20%">
+          <LineChart data={chartData} margin={{ left: 8, right: 8, top: 8 }}>
             <CartesianGrid vertical={false} stroke="var(--border)" />
             <XAxis
               dataKey="month"
@@ -172,16 +172,17 @@ export function CategoryTrendChart({ series }: { series: CategoryTrendSeries[] }
               />
             )}
             {selectedSeries.map((s) => (
-              <Bar
+              <Line
                 key={s.categoryFilter}
+                type="monotone"
                 dataKey={s.categoryFilter}
                 name={s.categoryFilter}
-                fill={colorByCategory.get(s.categoryFilter)}
-                radius={[4, 4, 0, 0]}
-                maxBarSize={selectedSeries.length > 1 ? 20 : 32}
+                stroke={colorByCategory.get(s.categoryFilter)}
+                strokeWidth={2}
+                dot={false}
               />
             ))}
-          </BarChart>
+          </LineChart>
         </ResponsiveContainer>
       )}
     </div>
