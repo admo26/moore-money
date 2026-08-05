@@ -28,7 +28,7 @@ export const accounts = pgTable("accounts", {
   raw: jsonb("raw"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
-});
+}).enableRLS();
 
 /**
  * A snapshot of one account's balance on one calendar day. Written on every
@@ -48,7 +48,7 @@ export const accountBalanceSnapshots = pgTable(
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (table) => [unique().on(table.accountId, table.capturedOn)]
-);
+).enableRLS();
 
 /**
  * A user-defined spending/income category (Groceries, Dining, Income, ...).
@@ -61,7 +61,7 @@ export const categories = pgTable("categories", {
   // category trend chart shows, without the user re-picking every time.
   isFavourite: boolean("is_favourite").notNull().default(false),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-});
+}).enableRLS();
 
 /**
  * A user-editable categorisation rule: if `pattern` appears (case-
@@ -77,7 +77,7 @@ export const rules = pgTable("rules", {
     .references(() => categories.id),
   priority: integer("priority").notNull().default(0),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-});
+}).enableRLS();
 
 /**
  * A single bank transaction as reported by Akahu. `id` is Akahu's own
@@ -105,7 +105,7 @@ export const transactions = pgTable("transactions", {
   raw: jsonb("raw"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
-});
+}).enableRLS();
 
 /**
  * One row per Akahu sync (cron or manual). Tracks how far the sync got so
@@ -120,7 +120,7 @@ export const syncRuns = pgTable("sync_runs", {
   transactionsIngested: integer("transactions_ingested").notNull().default(0),
   error: text("error"),
   highWaterMark: timestamp("high_water_mark", { withTimezone: true }),
-});
+}).enableRLS();
 
 /**
  * A personal access token for the MCP server. Issued from the Settings page
@@ -136,7 +136,7 @@ export const mcpTokens = pgTable("mcp_tokens", {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   lastUsedAt: timestamp("last_used_at", { withTimezone: true }),
   revokedAt: timestamp("revoked_at", { withTimezone: true }),
-});
+}).enableRLS();
 
 /**
  * An OAuth 2.0 client dynamically registered against the MCP authorization
@@ -148,7 +148,7 @@ export const mcpOauthClients = pgTable("mcp_oauth_clients", {
   clientName: text("client_name"),
   redirectUris: jsonb("redirect_uris").notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-});
+}).enableRLS();
 
 /**
  * A short-lived, single-use authorization code issued after a user approves
@@ -168,7 +168,7 @@ export const mcpOauthCodes = pgTable("mcp_oauth_codes", {
   expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
   consumedAt: timestamp("consumed_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-});
+}).enableRLS();
 
 /**
  * An access/refresh token pair issued to an OAuth client. Mirrors
@@ -187,7 +187,7 @@ export const mcpOauthTokens = pgTable("mcp_oauth_tokens", {
   expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
   revokedAt: timestamp("revoked_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-});
+}).enableRLS();
 
 export type Account = typeof accounts.$inferSelect;
 export type NewAccount = typeof accounts.$inferInsert;
