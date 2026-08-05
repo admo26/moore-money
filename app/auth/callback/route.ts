@@ -2,17 +2,26 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { isEmailAllowed } from "@/lib/auth";
 
-/** Only ever follow a same-app relative path, never an absolute/external URL. */
-function safeNextPath(next: string | null): string | null {
-  if (!next || !next.startsWith("/") || next.startsWith("//")) return null;
-  return next;
+/**
+ * Only ever follow a same-app relative path, never an absolute/external URL.
+ * Resolves `next` against the app's own origin via the WHATWG URL parser and
+ * checks the *result's* origin, rather than pattern-matching the raw string —
+ * a string check like `!next.startsWith("//")` misses inputs like `/\evil.com`,
+ * which browsers treat as protocol-relative (backslash coerced to slash) and
+ * would otherwise redirect off-site.
+ */
+function safeNextPath(next: string | null, origin: string): string | null {
+  if (!next || !next.startsWith("/")) return null;
+  const resolved = new URL(next, origin);
+  if (resolved.origin !== origin) return null;
+  return `${resolved.pathname}${resolved.search}`;
 }
 
 /** Exchanges the magic-link/OAuth code for a session, then enforces the email allowlist. */
 export async function GET(request: NextRequest) {
   const code = request.nextUrl.searchParams.get("code");
   const upstreamError = request.nextUrl.searchParams.get("error_description");
-  const next = safeNextPath(request.nextUrl.searchParams.get("next"));
+  const next = safeNextPath(request.nextUrl.searchParams.get("next"), request.nextUrl.origin);
   const supabase = await createClient();
 
   const loginUrl = (params: Record<string, string>) => {

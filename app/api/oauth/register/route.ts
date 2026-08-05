@@ -27,10 +27,21 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const client = await registerClient({
-    redirectUris: redirect_uris,
-    clientName: typeof client_name === "string" ? client_name : undefined,
-  });
+  let client;
+  try {
+    client = await registerClient({
+      redirectUris: redirect_uris,
+      clientName: typeof client_name === "string" ? client_name : undefined,
+    });
+  } catch (err) {
+    return NextResponse.json(
+      {
+        error: "invalid_redirect_uri",
+        error_description: err instanceof Error ? err.message : "Invalid redirect_uris.",
+      },
+      { status: 400 }
+    );
+  }
 
   return NextResponse.json(
     {

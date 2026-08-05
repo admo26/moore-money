@@ -95,6 +95,15 @@ export default async function OAuthAuthorizePage({
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
+          <div className="rounded-md border border-border bg-muted/40 p-3 text-xs text-muted-foreground">
+            <p>
+              Anyone can register an app with any name — &quot;{client.clientName || "An MCP client"}&quot;
+              is not independently verified. Only trust this if you recognise{" "}
+              <span className="font-medium text-foreground">{redirectHost}</span>{" "}
+              as the app you&apos;re connecting, and this ID:{" "}
+              <code className="font-mono text-foreground">{client.id}</code>.
+            </p>
+          </div>
           <p className="text-sm text-muted-foreground">
             Grants the same access as a personal access token — accounts, transactions,
             categories, and rules. You can revoke this anytime from Settings.
