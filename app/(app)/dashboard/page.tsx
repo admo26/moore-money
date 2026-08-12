@@ -83,35 +83,37 @@ export default async function DashboardPage({
         </div>
       ) : (
         <>
-          <AccountsWidget accounts={accounts} />
+          <div className="grid gap-6 md:grid-cols-2">
+            <AccountsWidget accounts={accounts} />
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Money in and out — last {PERIOD_DAYS} days</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-                <div className="text-lg font-semibold text-positive sm:text-2xl">
-                  {formatMoney(summary.income)}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base">Money in and out — last {PERIOD_DAYS} days</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                  <div className="text-lg font-semibold text-positive sm:text-2xl">
+                    {formatMoney(summary.income)}
+                  </div>
+                  <div className="text-base font-medium text-muted-foreground sm:text-xl">−</div>
+                  <div className="text-lg font-semibold text-negative sm:text-2xl">
+                    {formatMoney(summary.expense)}
+                  </div>
+                  <div className="text-base font-medium text-muted-foreground sm:text-xl">=</div>
+                  <div
+                    className={
+                      net < 0
+                        ? "text-lg font-semibold text-negative sm:text-2xl"
+                        : "text-lg font-semibold text-positive sm:text-2xl"
+                    }
+                  >
+                    {net > 0 ? "+" : ""}
+                    {formatMoney(net)}
+                  </div>
                 </div>
-                <div className="text-base font-medium text-muted-foreground sm:text-xl">−</div>
-                <div className="text-lg font-semibold text-negative sm:text-2xl">
-                  {formatMoney(summary.expense)}
-                </div>
-                <div className="text-base font-medium text-muted-foreground sm:text-xl">=</div>
-                <div
-                  className={
-                    net < 0
-                      ? "text-lg font-semibold text-negative sm:text-2xl"
-                      : "text-lg font-semibold text-positive sm:text-2xl"
-                  }
-                >
-                  {net > 0 ? "+" : ""}
-                  {formatMoney(net)}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </div>
 
           <Card>
             <CardHeader>
