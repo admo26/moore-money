@@ -177,9 +177,6 @@ export function CategoryTrendChart({
   const selectedSeries = series.filter((s) => selected.includes(s.categoryFilter));
   const unselectedSeries = series.filter((s) => !selected.includes(s.categoryFilter));
   const atLimit = selected.length >= MAX_SELECTED;
-  // What an unselected category would become if picked next — lets the
-  // popover preview its color before it's added.
-  const nextColor = CHART_COLORS[selected.length % CHART_COLORS.length];
 
   const chartData = useMemo(() => {
     if (selectedSeries.length === 0) return [];
@@ -240,12 +237,8 @@ export function CategoryTrendChart({
                     type="button"
                     onClick={() => toggle(s.categoryFilter)}
                     disabled={atLimit}
-                    className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm text-foreground transition-colors hover:bg-accent disabled:opacity-40"
+                    className="flex w-full items-center rounded-md px-2 py-1.5 text-left text-sm text-foreground transition-colors hover:bg-accent disabled:opacity-40"
                   >
-                    <span
-                      className="h-2 w-2 shrink-0 rounded-full"
-                      style={{ backgroundColor: atLimit ? "var(--muted-foreground)" : nextColor }}
-                    />
                     {s.name}
                   </button>
                 ))}
