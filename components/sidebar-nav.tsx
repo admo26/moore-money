@@ -4,7 +4,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
-  Wallet,
   ArrowLeftRight,
   PieChart,
   Tag,
@@ -15,7 +14,6 @@ import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, disabled: false },
-  { href: "/accounts", label: "Accounts", icon: Wallet, disabled: false },
   { href: "/net-worth", label: "Net Worth", icon: PiggyBank, disabled: false },
   { href: "/transactions", label: "Transactions", icon: ArrowLeftRight, disabled: false },
   { href: "/rules", label: "Rules", icon: Tag, disabled: false },

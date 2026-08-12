@@ -4,7 +4,10 @@ import { CategorySpendChart } from "@/components/charts/category-spend-chart";
 import { CategoryTrendCard } from "@/components/charts/category-trend-card";
 import { NetPositionChart } from "@/components/charts/net-position-chart";
 import { RangeSelect } from "@/components/dashboard/range-select";
+import { AccountsWidget } from "@/components/dashboard/accounts-widget";
 import { formatMoney } from "@/lib/format";
+import { db } from "@/lib/db";
+import { accounts as accountsTable, type Account } from "@/lib/db/schema";
 import {
   getCategorySpend,
   getCategoryTrends,
@@ -41,14 +44,16 @@ export default async function DashboardPage({
   let categorySpend: Awaited<ReturnType<typeof getCategorySpend>> = [];
   let categoryTrends: Awaited<ReturnType<typeof getCategoryTrends>> = [];
   let netCashTrend: Awaited<ReturnType<typeof getNetCashTrend>> = [];
+  let accounts: Account[] = [];
 
   try {
-    [summary, cashflow, categorySpend, categoryTrends, netCashTrend] = await Promise.all([
+    [summary, cashflow, categorySpend, categoryTrends, netCashTrend, accounts] = await Promise.all([
       getPeriodSummary(PERIOD_DAYS),
       getMonthlyCashflow(cashflowMonths),
       getCategorySpend(spendDays),
       getCategoryTrends(trendMonths),
       getNetCashTrend(netCashDays),
+      db.select().from(accountsTable),
     ]);
   } catch (err) {
     error = err instanceof Error ? err.message : "Failed to load dashboard data.";
@@ -78,6 +83,8 @@ export default async function DashboardPage({
         </div>
       ) : (
         <>
+          <AccountsWidget accounts={accounts} />
+
           <Card>
             <CardHeader>
               <CardTitle className="text-base">Money in and out — last {PERIOD_DAYS} days</CardTitle>

@@ -45,7 +45,7 @@ export async function proxy(request: NextRequest) {
   }
 
   if (isPublicPath && isAuthorized && request.nextUrl.pathname.startsWith("/login")) {
-    return NextResponse.redirect(new URL("/accounts", request.url));
+    return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
   return response;
