@@ -71,91 +71,30 @@
 }
 
 /* --------------------------------------------------------------------
-   Token architecture (HeroUI pilot on the Dashboard, see plan doc
-   "Feature: HeroUI v3 pilot on the Dashboard"):
+   Token architecture:
 
-   :root is left to HeroUI's own import above — unmodified, so the pilot
+   :root is left to HeroUI's own import above — unmodified, so the app
    gets authentic HeroUI colors/radius/motion with no mirrored copy and no
-   drift on upgrade, and the live theme selector (which sets --accent /
-   --radius / .dark on <html>) works exactly as HeroUI's own docs describe.
+   drift on upgrade. The old Atlassian Design System (ADS) palette this
+   app used before the HeroUI migration is gone — every route now opts
+   into HeroUI via `data-ui="heroui"` on <body> (set in app/layout.tsx).
 
-   The app's ADS palette moves from :root onto a body-scoped fallback that
-   activates on every route WITHOUT the pilot's `data-ui="heroui"` marker
-   (set by app/(app)/dashboard/layout.tsx). This was verified necessary,
-   not just tidy: the app's original :root block was *unlayered* CSS, which
-   already beats HeroUI's *layered* (`@layer base`) :root today regardless
-   of source order — so simply leaving both would have kept the ADS look
-   everywhere including the pilot. Moving ADS onto `body:not(:has(...))`
-   (also unlayered) preserves that same always-wins behaviour, but only on
-   non-pilot routes.
+   The block below gives the app's own token *names* HeroUI doesn't define
+   (--card, --popover, --primary, --chart-1..5, --sidebar-*,
+   --positive/--negative) HeroUI-derived values, so components that read
+   those names directly (Recharts, the sidebar) look native — via var()
+   references, so they track the theme selector automatically. Every
+   portal (HeroUI's own Select/Modal/Popover) mounts inside document.body,
+   so scoping this to `body[data-ui="heroui"]` rather than a wrapper <div>
+   catches them too (portaled content renders as a *sibling* of a wrapper
+   div, escaping its custom properties entirely — body-level scope
+   doesn't have that problem). */
 
-   A second, narrower "bridge" block on `body:has([data-ui="heroui"])`
-   gives the app's own token *names* HeroUI doesn't define (--card,
-   --popover, --primary, --chart-1..5, --sidebar-*, --positive/--negative)
-   HeroUI-derived values, so components that read those names directly
-   (Recharts, the sidebar, any not-yet-migrated legacy component that
-   renders inside the pilot) look native there too — via var() references,
-   so they track the theme selector automatically. Every portal (HeroUI's
-   own Select/Modal/Popover, and the legacy Base UI popover in
-   category-trend-chart.tsx) mounts inside document.body, so this scoping
-   catches them too — the reason the scope is body-level, not a wrapper
-   <div> (which portaled content would render as a *sibling* of, escaping
-   its custom properties entirely). */
-
-body:not(:has([data-ui="heroui"])) {
-  /* Atlassian Design System palette (from @atlaskit/tokens' published
-     default values) — brand blue accent, ADS neutral text/border, and the
-     8-color categorical chart sequence. Verbatim copy of the app's
-     original :root block. */
-  --background: #ffffff;
-  --foreground: #292a2e;
-  --card: #ffffff;
-  --card-foreground: #292a2e;
-  --popover: #ffffff;
-  --popover-foreground: #292a2e;
-  --primary: #1868db;
-  --primary-foreground: #ffffff;
-  --secondary: #adcbfb;
-  --secondary-foreground: #1558bc;
-  --muted: #f1f2f4;
-  --muted-foreground: #505258;
-  --accent: #adcbfb;
-  --accent-foreground: #1558bc;
-  --destructive: #ae2e24;
-  --border: #dee1e5;
-  --input: #dee1e5;
-  --ring: #1868db;
-  --chart-1: #357de8;
-  --chart-2: #82b536;
-  --chart-3: #bf63f3;
-  --chart-4: #f68909;
-  --chart-5: #42b2d7;
-  --radius: 0.5rem;
-
-  /* Money in/out — reuse ADS's own green/red accent text tokens. */
-  --positive: #216e4e;
-  --positive-foreground: #ffffff;
-  --negative: #ae2e24;
-  --negative-foreground: #ffffff;
-
-  /* Sidebar: light, matching the canvas; active/hover state uses the same
-     blue accent wash Jira/Confluence use for the selected nav item. */
-  --sidebar: #ffffff;
-  --sidebar-foreground: #505258;
-  --sidebar-primary: #1868db;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #eaf1fe;
-  --sidebar-accent-foreground: #1558bc;
-  --sidebar-border: #dee1e5;
-  --sidebar-ring: #1868db;
-}
-
-/* HeroUI pilot bridge — deliberately does NOT redeclare --foreground,
-   --accent, --accent-foreground, --border, or --radius: those stay
-   HeroUI's own (from :root), which is the whole point. --background is the
-   one exception: HeroUI's default theme sets a grey/beige canvas
-   (oklch(0.9702 0 0)) and the app wants a plain white page background. */
-body:has([data-ui="heroui"]) {
+body[data-ui="heroui"] {
+  /* HeroUI's default theme sets a grey/beige canvas (oklch(0.9702 0 0));
+     the app wants a plain white page background. Deliberately doesn't
+     redeclare --foreground, --accent, --accent-foreground, --border, or
+     --radius: those stay HeroUI's own (from :root), which is the point. */
   --background: #ffffff;
   --card: var(--surface);
   --card-foreground: var(--surface-foreground);
@@ -216,12 +155,13 @@ body:has([data-ui="heroui"]) {
   --radius-4xl: calc(var(--radius) * 4);
 }
 
-/* The ADS dark palette below has no toggle wired up anywhere yet (kept as
-   documentation of intent — see the plan doc's Stage 2 notes). Harmless
-   since nothing ever sets `.dark` today; if a toggle is ever added it
-   should set the class on <body> (or lower), not <html> — <html> is
-   shared by every route, and this is unlayered CSS, so a bare `.dark`
-   there would beat the light ADS block above on *every* route at once. */
+/* Dark mode has no toggle wired up anywhere yet — this palette is kept as
+   documentation of intent for that future work, deliberately deferred
+   separately from the HeroUI rollout. Harmless since nothing ever sets
+   `.dark` today; if a toggle is ever added it should set the class on
+   <body> (or lower), not <html> — <html> is shared by every route, and
+   this is unlayered CSS, so a bare `.dark` there would beat the
+   `body[data-ui="heroui"]` block above on every route at once. */
 .dark {
   --background: #0f1620;
   --foreground: #e5eaf0;

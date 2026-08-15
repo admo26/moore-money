@@ -24,7 +24,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="en"
       className={`${fontSans.variable} ${fontMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">
+      <body data-ui="heroui" className="min-h-full flex flex-col">
         {children}
         <Toaster position="bottom-right" />
       </body>
