@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { Pencil, RefreshCw, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/hero/input";
 import { Button } from "@/components/ui/hero/button";
@@ -106,15 +107,41 @@ export function RuleRow({
       <td className="px-4 py-2 font-mono text-xs">{rule.pattern}</td>
       <td className="px-4 py-2">{rule.categoryName}</td>
       <td className="px-4 py-2 text-right">
-        <Button size="sm" variant="ghost" onPress={handleApplyToAll} isDisabled={isPending}>
-          Apply to all
-        </Button>
-        <Button size="sm" variant="ghost" onPress={() => setIsEditing(true)} isDisabled={isPending}>
-          Edit
-        </Button>
-        <Button size="sm" variant="ghost" onPress={handleDelete} isDisabled={isPending}>
-          Delete
-        </Button>
+        <div className="flex justify-end gap-2">
+          <Button
+            size="sm"
+            variant="secondary"
+            isIconOnly
+            className="rounded-full"
+            aria-label="Apply to all matching transactions"
+            onPress={handleApplyToAll}
+            isDisabled={isPending}
+          >
+            <RefreshCw className="h-4 w-4" />
+          </Button>
+          <Button
+            size="sm"
+            variant="secondary"
+            isIconOnly
+            className="rounded-full"
+            aria-label="Edit rule"
+            onPress={() => setIsEditing(true)}
+            isDisabled={isPending}
+          >
+            <Pencil className="h-4 w-4" />
+          </Button>
+          <Button
+            size="sm"
+            variant="danger-soft"
+            isIconOnly
+            className="rounded-full"
+            aria-label="Delete rule"
+            onPress={handleDelete}
+            isDisabled={isPending}
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        </div>
       </td>
     </tr>
   );
