@@ -10,7 +10,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       <Sidebar />
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="flex h-16 shrink-0 items-center gap-3 border-b border-border bg-card px-4 md:px-6">
+        <header className="flex h-16 shrink-0 items-center gap-3 border-b border-border bg-card px-4 md:hidden">
           <MobileNav />
           <div className="truncate text-sm text-muted-foreground">Hi {getFirstName(user)}</div>
         </header>
