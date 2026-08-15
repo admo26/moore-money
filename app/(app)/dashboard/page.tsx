@@ -1,4 +1,13 @@
-import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardActions,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardHeaderRow,
+  CardTitle,
+  CardTitleBlock,
+} from "@/components/ui/hero/card";
 import { CashflowChart } from "@/components/charts/cashflow-chart";
 import { CategorySpendChart } from "@/components/charts/category-spend-chart";
 import { CategoryTrendCard } from "@/components/charts/category-trend-card";
@@ -116,41 +125,47 @@ export default async function DashboardPage({
           </div>
 
           <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Net cash — {rangeLabel(netCashDays, NET_CASH_RANGE_OPTIONS).toLowerCase()}</CardTitle>
-              <CardDescription>
-                Sum of every bank, loan, and credit card balance each day, from a daily
-                snapshot taken on sync. Excludes KiwiSaver/managed-fund accounts — see the
-                Net Worth page for those.
-              </CardDescription>
-              <CardAction>
+            <CardHeaderRow>
+              <CardTitleBlock>
+                <CardTitle className="text-base">Net cash — {rangeLabel(netCashDays, NET_CASH_RANGE_OPTIONS).toLowerCase()}</CardTitle>
+                <CardDescription>
+                  Sum of every bank, loan, and credit card balance each day, from a daily
+                  snapshot taken on sync. Excludes KiwiSaver/managed-fund accounts — see the
+                  Net Worth page for those.
+                </CardDescription>
+              </CardTitleBlock>
+              <CardActions>
                 <RangeSelect paramKey="netCashDays" value={netCashDays} options={NET_CASH_RANGE_OPTIONS} />
-              </CardAction>
-            </CardHeader>
+              </CardActions>
+            </CardHeaderRow>
             <CardContent>
               <NetPositionChart data={netCashTrend} />
             </CardContent>
           </Card>
 
           <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Cashflow — {rangeLabel(cashflowMonths, CASHFLOW_RANGE_OPTIONS).toLowerCase()}</CardTitle>
-              <CardAction>
+            <CardHeaderRow>
+              <CardTitleBlock>
+                <CardTitle className="text-base">Cashflow — {rangeLabel(cashflowMonths, CASHFLOW_RANGE_OPTIONS).toLowerCase()}</CardTitle>
+              </CardTitleBlock>
+              <CardActions>
                 <RangeSelect paramKey="cashflowMonths" value={cashflowMonths} options={CASHFLOW_RANGE_OPTIONS} />
-              </CardAction>
-            </CardHeader>
+              </CardActions>
+            </CardHeaderRow>
             <CardContent>
               <CashflowChart data={cashflow} />
             </CardContent>
           </Card>
 
           <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Spend by category — {rangeLabel(spendDays, SPEND_RANGE_OPTIONS).toLowerCase()}</CardTitle>
-              <CardAction>
+            <CardHeaderRow>
+              <CardTitleBlock>
+                <CardTitle className="text-base">Spend by category — {rangeLabel(spendDays, SPEND_RANGE_OPTIONS).toLowerCase()}</CardTitle>
+              </CardTitleBlock>
+              <CardActions>
                 <RangeSelect paramKey="spendDays" value={spendDays} options={SPEND_RANGE_OPTIONS} />
-              </CardAction>
-            </CardHeader>
+              </CardActions>
+            </CardHeaderRow>
             <CardContent>
               <CategorySpendChart data={categorySpend} from={periodFrom} to={periodTo} />
             </CardContent>
