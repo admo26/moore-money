@@ -1,7 +1,7 @@
 "use client";
 
 import { useTransition } from "react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/hero/button";
 import { revokeMcpOauthGrant } from "@/app/(app)/settings/actions";
 
 export interface McpOauthGrantRowData {
@@ -27,7 +27,7 @@ export function McpOauthGrantRow({ grant }: { grant: McpOauthGrantRowData }) {
       <td className="px-4 py-2 text-muted-foreground">{grant.email}</td>
       <td className="px-4 py-2 text-muted-foreground">{grant.createdAt.toLocaleDateString()}</td>
       <td className="px-4 py-2 text-right">
-        <Button size="sm" variant="ghost" onClick={handleRevoke} disabled={isPending}>
+        <Button size="sm" variant="ghost" onPress={handleRevoke} isDisabled={isPending}>
           Revoke
         </Button>
       </td>

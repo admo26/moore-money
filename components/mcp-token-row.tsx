@@ -1,7 +1,7 @@
 "use client";
 
 import { useTransition } from "react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/hero/button";
 import { revokeMcpToken } from "@/app/(app)/settings/actions";
 
 export interface McpTokenRowData {
@@ -34,7 +34,7 @@ export function McpTokenRow({ token }: { token: McpTokenRowData }) {
         {token.revokedAt ? (
           <span className="text-xs text-muted-foreground">Revoked</span>
         ) : (
-          <Button size="sm" variant="ghost" onClick={handleRevoke} disabled={isPending}>
+          <Button size="sm" variant="ghost" onPress={handleRevoke} isDisabled={isPending}>
             Revoke
           </Button>
         )}

@@ -2,8 +2,8 @@
 
 import { useRef, useState, useTransition } from "react";
 import { toast } from "sonner";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/hero/input";
+import { Button } from "@/components/ui/hero/button";
 import { createCategory } from "@/app/(app)/settings/actions";
 
 export function AddCategoryForm() {
@@ -43,7 +43,7 @@ export function AddCategoryForm() {
           disabled={isPending}
         />
       </div>
-      <Button type="submit" size="sm" disabled={isPending || !name.trim()}>
+      <Button type="submit" size="sm" isDisabled={isPending || !name.trim()}>
         Add category
       </Button>
     </form>

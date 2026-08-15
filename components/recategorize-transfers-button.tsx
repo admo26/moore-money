@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { ArrowLeftRight } from "lucide-react";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/hero/button";
 
 export function RecategorizeTransfersButton() {
   const [isRunning, setIsRunning] = useState(false);
@@ -32,7 +32,7 @@ export function RecategorizeTransfersButton() {
   }
 
   return (
-    <Button size="sm" variant="outline" onClick={handleClick} disabled={isRunning}>
+    <Button size="sm" variant="outline" onPress={handleClick} isDisabled={isRunning}>
       <ArrowLeftRight className={isRunning ? "h-4 w-4 animate-pulse" : "h-4 w-4"} />
       {isRunning ? "Fixing…" : "Fix categorisation"}
     </Button>
