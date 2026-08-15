@@ -1,11 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowLeftRight } from "lucide-react";
+import { RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/hero/button";
 
-export function RecategorizeTransfersButton() {
+/**
+ * Re-applies every rule and re-scans for internal transfers across all
+ * synced transactions, not just new ones — the same logic that already
+ * runs automatically after every sync. Useful right after editing several
+ * rules, or to fix a backlog of historical transactions.
+ */
+export function RerunRulesButton() {
   const [isRunning, setIsRunning] = useState(false);
 
   async function handleClick() {
@@ -14,16 +20,16 @@ export function RecategorizeTransfersButton() {
       const res = await fetch("/api/recategorize-transfers", { method: "POST" });
       const data = await res.json();
       if (!res.ok || !data.success) {
-        throw new Error(data.error ?? "Recategorize failed");
+        throw new Error(data.error ?? "Re-run failed");
       }
       toast.success(
         data.matched > 0
-          ? `Fixed ${data.matched} transaction${data.matched === 1 ? "" : "s"}`
-          : "Nothing to fix"
+          ? `Updated ${data.matched} transaction${data.matched === 1 ? "" : "s"}`
+          : "Nothing to update"
       );
       if (data.matched > 0) window.location.reload();
     } catch (err) {
-      toast.error("Couldn't fix categorisation", {
+      toast.error("Couldn't re-run rules", {
         description: err instanceof Error ? err.message : String(err),
       });
     } finally {
@@ -33,8 +39,8 @@ export function RecategorizeTransfersButton() {
 
   return (
     <Button size="sm" variant="outline" onPress={handleClick} isDisabled={isRunning}>
-      <ArrowLeftRight className={isRunning ? "h-4 w-4 animate-pulse" : "h-4 w-4"} />
-      {isRunning ? "Fixing…" : "Fix categorisation"}
+      <RefreshCw className={isRunning ? "h-4 w-4 animate-spin" : "h-4 w-4"} />
+      {isRunning ? "Running…" : "Re-run all rules"}
     </Button>
   );
 }

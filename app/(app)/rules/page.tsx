@@ -4,6 +4,7 @@ import { categories, rules } from "@/lib/db/schema";
 import { Input } from "@/components/ui/hero/input";
 import { Button } from "@/components/ui/hero/button";
 import { RuleRow } from "@/components/rule-row";
+import { RerunRulesButton } from "@/components/rerun-rules-button";
 import { createRule } from "./actions";
 
 async function loadData() {
@@ -47,12 +48,15 @@ export default async function RulesPage({
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Rules</h1>
-        <p className="text-sm text-muted-foreground">
-          If a transaction&apos;s description or merchant contains a rule&apos;s pattern,
-          it&apos;s assigned that category automatically on the next sync.
-        </p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">Rules</h1>
+          <p className="text-sm text-muted-foreground">
+            If a transaction&apos;s description or merchant contains a rule&apos;s pattern,
+            it&apos;s assigned that category automatically on the next sync.
+          </p>
+        </div>
+        <RerunRulesButton />
       </div>
 
       {error && (

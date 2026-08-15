@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { getAuthorizedUser } from "@/lib/auth";
 import { reapplyRules, recategorizeTransfers } from "@/lib/categorization";
 
-/** One-off "Fix categorisation" trigger: reapplies rules, then re-scans for internal-transfer pairs. */
+/** "Re-run all rules" trigger (Rules page): reapplies rules, then re-scans for internal-transfer pairs. */
 export async function POST() {
   const user = await getAuthorizedUser();
   if (!user) {
