@@ -1,8 +1,8 @@
 import { asc, eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { categories, rules } from "@/lib/db/schema";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/hero/input";
+import { Button } from "@/components/ui/hero/button";
 import { RuleRow } from "@/components/rule-row";
 import { createRule } from "./actions";
 

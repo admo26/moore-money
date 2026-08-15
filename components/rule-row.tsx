@@ -2,8 +2,8 @@
 
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/hero/input";
+import { Button } from "@/components/ui/hero/button";
 import { applyRuleRetroactively, deleteRule, updateRule } from "@/app/(app)/rules/actions";
 import type { Category } from "@/lib/db/schema";
 
@@ -90,10 +90,10 @@ export function RuleRow({
           </select>
         </td>
         <td className="px-4 py-2 text-right">
-          <Button size="sm" onClick={handleSave} disabled={isPending}>
+          <Button size="sm" onPress={handleSave} isDisabled={isPending}>
             Save
           </Button>
-          <Button size="sm" variant="ghost" onClick={handleCancel} disabled={isPending}>
+          <Button size="sm" variant="ghost" onPress={handleCancel} isDisabled={isPending}>
             Cancel
           </Button>
         </td>
@@ -106,13 +106,13 @@ export function RuleRow({
       <td className="px-4 py-2 font-mono text-xs">{rule.pattern}</td>
       <td className="px-4 py-2">{rule.categoryName}</td>
       <td className="px-4 py-2 text-right">
-        <Button size="sm" variant="ghost" onClick={handleApplyToAll} disabled={isPending}>
+        <Button size="sm" variant="ghost" onPress={handleApplyToAll} isDisabled={isPending}>
           Apply to all
         </Button>
-        <Button size="sm" variant="ghost" onClick={() => setIsEditing(true)} disabled={isPending}>
+        <Button size="sm" variant="ghost" onPress={() => setIsEditing(true)} isDisabled={isPending}>
           Edit
         </Button>
-        <Button size="sm" variant="ghost" onClick={handleDelete} disabled={isPending}>
+        <Button size="sm" variant="ghost" onPress={handleDelete} isDisabled={isPending}>
           Delete
         </Button>
       </td>
