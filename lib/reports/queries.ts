@@ -163,6 +163,51 @@ export async function getCategoryTrends(months = 6): Promise<CategoryTrendSeries
     .sort((a, b) => a.name.localeCompare(b.name));
 }
 
+export interface AccountSparkline {
+  accountId: string;
+  points: { date: string; balance: number }[];
+  /** % change from the oldest to the newest point in the window, or null with fewer than 2 points. */
+  changePct: number | null;
+}
+
+/** Per-account balance history for the last `days` days, for sparklines + % change on the accounts widget. */
+export async function getAccountSparklines(days = 14): Promise<Map<string, AccountSparkline>> {
+  const since = new Date();
+  since.setDate(since.getDate() - (days - 1));
+  const sinceKey = since.toISOString().slice(0, 10);
+
+  const rows = await db
+    .select({
+      accountId: accountBalanceSnapshots.accountId,
+      capturedOn: accountBalanceSnapshots.capturedOn,
+      balance: accountBalanceSnapshots.balance,
+    })
+    .from(accountBalanceSnapshots)
+    .where(gte(accountBalanceSnapshots.capturedOn, sinceKey))
+    .orderBy(accountBalanceSnapshots.accountId, accountBalanceSnapshots.capturedOn);
+
+  const byAccount = new Map<string, AccountSparkline>();
+  for (const r of rows) {
+    const entry = byAccount.get(r.accountId) ?? {
+      accountId: r.accountId,
+      points: [],
+      changePct: null,
+    };
+    entry.points.push({ date: r.capturedOn, balance: Number(r.balance) });
+    byAccount.set(r.accountId, entry);
+  }
+
+  for (const entry of byAccount.values()) {
+    const { points } = entry;
+    if (points.length < 2) continue;
+    const first = points[0].balance;
+    const last = points[points.length - 1].balance;
+    entry.changePct = first !== 0 ? ((last - first) / Math.abs(first)) * 100 : null;
+  }
+
+  return byAccount;
+}
+
 export interface NetPositionPoint {
   /** "2026-07-24" */
   date: string;

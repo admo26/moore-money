@@ -21,6 +21,7 @@ export const accounts = pgTable("accounts", {
   name: text("name").notNull(),
   type: text("type").notNull(),
   connectionName: text("connection_name").notNull(),
+  logo: text("logo"),
   currency: text("currency").notNull().default("NZD"),
   currentBalance: numeric("current_balance", { precision: 14, scale: 2 }),
   availableBalance: numeric("available_balance", { precision: 14, scale: 2 }),

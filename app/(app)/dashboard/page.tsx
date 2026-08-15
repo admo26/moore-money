@@ -18,6 +18,7 @@ import { formatMoney } from "@/lib/format";
 import { db } from "@/lib/db";
 import { accounts as accountsTable, type Account } from "@/lib/db/schema";
 import {
+  getAccountSparklines,
   getCategorySpend,
   getCategoryTrends,
   getMonthlyCashflow,
@@ -54,16 +55,19 @@ export default async function DashboardPage({
   let categoryTrends: Awaited<ReturnType<typeof getCategoryTrends>> = [];
   let netCashTrend: Awaited<ReturnType<typeof getNetCashTrend>> = [];
   let accounts: Account[] = [];
+  let accountSparklines: Awaited<ReturnType<typeof getAccountSparklines>> = new Map();
 
   try {
-    [summary, cashflow, categorySpend, categoryTrends, netCashTrend, accounts] = await Promise.all([
-      getPeriodSummary(PERIOD_DAYS),
-      getMonthlyCashflow(cashflowMonths),
-      getCategorySpend(spendDays),
-      getCategoryTrends(trendMonths),
-      getNetCashTrend(netCashDays),
-      db.select().from(accountsTable),
-    ]);
+    [summary, cashflow, categorySpend, categoryTrends, netCashTrend, accounts, accountSparklines] =
+      await Promise.all([
+        getPeriodSummary(PERIOD_DAYS),
+        getMonthlyCashflow(cashflowMonths),
+        getCategorySpend(spendDays),
+        getCategoryTrends(trendMonths),
+        getNetCashTrend(netCashDays),
+        db.select().from(accountsTable),
+        getAccountSparklines(),
+      ]);
   } catch (err) {
     error = err instanceof Error ? err.message : "Failed to load dashboard data.";
   }
@@ -93,7 +97,7 @@ export default async function DashboardPage({
       ) : (
         <>
           <div className="grid gap-6 md:grid-cols-2">
-            <AccountsWidget accounts={accounts} />
+            <AccountsWidget accounts={accounts} sparklines={accountSparklines} />
 
             <Card>
               <CardHeader>
