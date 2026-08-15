@@ -17,13 +17,6 @@
 @import "@heroui/styles/utilities";
 @import "@heroui/styles/variants";
 
-/* Live theme selector accent presets (Dashboard pilot only) — see
-   lib/theme.ts and components/theme/theme-panel.tsx. Layered so it sits
-   alongside HeroUI's own `@layer base` and stays easy to reason about
-   relative to it, even though [data-accent="..."] beats :root on
-   specificity regardless of layer. */
-@import "./themes/heroui-presets.css" layer(theme);
-
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
@@ -220,19 +213,12 @@ body:has([data-ui="heroui"]) {
   --radius-4xl: calc(var(--radius) * 4);
 }
 
-/* The ADS dark palette below has no toggle wired up on legacy routes yet
-   (kept as documentation of intent — see the plan doc's Stage 2 notes).
-   The live theme selector's `.dark` on <html> can't reach this block in
-   practice: app/layout.tsx only ever sets it on a request for the pilot
-   route (gated on the `x-pathname` header from proxy.ts), and
-   ThemeProvider's unmount cleanup strips it again the moment a client-side
-   navigation leaves /dashboard — both confirmed necessary while building
-   this (a naive "always set .dark from the cookie" version genuinely did
-   flip legacy routes dark, since this is unlayered CSS and --background
-   etc. are only reasserted at the *body* level, not <html>, on those
-   routes). If a real legacy dark toggle is ever added, it should set
-   `.dark` on <body> (or lower) rather than <html>, so it can't collide with
-   the pilot's own use of <html>'s class the same way. */
+/* The ADS dark palette below has no toggle wired up anywhere yet (kept as
+   documentation of intent — see the plan doc's Stage 2 notes). Harmless
+   since nothing ever sets `.dark` today; if a toggle is ever added it
+   should set the class on <body> (or lower), not <html> — <html> is
+   shared by every route, and this is unlayered CSS, so a bare `.dark`
+   there would beat the light ADS block above on *every* route at once. */
 .dark {
   --background: #0f1620;
   --foreground: #e5eaf0;

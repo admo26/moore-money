@@ -14,16 +14,7 @@ const PUBLIC_PATHS = [
 ];
 
 export async function proxy(request: NextRequest) {
-  // Forwarded as a request header so app/layout.tsx (the only place that
-  // renders <html>) can tell whether it's rendering the HeroUI Dashboard
-  // pilot without needing route params it doesn't otherwise receive — that's
-  // what lets the live theme selector's cookie only affect <html> on the
-  // pilot route, never on a fresh load of any other page. See the "Theme
-  // selector" comment in app/layout.tsx.
-  const requestHeaders = new Headers(request.headers);
-  requestHeaders.set("x-pathname", request.nextUrl.pathname);
-
-  let response = NextResponse.next({ request: { headers: requestHeaders } });
+  let response = NextResponse.next({ request });
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -35,7 +26,7 @@ export async function proxy(request: NextRequest) {
         },
         setAll(cookiesToSet) {
           cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
-          response = NextResponse.next({ request: { headers: requestHeaders } });
+          response = NextResponse.next({ request });
           cookiesToSet.forEach(({ name, value, options }) =>
             response.cookies.set(name, value, options)
           );
