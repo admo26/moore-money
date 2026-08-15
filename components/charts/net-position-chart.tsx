@@ -44,12 +44,6 @@ export function NetPositionChart({ data }: { data: NetPositionPoint[] }) {
   return (
     <ResponsiveContainer width="100%" height={240}>
       <AreaChart data={data} margin={{ left: 8, right: 8, top: 8 }}>
-        <defs>
-          <linearGradient id="netPositionFill" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="var(--chart-1)" stopOpacity={0.1} />
-            <stop offset="100%" stopColor="var(--chart-1)" stopOpacity={0} />
-          </linearGradient>
-        </defs>
         <CartesianGrid vertical={false} stroke="var(--border)" />
         <XAxis
           dataKey="date"
@@ -72,7 +66,7 @@ export function NetPositionChart({ data }: { data: NetPositionPoint[] }) {
           dataKey="netPosition"
           stroke="var(--chart-1)"
           strokeWidth={2}
-          fill="url(#netPositionFill)"
+          fill="none"
           dot={false}
           activeDot={{ r: 4, fill: "var(--chart-1)", stroke: "var(--card)", strokeWidth: 2 }}
         />

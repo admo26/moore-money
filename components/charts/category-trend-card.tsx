@@ -12,7 +12,7 @@ import {
 import { CategoryTrendChart } from "@/components/charts/category-trend-chart";
 import { ChartTypeToggle, type ChartType } from "@/components/charts/chart-type-toggle";
 import { RangeSelect } from "@/components/dashboard/range-select";
-import { TREND_RANGE_OPTIONS, rangeLabel } from "@/lib/reports/dashboard-ranges";
+import { TREND_RANGE_OPTIONS } from "@/lib/reports/dashboard-ranges";
 import type { CategoryTrendSeries } from "@/lib/reports/queries";
 
 export function CategoryTrendCard({
@@ -28,9 +28,7 @@ export function CategoryTrendCard({
     <Card>
       <CardHeaderRow>
         <CardTitleBlock>
-          <CardTitle className="text-base">
-            Category trend — {rangeLabel(months, TREND_RANGE_OPTIONS).toLowerCase()}
-          </CardTitle>
+          <CardTitle className="text-base">Category trend</CardTitle>
         </CardTitleBlock>
         <CardActions>
           <RangeSelect paramKey="trendMonths" value={months} options={TREND_RANGE_OPTIONS} />

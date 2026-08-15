@@ -31,7 +31,3 @@ export function parseRangeParam(raw: string | undefined, options: RangeOption[],
   const n = Number(raw);
   return options.some((o) => o.value === n) ? n : fallback;
 }
-
-export function rangeLabel(value: number, options: RangeOption[]): string {
-  return options.find((o) => o.value === value)?.label ?? "";
-}

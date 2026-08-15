@@ -39,7 +39,10 @@ import { cn } from "@/lib/utils";
 function CardHeaderRow({ className, ...props }: React.ComponentProps<typeof CardHeader>) {
   return (
     <CardHeader
-      className={cn("flex-row items-start justify-between gap-3", className)}
+      // HeroUI's own .card__header sets flex-col as plain (unlayered) CSS,
+      // which beats a same-specificity Tailwind utility class since v4
+      // utilities live inside @layer. The `!` forces this one important.
+      className={cn("flex-row! items-start justify-between gap-3", className)}
       {...props}
     />
   );

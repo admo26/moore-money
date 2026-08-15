@@ -31,7 +31,6 @@ import {
   SPEND_RANGE_OPTIONS,
   TREND_RANGE_OPTIONS,
   parseRangeParam,
-  rangeLabel,
 } from "@/lib/reports/dashboard-ranges";
 
 const PERIOD_DAYS = 30;
@@ -119,49 +118,53 @@ export default async function DashboardPage({
             />
           </div>
 
-          <AccountsWidget accounts={accounts} sparklines={accountSparklines} />
+          <div className="grid gap-6 lg:grid-cols-2">
+            <AccountsWidget accounts={accounts} sparklines={accountSparklines} />
 
-          <Card>
-            <CardHeaderRow>
-              <CardTitleBlock>
-                <CardTitle className="text-base">Net cash — {rangeLabel(netCashDays, NET_CASH_RANGE_OPTIONS).toLowerCase()}</CardTitle>
-              </CardTitleBlock>
-              <CardActions>
-                <RangeSelect paramKey="netCashDays" value={netCashDays} options={NET_CASH_RANGE_OPTIONS} />
-              </CardActions>
-            </CardHeaderRow>
-            <CardContent>
-              <NetPositionChart data={netCashTrend} />
-            </CardContent>
-          </Card>
+            <Card>
+              <CardHeaderRow>
+                <CardTitleBlock>
+                  <CardTitle className="text-base">Net cash</CardTitle>
+                </CardTitleBlock>
+                <CardActions>
+                  <RangeSelect paramKey="netCashDays" value={netCashDays} options={NET_CASH_RANGE_OPTIONS} />
+                </CardActions>
+              </CardHeaderRow>
+              <CardContent>
+                <NetPositionChart data={netCashTrend} />
+              </CardContent>
+            </Card>
+          </div>
 
-          <Card>
-            <CardHeaderRow>
-              <CardTitleBlock>
-                <CardTitle className="text-base">Cashflow — {rangeLabel(cashflowMonths, CASHFLOW_RANGE_OPTIONS).toLowerCase()}</CardTitle>
-              </CardTitleBlock>
-              <CardActions>
-                <RangeSelect paramKey="cashflowMonths" value={cashflowMonths} options={CASHFLOW_RANGE_OPTIONS} />
-              </CardActions>
-            </CardHeaderRow>
-            <CardContent>
-              <CashflowChart data={cashflow} />
-            </CardContent>
-          </Card>
+          <div className="grid gap-6 lg:grid-cols-2">
+            <Card>
+              <CardHeaderRow>
+                <CardTitleBlock>
+                  <CardTitle className="text-base">Cashflow</CardTitle>
+                </CardTitleBlock>
+                <CardActions>
+                  <RangeSelect paramKey="cashflowMonths" value={cashflowMonths} options={CASHFLOW_RANGE_OPTIONS} />
+                </CardActions>
+              </CardHeaderRow>
+              <CardContent>
+                <CashflowChart data={cashflow} />
+              </CardContent>
+            </Card>
 
-          <Card>
-            <CardHeaderRow>
-              <CardTitleBlock>
-                <CardTitle className="text-base">Spend by category — {rangeLabel(spendDays, SPEND_RANGE_OPTIONS).toLowerCase()}</CardTitle>
-              </CardTitleBlock>
-              <CardActions>
-                <RangeSelect paramKey="spendDays" value={spendDays} options={SPEND_RANGE_OPTIONS} />
-              </CardActions>
-            </CardHeaderRow>
-            <CardContent>
-              <CategorySpendChart data={categorySpend} from={periodFrom} to={periodTo} />
-            </CardContent>
-          </Card>
+            <Card>
+              <CardHeaderRow>
+                <CardTitleBlock>
+                  <CardTitle className="text-base">Spend by category</CardTitle>
+                </CardTitleBlock>
+                <CardActions>
+                  <RangeSelect paramKey="spendDays" value={spendDays} options={SPEND_RANGE_OPTIONS} />
+                </CardActions>
+              </CardHeaderRow>
+              <CardContent>
+                <CategorySpendChart data={categorySpend} from={periodFrom} to={periodTo} />
+              </CardContent>
+            </Card>
+          </div>
 
           <CategoryTrendCard series={categoryTrends} months={trendMonths} />
         </>

@@ -150,10 +150,13 @@ body:not(:has([data-ui="heroui"])) {
   --sidebar-ring: #1868db;
 }
 
-/* HeroUI pilot bridge — deliberately does NOT redeclare --background,
-   --foreground, --accent, --accent-foreground, --border, or --radius:
-   those stay HeroUI's own (from :root), which is the whole point. */
+/* HeroUI pilot bridge — deliberately does NOT redeclare --foreground,
+   --accent, --accent-foreground, --border, or --radius: those stay
+   HeroUI's own (from :root), which is the whole point. --background is the
+   one exception: HeroUI's default theme sets a grey/beige canvas
+   (oklch(0.9702 0 0)) and the app wants a plain white page background. */
 body:has([data-ui="heroui"]) {
+  --background: #ffffff;
   --card: var(--surface);
   --card-foreground: var(--surface-foreground);
   --popover: var(--overlay);

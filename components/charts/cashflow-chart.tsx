@@ -78,7 +78,7 @@ export function CashflowChart({ data }: { data: MonthlyCashflow[] }) {
           tickLine={false}
           tickFormatter={(v) => new Intl.NumberFormat("en-NZ").format(v)}
         />
-        <Tooltip content={<CashflowTooltip />} cursor={{ fill: "var(--accent)" }} />
+        <Tooltip content={<CashflowTooltip />} cursor={{ fill: "var(--chart-cursor)" }} />
         <Legend
           formatter={(value) => <span className="text-xs text-muted-foreground">{value}</span>}
         />

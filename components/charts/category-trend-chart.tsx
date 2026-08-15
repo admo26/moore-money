@@ -245,7 +245,7 @@ export function CategoryTrendChart({
                 tickLine={false}
                 tickFormatter={(v) => new Intl.NumberFormat("en-NZ").format(v)}
               />
-              <Tooltip content={<TrendTooltip resolveName={resolveName} />} cursor={{ fill: "var(--accent)" }} />
+              <Tooltip content={<TrendTooltip resolveName={resolveName} />} cursor={{ fill: "var(--chart-cursor)" }} />
               {selectedSeries.length > 1 && (
                 <Legend
                   formatter={(value) => (
