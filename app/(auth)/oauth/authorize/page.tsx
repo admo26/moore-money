@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/hero/card";
+import { Button } from "@/components/ui/hero/button";
 import { getAuthorizedUser } from "@/lib/auth";
 import { getClient } from "@/lib/mcp/oauth";
 import { approveAuthorization, denyAuthorization } from "./actions";

@@ -3,10 +3,10 @@
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
+import { Input } from "@/components/ui/hero/input";
+import { Button } from "@/components/ui/hero/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/hero/card";
+import { Separator } from "@/components/ui/hero/separator";
 
 export function LoginForm() {
   const searchParams = useSearchParams();
@@ -95,8 +95,8 @@ export function LoginForm() {
             type="button"
             variant="outline"
             className="w-full"
-            disabled={googleLoading}
-            onClick={handleGoogleSignIn}
+            isDisabled={googleLoading}
+            onPress={handleGoogleSignIn}
           >
             <svg viewBox="0 0 24 24" className="size-4">
               <path
@@ -139,7 +139,7 @@ export function LoginForm() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
-              <Button type="submit" className="w-full" disabled={status === "sending"}>
+              <Button type="submit" className="w-full" isDisabled={status === "sending"}>
                 {status === "sending" ? "Sending link…" : "Email me a sign-in link"}
               </Button>
               {error && <p className="text-sm text-destructive">{error}</p>}
