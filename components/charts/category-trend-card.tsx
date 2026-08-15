@@ -5,7 +5,6 @@ import {
   Card,
   CardActions,
   CardContent,
-  CardDescription,
   CardHeaderRow,
   CardTitle,
   CardTitleBlock,
@@ -32,9 +31,6 @@ export function CategoryTrendCard({
           <CardTitle className="text-base">
             Category trend — {rangeLabel(months, TREND_RANGE_OPTIONS).toLowerCase()}
           </CardTitle>
-          <CardDescription>
-            Net amount per month — click categories below to compare up to 5 at once.
-          </CardDescription>
         </CardTitleBlock>
         <CardActions>
           <RangeSelect paramKey="trendMonths" value={months} options={TREND_RANGE_OPTIONS} />

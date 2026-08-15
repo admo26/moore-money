@@ -1,4 +1,4 @@
-import { and, eq, gte, isNull, notInArray, or, sql } from "drizzle-orm";
+import { and, eq, gte, isNull, lt, notInArray, or, sql } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { accountBalanceSnapshots, accounts, categories, transactions } from "@/lib/db/schema";
 import { INVESTMENT_ACCOUNT_TYPES, NON_SPEND_CATEGORY_NAMES } from "./constants";
@@ -299,20 +299,48 @@ export async function getNetCashTrend(days = 180): Promise<NetPositionPoint[]> {
 export interface PeriodSummary {
   income: number;
   expense: number;
+  /** % change vs. the preceding `days`-day period, or null if that period had zero income/expense. */
+  incomeChangePct: number | null;
+  expenseChangePct: number | null;
+  netChangePct: number | null;
 }
 
-/** Total money in/out over the last `days` days. */
-export async function getPeriodSummary(days = 30): Promise<PeriodSummary> {
-  const since = new Date();
-  since.setDate(since.getDate() - days);
+function changePct(current: number, previous: number): number | null {
+  return previous !== 0 ? ((current - previous) / Math.abs(previous)) * 100 : null;
+}
 
-  const [row] = await db
+function sumIncomeExpense(from: Date, to?: Date) {
+  return db
     .select({
       income: sql<string>`coalesce(sum(case when ${transactions.amount} > 0 then ${transactions.amount} else 0 end), 0)`,
       expense: sql<string>`coalesce(sum(case when ${transactions.amount} < 0 then -${transactions.amount} else 0 end), 0)`,
     })
     .from(transactions)
-    .where(gte(transactions.date, since));
+    .where(to ? and(gte(transactions.date, from), lt(transactions.date, to)) : gte(transactions.date, from));
+}
 
-  return { income: Number(row.income), expense: Number(row.expense) };
+/** Total money in/out over the last `days` days, plus % change vs. the preceding period of the same length. */
+export async function getPeriodSummary(days = 30): Promise<PeriodSummary> {
+  const since = new Date();
+  since.setDate(since.getDate() - days);
+  const previousSince = new Date(since);
+  previousSince.setDate(previousSince.getDate() - days);
+
+  const [[current], [previous]] = await Promise.all([
+    sumIncomeExpense(since),
+    sumIncomeExpense(previousSince, since),
+  ]);
+
+  const income = Number(current?.income ?? 0);
+  const expense = Number(current?.expense ?? 0);
+  const previousIncome = Number(previous?.income ?? 0);
+  const previousExpense = Number(previous?.expense ?? 0);
+
+  return {
+    income,
+    expense,
+    incomeChangePct: changePct(income, previousIncome),
+    expenseChangePct: changePct(expense, previousExpense),
+    netChangePct: changePct(income - expense, previousIncome - previousExpense),
+  };
 }

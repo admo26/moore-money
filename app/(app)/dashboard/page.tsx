@@ -2,8 +2,6 @@ import {
   Card,
   CardActions,
   CardContent,
-  CardDescription,
-  CardHeader,
   CardHeaderRow,
   CardTitle,
   CardTitleBlock,
@@ -14,6 +12,7 @@ import { CategoryTrendCard } from "@/components/charts/category-trend-card";
 import { NetPositionChart } from "@/components/charts/net-position-chart";
 import { RangeSelect } from "@/components/dashboard/range-select";
 import { AccountsWidget } from "@/components/dashboard/accounts-widget";
+import { StatCard } from "@/components/dashboard/stat-card";
 import { formatMoney } from "@/lib/format";
 import { db } from "@/lib/db";
 import { accounts as accountsTable, type Account } from "@/lib/db/schema";
@@ -49,7 +48,13 @@ export default async function DashboardPage({
   const trendMonths = parseRangeParam(params.trendMonths, TREND_RANGE_OPTIONS, 6);
 
   let error: string | null = null;
-  let summary = { income: 0, expense: 0 };
+  let summary = {
+    income: 0,
+    expense: 0,
+    incomeChangePct: null as number | null,
+    expenseChangePct: null as number | null,
+    netChangePct: null as number | null,
+  };
   let cashflow: Awaited<ReturnType<typeof getMonthlyCashflow>> = [];
   let categorySpend: Awaited<ReturnType<typeof getCategorySpend>> = [];
   let categoryTrends: Awaited<ReturnType<typeof getCategoryTrends>> = [];
@@ -96,47 +101,30 @@ export default async function DashboardPage({
         </div>
       ) : (
         <>
-          <div className="grid gap-6 md:grid-cols-2">
-            <AccountsWidget accounts={accounts} sparklines={accountSparklines} />
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">Money in and out — last {PERIOD_DAYS} days</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-                  <div className="text-lg font-semibold text-positive sm:text-2xl">
-                    {formatMoney(summary.income)}
-                  </div>
-                  <div className="text-base font-medium text-muted-foreground sm:text-xl">−</div>
-                  <div className="text-lg font-semibold text-negative sm:text-2xl">
-                    {formatMoney(summary.expense)}
-                  </div>
-                  <div className="text-base font-medium text-muted-foreground sm:text-xl">=</div>
-                  <div
-                    className={
-                      net < 0
-                        ? "text-lg font-semibold text-negative sm:text-2xl"
-                        : "text-lg font-semibold text-positive sm:text-2xl"
-                    }
-                  >
-                    {net > 0 ? "+" : ""}
-                    {formatMoney(net)}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+          <div className="grid gap-4 sm:grid-cols-3">
+            <StatCard
+              label="Money in"
+              value={formatMoney(summary.income)}
+              changePct={summary.incomeChangePct}
+            />
+            <StatCard
+              label="Money out"
+              value={formatMoney(summary.expense)}
+              changePct={summary.expenseChangePct}
+            />
+            <StatCard
+              label="Net"
+              value={`${net > 0 ? "+" : ""}${formatMoney(net)}`}
+              changePct={summary.netChangePct}
+            />
           </div>
+
+          <AccountsWidget accounts={accounts} sparklines={accountSparklines} />
 
           <Card>
             <CardHeaderRow>
               <CardTitleBlock>
                 <CardTitle className="text-base">Net cash — {rangeLabel(netCashDays, NET_CASH_RANGE_OPTIONS).toLowerCase()}</CardTitle>
-                <CardDescription>
-                  Sum of every bank, loan, and credit card balance each day, from a daily
-                  snapshot taken on sync. Excludes KiwiSaver/managed-fund accounts — see the
-                  Net Worth page for those.
-                </CardDescription>
               </CardTitleBlock>
               <CardActions>
                 <RangeSelect paramKey="netCashDays" value={netCashDays} options={NET_CASH_RANGE_OPTIONS} />
