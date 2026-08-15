@@ -2,7 +2,6 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, X } from "lucide-react";
 import {
   Bar,
   BarChart,
@@ -16,7 +15,7 @@ import {
   YAxis,
   type DotItemDotProps,
 } from "recharts";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { CategoryPicker } from "@/components/charts/category-picker";
 import { formatMoney } from "@/lib/format";
 import { monthRange } from "@/lib/reports/date-params";
 import type { CategoryTrendSeries } from "@/lib/reports/queries";
@@ -171,54 +170,14 @@ export function CategoryTrendChart({
 
   return (
     <div className="space-y-3">
-      <div className="flex flex-wrap items-center gap-1.5">
-        {selectedSeries.map((s) => (
-          <span
-            key={s.categoryFilter}
-            className="inline-flex items-center gap-1 rounded-full py-1 pl-2.5 pr-1.5 text-xs font-medium text-white"
-            style={{ backgroundColor: colorByCategory.get(s.categoryFilter) }}
-          >
-            {s.name}
-            <button
-              type="button"
-              onClick={() => toggle(s.categoryFilter)}
-              aria-label={`Remove ${s.name}`}
-              className="rounded-full p-0.5 hover:bg-white/20"
-            >
-              <X className="h-3 w-3" />
-            </button>
-          </span>
-        ))}
-
-        {unselectedSeries.length > 0 && (
-          <Popover>
-            <PopoverTrigger className="inline-flex items-center gap-1 rounded-full border border-dashed border-border px-2.5 py-1 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground">
-              <Plus className="h-3 w-3" />
-              More
-            </PopoverTrigger>
-            <PopoverContent>
-              <div className="max-h-64 space-y-0.5 overflow-y-auto p-1">
-                {atLimit && (
-                  <p className="px-2 py-1 text-xs text-muted-foreground">
-                    Up to {MAX_SELECTED} categories at a time — remove one to add another.
-                  </p>
-                )}
-                {unselectedSeries.map((s) => (
-                  <button
-                    key={s.categoryFilter}
-                    type="button"
-                    onClick={() => toggle(s.categoryFilter)}
-                    disabled={atLimit}
-                    className="flex w-full items-center rounded-md px-2 py-1.5 text-left text-sm text-foreground transition-colors hover:bg-accent disabled:opacity-40"
-                  >
-                    {s.name}
-                  </button>
-                ))}
-              </div>
-            </PopoverContent>
-          </Popover>
-        )}
-      </div>
+      <CategoryPicker
+        selected={selectedSeries}
+        unselected={unselectedSeries}
+        colorByCategory={colorByCategory}
+        atLimit={atLimit}
+        maxSelected={MAX_SELECTED}
+        onToggle={toggle}
+      />
 
       {selectedSeries.length === 0 ? (
         <div className="flex h-40 items-center justify-center text-sm text-muted-foreground">
