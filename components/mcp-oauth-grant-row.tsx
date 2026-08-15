@@ -1,6 +1,7 @@
 "use client";
 
 import { useTransition } from "react";
+import { Ban } from "lucide-react";
 import { Button } from "@/components/ui/hero/button";
 import { revokeMcpOauthGrant } from "@/app/(app)/settings/actions";
 
@@ -27,8 +28,16 @@ export function McpOauthGrantRow({ grant }: { grant: McpOauthGrantRowData }) {
       <td className="px-4 py-2 text-muted-foreground">{grant.email}</td>
       <td className="px-4 py-2 text-muted-foreground">{grant.createdAt.toLocaleDateString()}</td>
       <td className="px-4 py-2 text-right">
-        <Button size="sm" variant="ghost" onPress={handleRevoke} isDisabled={isPending}>
-          Revoke
+        <Button
+          size="sm"
+          variant="danger-soft"
+          isIconOnly
+          className="rounded-full"
+          aria-label="Revoke access"
+          onPress={handleRevoke}
+          isDisabled={isPending}
+        >
+          <Ban className="h-4 w-4" />
         </Button>
       </td>
     </tr>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Star } from "lucide-react";
+import { Pencil, Star, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/hero/input";
 import { Button } from "@/components/ui/hero/button";
@@ -67,16 +67,17 @@ export function CategoryRow({ category }: { category: CategoryRowData }) {
   }
 
   const favouriteButton = (
-    <button
-      type="button"
-      onClick={handleToggleFavourite}
-      disabled={isPending}
+    <Button
+      size="sm"
+      variant="ghost"
+      isIconOnly
+      className="rounded-full"
       aria-label={isFavourite ? "Unstar category" : "Star category"}
-      title={isFavourite ? "Unstar category" : "Star category"}
-      className="text-muted-foreground hover:text-foreground disabled:opacity-50"
+      onPress={handleToggleFavourite}
+      isDisabled={isPending}
     >
       <Star className={cn("h-4 w-4", isFavourite && "fill-current text-primary")} />
-    </button>
+    </Button>
   );
 
   if (isEditing) {
@@ -114,12 +115,30 @@ export function CategoryRow({ category }: { category: CategoryRowData }) {
         </div>
       </td>
       <td className="px-4 py-2 text-right">
-        <Button size="sm" variant="ghost" onPress={() => setIsEditing(true)} isDisabled={isPending}>
-          Edit
-        </Button>
-        <Button size="sm" variant="ghost" onPress={handleDelete} isDisabled={isPending}>
-          Delete
-        </Button>
+        <div className="flex justify-end gap-2">
+          <Button
+            size="sm"
+            variant="secondary"
+            isIconOnly
+            className="rounded-full"
+            aria-label="Edit category"
+            onPress={() => setIsEditing(true)}
+            isDisabled={isPending}
+          >
+            <Pencil className="h-4 w-4" />
+          </Button>
+          <Button
+            size="sm"
+            variant="danger-soft"
+            isIconOnly
+            className="rounded-full"
+            aria-label="Delete category"
+            onPress={handleDelete}
+            isDisabled={isPending}
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        </div>
       </td>
     </tr>
   );

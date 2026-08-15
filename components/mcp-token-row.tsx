@@ -1,6 +1,7 @@
 "use client";
 
 import { useTransition } from "react";
+import { Ban } from "lucide-react";
 import { Button } from "@/components/ui/hero/button";
 import { revokeMcpToken } from "@/app/(app)/settings/actions";
 
@@ -34,8 +35,16 @@ export function McpTokenRow({ token }: { token: McpTokenRowData }) {
         {token.revokedAt ? (
           <span className="text-xs text-muted-foreground">Revoked</span>
         ) : (
-          <Button size="sm" variant="ghost" onPress={handleRevoke} isDisabled={isPending}>
-            Revoke
+          <Button
+            size="sm"
+            variant="danger-soft"
+            isIconOnly
+            className="rounded-full"
+            aria-label="Revoke token"
+            onPress={handleRevoke}
+            isDisabled={isPending}
+          >
+            <Ban className="h-4 w-4" />
           </Button>
         )}
       </td>
