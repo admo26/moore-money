@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef } from "react";
-import { Input } from "@/components/ui/input";
+import { Input } from "@/components/ui/hero/input";
 import { PERIOD_PRESETS, PERIOD_PRESET_LABELS, type PeriodPreset } from "@/lib/reports/period";
 
 export function ReportPeriodPicker({

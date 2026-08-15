@@ -2,8 +2,7 @@
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { Key } from "react-aria-components";
-import { Select } from "@heroui/react/select";
-import { ListBox } from "@heroui/react/list-box";
+import { Select, ListBox } from "@/components/ui/hero/select";
 import type { RangeOption } from "@/lib/reports/dashboard-ranges";
 
 /** A small per-chart range picker — updates its own URL search param, leaving the others untouched. */

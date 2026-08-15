@@ -1,7 +1,7 @@
 import { db } from "@/lib/db";
 import { accounts } from "@/lib/db/schema";
 import { AccountCard } from "@/components/account-card";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/hero/card";
 import { formatMoney } from "@/lib/format";
 import { accountClass } from "@/lib/accounts/classify";
 

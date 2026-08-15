@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/hero/card";
 
 const REPORTS = [
   {

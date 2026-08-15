@@ -1,4 +1,4 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/hero/card";
 import { formatDate, formatMoney } from "@/lib/format";
 import type { Account } from "@/lib/db/schema";
 

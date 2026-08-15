@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/hero/card";
 import { ReportPeriodPicker } from "@/components/reports/report-period-picker";
 import { getIncomeExpenseReport, type StatementRow } from "@/lib/reports/statements";
 import { periodFromSearchParams } from "@/lib/reports/period";
