@@ -2,10 +2,15 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import type { Key } from "react-aria-components";
 import { toast } from "sonner";
+import { Select, ListBox } from "@/components/ui/hero/select";
 import { setTransactionCategory } from "@/app/(app)/transactions/actions";
 import { applyRuleRetroactively, createRuleFromValues } from "@/app/(app)/rules/actions";
 import type { Category } from "@/lib/db/schema";
+
+/** Sentinel key for "no category" — matches the ?categoryId=uncategorised convention used elsewhere in this app. */
+const UNCATEGORISED = "uncategorised";
 
 export function CategorySelect({
   transactionId,
@@ -19,15 +24,16 @@ export function CategorySelect({
   /** Merchant/description text used as the suggested rule pattern. */
   pattern: string;
 }) {
-  const [value, setValue] = useState(categoryId ? String(categoryId) : "");
+  const [value, setValue] = useState(categoryId ? String(categoryId) : UNCATEGORISED);
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
 
-  function handleChange(e: React.ChangeEvent<HTMLSelectElement>) {
-    const newValue = e.target.value;
+  function handleSelectionChange(key: Key | null) {
+    if (key == null) return;
+    const newValue = String(key);
     setValue(newValue);
     startTransition(async () => {
-      const newCategoryId = newValue ? Number(newValue) : null;
+      const newCategoryId = newValue === UNCATEGORISED ? null : Number(newValue);
       await setTransactionCategory(transactionId, newCategoryId);
 
       const trimmedPattern = pattern.trim();
@@ -74,18 +80,26 @@ export function CategorySelect({
   }
 
   return (
-    <select
-      value={value}
-      onChange={handleChange}
-      disabled={isPending}
-      className="h-7 rounded-md border border-input bg-transparent px-2 text-xs outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/50 disabled:opacity-50"
+    <Select
+      aria-label="Category"
+      selectedKey={value}
+      onSelectionChange={handleSelectionChange}
+      isDisabled={isPending}
     >
-      <option value="">Uncategorised</option>
-      {categories.map((c) => (
-        <option key={c.id} value={c.id}>
-          {c.name}
-        </option>
-      ))}
-    </select>
+      <Select.Trigger className="h-7 min-h-7 text-xs">
+        <Select.Value />
+        <Select.Indicator />
+      </Select.Trigger>
+      <Select.Popover>
+        <ListBox>
+          <ListBox.Item id={UNCATEGORISED}>Uncategorised</ListBox.Item>
+          {categories.map((c) => (
+            <ListBox.Item key={c.id} id={String(c.id)}>
+              {c.name}
+            </ListBox.Item>
+          ))}
+        </ListBox>
+      </Select.Popover>
+    </Select>
   );
 }

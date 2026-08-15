@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { RefreshCw } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/hero/button";
 
 export function SyncButton() {
   const [isSyncing, setIsSyncing] = useState(false);
@@ -24,7 +24,7 @@ export function SyncButton() {
   }
 
   return (
-    <Button size="sm" variant="outline" onClick={handleSync} disabled={isSyncing}>
+    <Button size="sm" variant="outline" onPress={handleSync} isDisabled={isSyncing}>
       <RefreshCw className={isSyncing ? "h-4 w-4 animate-spin" : "h-4 w-4"} />
       {isSyncing ? "Syncing…" : "Sync now"}
     </Button>

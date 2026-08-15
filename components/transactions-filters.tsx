@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
-import { Input } from "@/components/ui/input";
+import { Input } from "@/components/ui/hero/input";
 import { cn } from "@/lib/utils";
 import type { Account, Category } from "@/lib/db/schema";
 
