@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { CategoryTrendChart, ChartTypeToggle, type ChartType } from "@/components/charts/category-trend-chart";
+import { CategoryTrendChart } from "@/components/charts/category-trend-chart";
+import { ChartTypeToggle, type ChartType } from "@/components/charts/chart-type-toggle";
 import { RangeSelect } from "@/components/dashboard/range-select";
 import { TREND_RANGE_OPTIONS, rangeLabel } from "@/lib/reports/dashboard-ranges";
 import type { CategoryTrendSeries } from "@/lib/reports/queries";

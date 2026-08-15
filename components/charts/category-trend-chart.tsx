@@ -19,38 +19,10 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { formatMoney } from "@/lib/format";
 import { monthRange } from "@/lib/reports/date-params";
-import { cn } from "@/lib/utils";
 import type { CategoryTrendSeries } from "@/lib/reports/queries";
+import type { ChartType } from "@/components/charts/chart-type-toggle";
 
-export type ChartType = "line" | "bar";
-
-export function ChartTypeToggle({
-  value,
-  onChange,
-}: {
-  value: ChartType;
-  onChange: (type: ChartType) => void;
-}) {
-  return (
-    <div className="flex shrink-0 gap-0.5 rounded-full border border-border p-0.5">
-      {(["line", "bar"] as const).map((type) => (
-        <button
-          key={type}
-          type="button"
-          onClick={() => onChange(type)}
-          className={cn(
-            "rounded-full px-2.5 py-1 text-xs font-medium capitalize transition-colors",
-            value === type
-              ? "bg-accent text-accent-foreground"
-              : "text-muted-foreground hover:text-accent-foreground"
-          )}
-        >
-          {type}
-        </button>
-      ))}
-    </div>
-  );
-}
+export type { ChartType };
 
 const MAX_SELECTED = 5;
 // Fixed order, never cycled — matches the app's validated categorical palette.
