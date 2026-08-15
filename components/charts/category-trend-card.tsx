@@ -1,7 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardActions,
+  CardContent,
+  CardDescription,
+  CardHeaderRow,
+  CardTitle,
+  CardTitleBlock,
+} from "@/components/ui/hero/card";
 import { CategoryTrendChart } from "@/components/charts/category-trend-chart";
 import { ChartTypeToggle, type ChartType } from "@/components/charts/chart-type-toggle";
 import { RangeSelect } from "@/components/dashboard/range-select";
@@ -19,18 +27,20 @@ export function CategoryTrendCard({
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle className="text-base">
-          Category trend — {rangeLabel(months, TREND_RANGE_OPTIONS).toLowerCase()}
-        </CardTitle>
-        <CardDescription>
-          Net amount per month — click categories below to compare up to 5 at once.
-        </CardDescription>
-        <CardAction className="flex items-center gap-2">
+      <CardHeaderRow>
+        <CardTitleBlock>
+          <CardTitle className="text-base">
+            Category trend — {rangeLabel(months, TREND_RANGE_OPTIONS).toLowerCase()}
+          </CardTitle>
+          <CardDescription>
+            Net amount per month — click categories below to compare up to 5 at once.
+          </CardDescription>
+        </CardTitleBlock>
+        <CardActions>
           <RangeSelect paramKey="trendMonths" value={months} options={TREND_RANGE_OPTIONS} />
           <ChartTypeToggle value={chartType} onChange={setChartType} />
-        </CardAction>
-      </CardHeader>
+        </CardActions>
+      </CardHeaderRow>
       <CardContent>
         <CategoryTrendChart series={series} chartType={chartType} />
       </CardContent>
