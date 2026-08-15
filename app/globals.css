@@ -1,4 +1,22 @@
 @import "tailwindcss";
+
+/* HeroUI v3 — dashboard-pilot only (see the body-scoped blocks below).
+   Imported granularly, not via "@heroui/styles" (which also re-imports
+   tailwindcss + tw-animate-css, both already imported here). Order matters:
+   this must land BEFORE the app's own @theme inline block so the app's
+   --radius-* multipliers win Tailwind's compile-time theme merge for every
+   *compiled* rounded-* utility, app-wide — verified empirically (see the
+   Stage 0 spike): with HeroUI's import first, `.rounded-xl` compiles to
+   `calc(var(--radius) * 1.4)` (the app's own multiplier), not HeroUI's 1.5.
+   HeroUI's own raw component CSS (e.g. card.css's `var(--radius-3xl)`) reads
+   the same shared runtime variable, so it's retargeted separately in the
+   pilot bridge block below rather than via this import order. */
+@import "@heroui/styles/themes/default";
+@import "@heroui/styles/base";
+@import "@heroui/styles/components/index.css";
+@import "@heroui/styles/utilities";
+@import "@heroui/styles/variants";
+
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
@@ -52,10 +70,43 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-:root {
+/* --------------------------------------------------------------------
+   Token architecture (HeroUI pilot on the Dashboard, see plan doc
+   "Feature: HeroUI v3 pilot on the Dashboard"):
+
+   :root is left to HeroUI's own import above — unmodified, so the pilot
+   gets authentic HeroUI colors/radius/motion with no mirrored copy and no
+   drift on upgrade, and the live theme selector (which sets --accent /
+   --radius / .dark on <html>) works exactly as HeroUI's own docs describe.
+
+   The app's ADS palette moves from :root onto a body-scoped fallback that
+   activates on every route WITHOUT the pilot's `data-ui="heroui"` marker
+   (set by app/(app)/dashboard/layout.tsx). This was verified necessary,
+   not just tidy: the app's original :root block was *unlayered* CSS, which
+   already beats HeroUI's *layered* (`@layer base`) :root today regardless
+   of source order — so simply leaving both would have kept the ADS look
+   everywhere including the pilot. Moving ADS onto `body:not(:has(...))`
+   (also unlayered) preserves that same always-wins behaviour, but only on
+   non-pilot routes.
+
+   A second, narrower "bridge" block on `body:has([data-ui="heroui"])`
+   gives the app's own token *names* HeroUI doesn't define (--card,
+   --popover, --primary, --chart-1..5, --sidebar-*, --positive/--negative)
+   HeroUI-derived values, so components that read those names directly
+   (Recharts, the sidebar, any not-yet-migrated legacy component that
+   renders inside the pilot) look native there too — via var() references,
+   so they track the theme selector automatically. Every portal (HeroUI's
+   own Select/Modal/Popover, and the legacy Base UI popover in
+   category-trend-chart.tsx) mounts inside document.body, so this scoping
+   catches them too — the reason the scope is body-level, not a wrapper
+   <div> (which portaled content would render as a *sibling* of, escaping
+   its custom properties entirely). */
+
+body:not(:has([data-ui="heroui"])) {
   /* Atlassian Design System palette (from @atlaskit/tokens' published
      default values) — brand blue accent, ADS neutral text/border, and the
-     8-color categorical chart sequence. */
+     8-color categorical chart sequence. Verbatim copy of the app's
+     original :root block. */
   --background: #ffffff;
   --foreground: #292a2e;
   --card: #ffffff;
@@ -99,10 +150,76 @@
   --sidebar-ring: #1868db;
 }
 
+/* HeroUI pilot bridge — deliberately does NOT redeclare --background,
+   --foreground, --accent, --accent-foreground, --border, or --radius:
+   those stay HeroUI's own (from :root), which is the whole point. */
+body:has([data-ui="heroui"]) {
+  --card: var(--surface);
+  --card-foreground: var(--surface-foreground);
+  --popover: var(--overlay);
+  --popover-foreground: var(--overlay-foreground);
+  --primary: var(--accent);
+  --primary-foreground: var(--accent-foreground);
+  --secondary: var(--default);
+  --secondary-foreground: var(--default-foreground);
+  --muted-foreground: var(--muted);
+  --destructive: var(--danger);
+  --input: var(--field-border);
+  --ring: var(--focus);
+
+  --sidebar: var(--surface);
+  --sidebar-foreground: var(--surface-foreground);
+  --sidebar-primary: var(--accent);
+  --sidebar-primary-foreground: var(--accent-foreground);
+  --sidebar-accent: var(--accent-soft);
+  --sidebar-accent-foreground: var(--accent-soft-foreground);
+  --sidebar-border: var(--border);
+  --sidebar-ring: var(--focus);
+
+  /* Money in/out — HeroUI's own success/danger, not the ADS hex values. */
+  --positive: var(--success);
+  --positive-foreground: var(--success-foreground);
+  --negative: var(--danger);
+  --negative-foreground: var(--danger-foreground);
+
+  /* Chart-specific tokens (wired into components/charts/*.tsx in a later
+     step) — kept distinct from --accent so a saturated theme accent never
+     becomes an opaque hover-cursor fill over a chart. The categorical
+     chart-1..5 sequence is left as fixed hues rather than derived from one
+     accent, since they need to stay visually distinct from each other. */
+  --chart-cursor: var(--accent-soft);
+  --chart-grid: var(--border);
+  --chart-axis: var(--muted);
+  --chart-surface: var(--surface);
+  --chart-1: #357de8;
+  --chart-2: #82b536;
+  --chart-3: #bf63f3;
+  --chart-4: #f68909;
+  --chart-5: #42b2d7;
+
+  /* Retarget HeroUI's own raw component CSS (which reads var(--radius-xl)
+     etc. directly, e.g. card.css's `min(32px, var(--radius-3xl))`) to
+     HeroUI's intended multiplier scale. This does NOT affect any Tailwind
+     *compiled* rounded-* utility (those are pinned to the app's own scale
+     app-wide by import order above) — verified empirically, see the
+     comment on the HeroUI @import block. */
+  --radius-xs: calc(var(--radius) * 0.25);
+  --radius-sm: calc(var(--radius) * 0.5);
+  --radius-md: calc(var(--radius) * 0.75);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.5);
+  --radius-2xl: calc(var(--radius) * 2);
+  --radius-3xl: calc(var(--radius) * 3);
+  --radius-4xl: calc(var(--radius) * 4);
+}
+
+/* The ADS dark palette below has no toggle wired up on legacy routes yet
+   (kept as documentation of intent — see the plan doc's Stage 2 notes).
+   Harmless if `.dark` is ever set on <html> while on a legacy route: the
+   `body:not(:has(...))` block above always wins for --background etc.
+   since a directly-declared property on an element beats one inherited
+   from an ancestor, regardless of what .dark set upstream. */
 .dark {
-  /* Best-effort dark equivalents (this app has no dark-mode toggle wired
-     up yet, so these aren't reachable/testable — kept directionally
-     consistent with ADS's light-blue-on-dark convention). */
   --background: #0f1620;
   --foreground: #e5eaf0;
   --card: #16202a;
