@@ -7,6 +7,7 @@ import type { Key } from "react-aria-components";
 import { Input } from "@/components/ui/hero/input";
 import { Button } from "@/components/ui/hero/button";
 import { Select, ListBox } from "@/components/ui/hero/select";
+import { TableRow, TableCell } from "@/components/ui/table";
 import { applyRuleRetroactively, deleteRule, updateRule } from "@/app/(app)/rules/actions";
 import type { Category } from "@/lib/db/schema";
 
@@ -69,16 +70,16 @@ export function RuleRow({
 
   if (isEditing) {
     return (
-      <tr className="border-b border-border last:border-0">
-        <td className="px-4 py-2">
+      <TableRow>
+        <TableCell className="whitespace-normal">
           <Input
             value={pattern}
             onChange={(e) => setPattern(e.target.value)}
             className="h-8 w-full font-mono text-xs"
             disabled={isPending}
           />
-        </td>
-        <td className="px-4 py-2">
+        </TableCell>
+        <TableCell className="whitespace-normal">
           <Select
             aria-label="Category"
             selectedKey={categoryId}
@@ -101,24 +102,24 @@ export function RuleRow({
               </ListBox>
             </Select.Popover>
           </Select>
-        </td>
-        <td className="px-4 py-2 text-right">
+        </TableCell>
+        <TableCell className="text-right whitespace-normal">
           <Button size="sm" onPress={handleSave} isDisabled={isPending}>
             Save
           </Button>
           <Button size="sm" variant="ghost" onPress={handleCancel} isDisabled={isPending}>
             Cancel
           </Button>
-        </td>
-      </tr>
+        </TableCell>
+      </TableRow>
     );
   }
 
   return (
-    <tr className="border-b border-border last:border-0">
-      <td className="px-4 py-2 font-mono text-xs">{rule.pattern}</td>
-      <td className="px-4 py-2">{rule.categoryName}</td>
-      <td className="px-4 py-2 text-right">
+    <TableRow>
+      <TableCell className="font-mono text-xs">{rule.pattern}</TableCell>
+      <TableCell>{rule.categoryName}</TableCell>
+      <TableCell className="text-right">
         <div className="flex justify-end gap-2">
           <Button
             size="sm"
@@ -154,7 +155,7 @@ export function RuleRow({
             <Trash2 className="h-4 w-4" />
           </Button>
         </div>
-      </td>
-    </tr>
+      </TableCell>
+    </TableRow>
   );
 }

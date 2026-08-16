@@ -4,6 +4,7 @@ import { categories, rules } from "@/lib/db/schema";
 import { Input } from "@/components/ui/hero/input";
 import { Button } from "@/components/ui/hero/button";
 import { Select, ListBox } from "@/components/ui/hero/select";
+import { Table, TableHeader, TableRow, TableHead, TableBody } from "@/components/ui/table";
 import { RuleRow } from "@/components/rule-row";
 import { RerunRulesButton } from "@/components/rerun-rules-button";
 import { createRule } from "./actions";
@@ -123,15 +124,15 @@ export default async function RulesPage({
             </div>
           ) : (
             <div className="overflow-hidden rounded-lg border border-border bg-card">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-border text-left text-muted-foreground">
-                    <th className="px-4 py-2 font-medium">Pattern</th>
-                    <th className="px-4 py-2 font-medium">Category</th>
-                    <th className="px-4 py-2" />
-                  </tr>
-                </thead>
-                <tbody>
+              <Table>
+                <TableHeader>
+                  <TableRow className="hover:bg-transparent">
+                    <TableHead>Pattern</TableHead>
+                    <TableHead>Category</TableHead>
+                    <TableHead />
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
                   {rulesList.map((rule) => (
                     <RuleRow
                       key={rule.id}
@@ -140,8 +141,8 @@ export default async function RulesPage({
                       startEditing={rule.id === editId}
                     />
                   ))}
-                </tbody>
-              </table>
+                </TableBody>
+              </Table>
             </div>
           )}
         </>
