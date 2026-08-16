@@ -86,7 +86,7 @@ export function CategorySelect({
       onSelectionChange={handleSelectionChange}
       isDisabled={isPending}
     >
-      <Select.Trigger className="h-7 min-h-7 text-xs">
+      <Select.Trigger className="h-8 min-h-8 text-xs">
         <Select.Value />
         <Select.Indicator />
       </Select.Trigger>

@@ -6,6 +6,7 @@ import type { Selection } from "react-aria-components";
 import { Input } from "@/components/ui/hero/input";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/hero/popover";
 import { ListBox } from "@/components/ui/hero/select";
+import { Field } from "@/components/ui/field";
 import { TransactionsSort } from "@/components/transactions-sort";
 import type { Account, Category } from "@/lib/db/schema";
 
@@ -93,10 +94,7 @@ export function TransactionsToolbar({
         </PopoverTrigger>
         <PopoverContent>
           <div className="w-72 space-y-3 p-3">
-            <div className="flex flex-col gap-1">
-              <span className="text-xs font-medium text-muted-foreground">
-                Account {accountIds.length > 0 && `(${accountIds.length})`}
-              </span>
+            <Field label={<>Account {accountIds.length > 0 && `(${accountIds.length})`}</>}>
               <div className="max-h-40 overflow-y-auto rounded-md border border-border">
                 <ListBox
                   aria-label="Filter by account"
@@ -112,12 +110,9 @@ export function TransactionsToolbar({
                   ))}
                 </ListBox>
               </div>
-            </div>
+            </Field>
 
-            <div className="flex flex-col gap-1">
-              <span className="text-xs font-medium text-muted-foreground">
-                Category {categoryIds.length > 0 && `(${categoryIds.length})`}
-              </span>
+            <Field label={<>Category {categoryIds.length > 0 && `(${categoryIds.length})`}</>}>
               <div className="max-h-40 overflow-y-auto rounded-md border border-border">
                 <ListBox
                   aria-label="Filter by category"
@@ -137,13 +132,10 @@ export function TransactionsToolbar({
                   ))}
                 </ListBox>
               </div>
-            </div>
+            </Field>
 
             <div className="grid grid-cols-2 gap-2">
-              <div className="flex flex-col gap-1">
-                <label htmlFor="from" className="text-xs font-medium text-muted-foreground">
-                  From
-                </label>
+              <Field label="From" htmlFor="from">
                 <Input
                   id="from"
                   type="date"
@@ -151,11 +143,8 @@ export function TransactionsToolbar({
                   defaultValue={defaults.from ?? ""}
                   onChange={submitNow}
                 />
-              </div>
-              <div className="flex flex-col gap-1">
-                <label htmlFor="to" className="text-xs font-medium text-muted-foreground">
-                  To
-                </label>
+              </Field>
+              <Field label="To" htmlFor="to">
                 <Input
                   id="to"
                   type="date"
@@ -163,14 +152,11 @@ export function TransactionsToolbar({
                   defaultValue={defaults.to ?? ""}
                   onChange={submitNow}
                 />
-              </div>
+              </Field>
             </div>
 
             <div className="grid grid-cols-2 gap-2">
-              <div className="flex flex-col gap-1">
-                <label htmlFor="minAmount" className="text-xs font-medium text-muted-foreground">
-                  Min amount
-                </label>
+              <Field label="Min amount" htmlFor="minAmount">
                 <Input
                   id="minAmount"
                   type="number"
@@ -180,11 +166,8 @@ export function TransactionsToolbar({
                   value={minAmount}
                   onChange={(e) => setMinAmount(e.target.value)}
                 />
-              </div>
-              <div className="flex flex-col gap-1">
-                <label htmlFor="maxAmount" className="text-xs font-medium text-muted-foreground">
-                  Max amount
-                </label>
+              </Field>
+              <Field label="Max amount" htmlFor="maxAmount">
                 <Input
                   id="maxAmount"
                   type="number"
@@ -194,7 +177,7 @@ export function TransactionsToolbar({
                   value={maxAmount}
                   onChange={(e) => setMaxAmount(e.target.value)}
                 />
-              </div>
+              </Field>
             </div>
 
             {activeFilterCount > 0 && (
