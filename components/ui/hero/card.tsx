@@ -1,9 +1,9 @@
 "use client";
 
 /**
- * HeroUI v3 card, re-exported under the app's existing shadcn-flat names so
- * dashboard files can import from here without touching components/ui/card.tsx
- * (which has 7 importers on 5 not-yet-migrated routes).
+ * HeroUI v3 card, re-exported under the app's own shadcn-flat names — the
+ * single import path every route uses (components/ui/card.tsx, the old
+ * shadcn/Base UI version this replaced, is gone).
  *
  * This file is deliberately "use client": HeroUI ships every component with
  * its own "use client" banner, but the *root barrel* (@heroui/react) only

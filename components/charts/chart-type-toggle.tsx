@@ -1,8 +1,7 @@
 "use client";
 
 import type { Key } from "react-aria-components";
-import { ToggleButtonGroup } from "@heroui/react/toggle-button-group";
-import { ToggleButton } from "@heroui/react/toggle-button";
+import { ToggleButtonGroup, ToggleButton } from "@/components/ui/hero/toggle-button-group";
 
 export type ChartType = "line" | "bar";
 

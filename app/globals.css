@@ -1,16 +1,17 @@
 @import "tailwindcss";
 
-/* HeroUI v3 — dashboard-pilot only (see the body-scoped blocks below).
-   Imported granularly, not via "@heroui/styles" (which also re-imports
-   tailwindcss + tw-animate-css, both already imported here). Order matters:
-   this must land BEFORE the app's own @theme inline block so the app's
-   --radius-* multipliers win Tailwind's compile-time theme merge for every
-   *compiled* rounded-* utility, app-wide — verified empirically (see the
-   Stage 0 spike): with HeroUI's import first, `.rounded-xl` compiles to
-   `calc(var(--radius) * 1.4)` (the app's own multiplier), not HeroUI's 1.5.
-   HeroUI's own raw component CSS (e.g. card.css's `var(--radius-3xl)`) reads
-   the same shared runtime variable, so it's retargeted separately in the
-   pilot bridge block below rather than via this import order. */
+/* HeroUI v3 — every route is on it now (see the body[data-ui="heroui"]
+   bridge block below). Imported granularly, not via "@heroui/styles"
+   (which also re-imports tailwindcss + tw-animate-css, both already
+   imported here). Order matters: this must land BEFORE the app's own
+   @theme inline block so the app's --radius-* multipliers win Tailwind's
+   compile-time theme merge for every *compiled* rounded-* utility,
+   app-wide — verified empirically: with HeroUI's import first,
+   `.rounded-xl` compiles to `calc(var(--radius) * 1.4)` (the app's own
+   multiplier), not HeroUI's 1.5. HeroUI's own raw component CSS (e.g.
+   card.css's `var(--radius-3xl)`) reads the same shared runtime variable,
+   so it's retargeted separately in the bridge block below rather than via
+   this import order. */
 @import "@heroui/styles/themes/default";
 @import "@heroui/styles/base";
 @import "@heroui/styles/components/index.css";

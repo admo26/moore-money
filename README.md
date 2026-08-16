@@ -10,7 +10,7 @@ richer reporting are a later phase — see the plan for details.
 
 ## Stack
 
-- [Next.js](https://nextjs.org) (App Router) + Tailwind + [shadcn/ui](https://ui.shadcn.com)
+- [Next.js](https://nextjs.org) (App Router) + Tailwind + [HeroUI v3](https://heroui.com)
 - [Supabase](https://supabase.com): Postgres + Auth
 - [Drizzle ORM](https://orm.drizzle.team) for schema/migrations
 - [Akahu](https://developers.akahu.nz) as the bank data source
@@ -85,7 +85,7 @@ richer reporting are a later phase — see the plan for details.
 ## Project structure
 
 - `app/(app)/` — the authenticated app shell (sidebar/topbar) and pages
-  (`accounts`, `transactions`).
+  (`dashboard`, `net-worth`, `transactions`, `rules`, `reports`, `settings`).
 - `app/(auth)/login/` — magic-link (and Google OAuth) sign-in.
 - `app/auth/callback/` — exchanges the auth code for a session and enforces
   `ALLOWED_EMAILS`.

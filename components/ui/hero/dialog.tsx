@@ -1,10 +1,10 @@
 "use client";
 
 /**
- * HeroUI v3 modal, re-exported under the app's old Dialog names so a future
- * migration of components/ui/dialog.tsx's call sites (mcp-token-dialog.tsx
- * etc.) is mostly a rename. HeroUI calls this "Modal", not "Dialog", and its
- * structure has two pieces the old Base UI dialog didn't need spelled out
+ * HeroUI v3 modal, re-exported under the app's own Dialog names (the old
+ * Base UI components/ui/dialog.tsx this replaced is gone). HeroUI calls
+ * this "Modal", not "Dialog", and its structure has two pieces the old
+ * Base UI dialog didn't need spelled out
  * (DialogContainer wraps backdrop+content; DialogCloseTrigger is explicit
  * rather than DialogClose closing whatever's nearest). There's no
  * DialogDescription here — HeroUI's Modal has no matching sub-component
