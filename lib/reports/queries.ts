@@ -10,7 +10,12 @@ export interface MonthlyCashflow {
   expense: number;
 }
 
-/** Money in vs money out per calendar month, for the last `months` months (oldest first). Missing months are filled with zeros. */
+/**
+ * Money in vs money out per calendar month, for the last `months` months
+ * (oldest first). Missing months are filled with zeros. Transfers and
+ * Investments are excluded — money moving between your own accounts isn't
+ * real income or spending, matching getCategorySpend's exclusion.
+ */
 export async function getMonthlyCashflow(months = 6): Promise<MonthlyCashflow[]> {
   const since = new Date();
   since.setMonth(since.getMonth() - (months - 1));
@@ -24,7 +29,13 @@ export async function getMonthlyCashflow(months = 6): Promise<MonthlyCashflow[]>
       expense: sql<string>`coalesce(sum(case when ${transactions.amount} < 0 then -${transactions.amount} else 0 end), 0)`,
     })
     .from(transactions)
-    .where(gte(transactions.date, since))
+    .leftJoin(categories, eq(transactions.categoryId, categories.id))
+    .where(
+      and(
+        gte(transactions.date, since),
+        or(isNull(categories.name), notInArray(categories.name, NON_SPEND_CATEGORY_NAMES))
+      )
+    )
     .groupBy(sql`date_trunc('month', ${transactions.date})`)
     .orderBy(sql`date_trunc('month', ${transactions.date})`);
 
@@ -310,16 +321,27 @@ function changePct(current: number, previous: number): number | null {
 }
 
 function sumIncomeExpense(from: Date, to?: Date) {
+  const dateCondition = to
+    ? and(gte(transactions.date, from), lt(transactions.date, to))
+    : gte(transactions.date, from);
+
   return db
     .select({
       income: sql<string>`coalesce(sum(case when ${transactions.amount} > 0 then ${transactions.amount} else 0 end), 0)`,
       expense: sql<string>`coalesce(sum(case when ${transactions.amount} < 0 then -${transactions.amount} else 0 end), 0)`,
     })
     .from(transactions)
-    .where(to ? and(gte(transactions.date, from), lt(transactions.date, to)) : gte(transactions.date, from));
+    .leftJoin(categories, eq(transactions.categoryId, categories.id))
+    .where(
+      and(dateCondition, or(isNull(categories.name), notInArray(categories.name, NON_SPEND_CATEGORY_NAMES)))
+    );
 }
 
-/** Total money in/out over the last `days` days, plus % change vs. the preceding period of the same length. */
+/**
+ * Total money in/out over the last `days` days, plus % change vs. the
+ * preceding period of the same length. Excludes Transfers and Investments,
+ * matching getMonthlyCashflow/getCategorySpend.
+ */
 export async function getPeriodSummary(days = 30): Promise<PeriodSummary> {
   const since = new Date();
   since.setDate(since.getDate() - days);
