@@ -164,51 +164,39 @@ body[data-ui="heroui"] {
   --radius-4xl: calc(var(--radius) * 4);
 }
 
-/* Dark mode has no toggle wired up anywhere yet — this palette is kept as
-   documentation of intent for that future work, deliberately deferred
-   separately from the HeroUI rollout. Harmless since nothing ever sets
-   `.dark` today; if a toggle is ever added it should set the class on
-   <body> (or lower), not <html> — <html> is shared by every route, and
-   this is unlayered CSS, so a bare `.dark` there would beat the
-   `body[data-ui="heroui"]` block above on every route at once. */
-.dark {
-  --background: #0f1620;
-  --foreground: #e5eaf0;
-  --card: #16202a;
-  --card-foreground: #e5eaf0;
-  --popover: #16202a;
-  --popover-foreground: #e5eaf0;
-  --primary: #579dff;
-  --primary-foreground: #051d33;
-  --secondary: #1b2b36;
-  --secondary-foreground: #85b8ff;
-  --muted: #1b2530;
-  --muted-foreground: #8b98a6;
-  --accent: #1b2b36;
-  --accent-foreground: #85b8ff;
-  --destructive: #f87168;
-  --border: #223342;
-  --input: #223342;
-  --ring: #579dff;
-  --chart-1: #579dff;
-  --chart-2: #94c748;
-  --chart-3: #d38aff;
-  --chart-4: #ffa856;
-  --chart-5: #6cc3e0;
+/* Dark mode — HeroUI ships its own complete `.dark, [data-theme="dark"]`
+   block (see node_modules/@heroui/styles/dist/themes/default/variables.css)
+   with color-mix()-derived hover/soft variants, and almost every name in
+   the body[data-ui="heroui"] bridge above already routes through var() to
+   a HeroUI name — so it auto-follows the moment `.dark` is present on an
+   ancestor. Only two things in that bridge are hardcoded, light-only
+   literals that need an explicit dark-mode override: --background (was
+   plain #ffffff) and the fixed --chart-1..5 hues (chosen for a light
+   canvas, re-tuned here for contrast against a dark one). Everything else
+   that used to be duplicated here as ~30 lines of hardcoded ADS hex
+   (--foreground, --card, --primary, --border, --sidebar-*, ...) is gone —
+   it's redundant with what HeroUI's own dark theme plus the bridge above
+   already produce.
 
-  --positive: #4bce97;
-  --positive-foreground: #051d15;
-  --negative: #f87168;
-  --negative-foreground: #2a0a0d;
-
-  --sidebar: #0d1620;
-  --sidebar-foreground: #d7e2ea;
-  --sidebar-primary: #579dff;
-  --sidebar-primary-foreground: #051d33;
-  --sidebar-accent: #17242f;
-  --sidebar-accent-foreground: #ffffff;
-  --sidebar-border: #1c2933;
-  --sidebar-ring: #579dff;
+   `.dark` goes on <html>, set server-side from a cookie in app/layout.tsx
+   (see lib/theme.ts and components/theme-toggle.tsx) — no inline script,
+   no client-side correction: the cookie is read before render, so server
+   and client agree on the class from the very first paint. (An inline
+   script mutating <html> pre-hydration was tried first and didn't work:
+   React "fixes up" the className attribute back to its server-rendered
+   value during hydration regardless of the mutation, silently discarding
+   it — confirmed by watching it happen.) This is compound with
+   body[data-ui="heroui"] rather than a bare `.dark` even though every
+   route has that attribute unconditionally now: co-locates the override
+   with its sibling light-mode block, and guards against a possible
+   future non-HeroUI surface the way a bare class wouldn't. */
+html.dark body[data-ui="heroui"] {
+  --background: #0b0f14;
+  --chart-1: #5b93e8;
+  --chart-2: #93c85a;
+  --chart-3: #cc85f5;
+  --chart-4: #f5a13d;
+  --chart-5: #63c2df;
 }
 
 @layer base {

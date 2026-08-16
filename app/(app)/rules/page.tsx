@@ -3,7 +3,15 @@ import { db } from "@/lib/db";
 import { categories, rules } from "@/lib/db/schema";
 import { Input } from "@/components/ui/hero/input";
 import { Button } from "@/components/ui/hero/button";
-import { Select, ListBox } from "@/components/ui/hero/select";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectIndicator,
+  SelectPopover,
+  ListBox,
+  ListBoxItem,
+} from "@/components/ui/hero/select";
 import { Table, TableHeader, TableRow, TableHead, TableBody } from "@/components/ui/table";
 import { RuleRow } from "@/components/rule-row";
 import { RerunRulesButton } from "@/components/rerun-rules-button";
@@ -97,19 +105,19 @@ export default async function RulesPage({
                 isRequired
                 validationBehavior="native"
               >
-                <Select.Trigger id="categoryId" className="h-9 w-56">
-                  <Select.Value />
-                  <Select.Indicator />
-                </Select.Trigger>
-                <Select.Popover>
+                <SelectTrigger id="categoryId" className="h-9 w-56">
+                  <SelectValue />
+                  <SelectIndicator />
+                </SelectTrigger>
+                <SelectPopover>
                   <ListBox>
                     {categoriesList.map((c) => (
-                      <ListBox.Item key={c.id} id={c.id}>
+                      <ListBoxItem key={c.id} id={c.id}>
                         {c.name}
-                      </ListBox.Item>
+                      </ListBoxItem>
                     ))}
                   </ListBox>
-                </Select.Popover>
+                </SelectPopover>
               </Select>
             </div>
 

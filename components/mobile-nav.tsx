@@ -4,8 +4,9 @@ import { useState } from "react";
 import { Menu, X } from "lucide-react";
 import { SidebarNav } from "@/components/sidebar-nav";
 import { SignOutButton } from "@/components/sign-out-button";
+import { ThemeToggle } from "@/components/theme-toggle";
 
-export function MobileNav() {
+export function MobileNav({ initialIsDark }: { initialIsDark?: boolean }) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -46,7 +47,8 @@ export function MobileNav() {
             <div className="mt-2 flex-1">
               <SidebarNav onNavigate={() => setOpen(false)} />
             </div>
-            <div className="px-3 py-2">
+            <div className="space-y-1 px-3 py-2">
+              <ThemeToggle initialIsDark={initialIsDark} />
               <SignOutButton onNavigate={() => setOpen(false)} />
             </div>
           </div>
