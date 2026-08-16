@@ -2,6 +2,7 @@
 
 import { useRef } from "react";
 import { Input } from "@/components/ui/hero/input";
+import { Select, ListBox } from "@/components/ui/hero/select";
 import { PERIOD_PRESETS, PERIOD_PRESET_LABELS, type PeriodPreset } from "@/lib/reports/period";
 
 export function ReportPeriodPicker({
@@ -25,19 +26,21 @@ export function ReportPeriodPicker({
         <label htmlFor="preset" className="text-xs font-medium text-muted-foreground">
           Period
         </label>
-        <select
-          id="preset"
-          name="preset"
-          defaultValue={defaults.preset}
-          onChange={submitNow}
-          className="h-9 w-56 rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/50"
-        >
-          {PERIOD_PRESETS.map((preset) => (
-            <option key={preset} value={preset}>
-              {PERIOD_PRESET_LABELS[preset]}
-            </option>
-          ))}
-        </select>
+        <Select name="preset" defaultSelectedKey={defaults.preset} onSelectionChange={() => submitNow()}>
+          <Select.Trigger id="preset" className="h-9 w-56">
+            <Select.Value />
+            <Select.Indicator />
+          </Select.Trigger>
+          <Select.Popover>
+            <ListBox>
+              {PERIOD_PRESETS.map((preset) => (
+                <ListBox.Item key={preset} id={preset}>
+                  {PERIOD_PRESET_LABELS[preset]}
+                </ListBox.Item>
+              ))}
+            </ListBox>
+          </Select.Popover>
+        </Select>
       </div>
 
       {defaults.preset === "custom" && (

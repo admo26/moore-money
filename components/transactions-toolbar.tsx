@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Filter, Search } from "lucide-react";
 import { Input } from "@/components/ui/hero/input";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/hero/popover";
+import { Select, ListBox } from "@/components/ui/hero/select";
 import { TransactionsSort } from "@/components/transactions-sort";
 import type { Account, Category } from "@/lib/db/schema";
 
@@ -60,7 +61,7 @@ export function TransactionsToolbar({
       <input type="hidden" name="sortDir" value={defaults.sortDir} />
 
       <Popover>
-        <PopoverTrigger className="inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-full border border-border bg-card px-3 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground">
+        <PopoverTrigger className="inline-flex! h-9 cursor-pointer items-center gap-1.5 rounded-full border border-border bg-card px-3 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground">
           <Filter className="h-4 w-4" />
           Filter
           {activeFilterCount > 0 && (
@@ -75,41 +76,53 @@ export function TransactionsToolbar({
               <label htmlFor="accountId" className="text-xs font-medium text-muted-foreground">
                 Account
               </label>
-              <select
-                id="accountId"
+              <Select
                 name="accountId"
-                defaultValue={defaults.accountId ?? ""}
-                onChange={submitNow}
-                className="h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/50"
+                defaultSelectedKey={defaults.accountId ?? ""}
+                onSelectionChange={() => submitNow()}
               >
-                <option value="">All accounts</option>
-                {accounts.map((a) => (
-                  <option key={a.id} value={a.id}>
-                    {a.connectionName} — {a.name}
-                  </option>
-                ))}
-              </select>
+                <Select.Trigger id="accountId" className="h-9 w-full">
+                  <Select.Value />
+                  <Select.Indicator />
+                </Select.Trigger>
+                <Select.Popover>
+                  <ListBox>
+                    <ListBox.Item id="">All accounts</ListBox.Item>
+                    {accounts.map((a) => (
+                      <ListBox.Item key={a.id} id={a.id}>
+                        {a.connectionName} — {a.name}
+                      </ListBox.Item>
+                    ))}
+                  </ListBox>
+                </Select.Popover>
+              </Select>
             </div>
 
             <div className="flex flex-col gap-1">
               <label htmlFor="categoryId" className="text-xs font-medium text-muted-foreground">
                 Category
               </label>
-              <select
-                id="categoryId"
+              <Select
                 name="categoryId"
-                defaultValue={defaults.categoryId ?? ""}
-                onChange={submitNow}
-                className="h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/50"
+                defaultSelectedKey={defaults.categoryId ?? ""}
+                onSelectionChange={() => submitNow()}
               >
-                <option value="">All categories</option>
-                <option value="uncategorised">Uncategorised</option>
-                {categories.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
-                  </option>
-                ))}
-              </select>
+                <Select.Trigger id="categoryId" className="h-9 w-full">
+                  <Select.Value />
+                  <Select.Indicator />
+                </Select.Trigger>
+                <Select.Popover>
+                  <ListBox>
+                    <ListBox.Item id="">All categories</ListBox.Item>
+                    <ListBox.Item id="uncategorised">Uncategorised</ListBox.Item>
+                    {categories.map((c) => (
+                      <ListBox.Item key={c.id} id={c.id}>
+                        {c.name}
+                      </ListBox.Item>
+                    ))}
+                  </ListBox>
+                </Select.Popover>
+              </Select>
             </div>
 
             <div className="grid grid-cols-2 gap-2">
@@ -192,7 +205,7 @@ export function TransactionsToolbar({
           placeholder="Search description or merchant"
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          className="w-64 rounded-full pl-9"
+          className="w-64 rounded-full pl-9!"
         />
       </div>
     </form>

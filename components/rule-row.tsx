@@ -3,8 +3,10 @@
 import { useState, useTransition } from "react";
 import { Pencil, RefreshCw, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import type { Key } from "react-aria-components";
 import { Input } from "@/components/ui/hero/input";
 import { Button } from "@/components/ui/hero/button";
+import { Select, ListBox } from "@/components/ui/hero/select";
 import { applyRuleRetroactively, deleteRule, updateRule } from "@/app/(app)/rules/actions";
 import type { Category } from "@/lib/db/schema";
 
@@ -77,18 +79,28 @@ export function RuleRow({
           />
         </td>
         <td className="px-4 py-2">
-          <select
-            value={categoryId}
-            onChange={(e) => setCategoryId(Number(e.target.value))}
-            disabled={isPending}
-            className="h-8 rounded-md border border-input bg-transparent px-2 text-xs outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/50 disabled:opacity-50"
+          <Select
+            aria-label="Category"
+            selectedKey={categoryId}
+            onSelectionChange={(key: Key | null) => {
+              if (key != null) setCategoryId(Number(key));
+            }}
+            isDisabled={isPending}
           >
-            {categories.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name}
-              </option>
-            ))}
-          </select>
+            <Select.Trigger className="h-8 min-h-8 text-xs">
+              <Select.Value />
+              <Select.Indicator />
+            </Select.Trigger>
+            <Select.Popover>
+              <ListBox>
+                {categories.map((c) => (
+                  <ListBox.Item key={c.id} id={c.id}>
+                    {c.name}
+                  </ListBox.Item>
+                ))}
+              </ListBox>
+            </Select.Popover>
+          </Select>
         </td>
         <td className="px-4 py-2 text-right">
           <Button size="sm" onPress={handleSave} isDisabled={isPending}>
