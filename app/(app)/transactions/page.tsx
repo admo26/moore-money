@@ -1,11 +1,13 @@
-import { and, asc, desc, eq, gte, ilike, isNull, lte, or } from "drizzle-orm";
+import { and, asc, count, desc, eq, gte, ilike, isNull, lte, or } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { accounts, categories, transactions, type Account, type Category } from "@/lib/db/schema";
 import { TransactionsToolbar } from "@/components/transactions-toolbar";
 import { TransactionsTable, type TransactionRow } from "@/components/transactions-table";
+import { TransactionsPagination } from "@/components/transactions-pagination";
 import { SyncButton } from "@/components/sync-button";
 
 interface SearchParams {
+  [key: string]: string | undefined;
   q?: string;
   accountId?: string;
   categoryId?: string;
@@ -15,14 +17,20 @@ interface SearchParams {
   maxAmount?: string;
   sortBy?: string;
   sortDir?: string;
+  page?: string;
 }
 
-const PAGE_SIZE = 200;
+const PAGE_SIZE = 50;
 
 function parseSort(params: SearchParams) {
   const sortBy = params.sortBy === "amount" ? "amount" : "date";
   const sortDir = params.sortDir === "asc" ? "asc" : "desc";
   return { sortBy, sortDir };
+}
+
+function parsePage(params: SearchParams) {
+  const page = Number(params.page);
+  return Number.isInteger(page) && page > 0 ? page : 1;
 }
 
 async function loadData(params: SearchParams) {
@@ -49,36 +57,48 @@ async function loadData(params: SearchParams) {
     );
   }
 
+  const where = conditions.length > 0 ? and(...conditions) : undefined;
+
   const { sortBy, sortDir } = parseSort(params);
   const sortColumn = sortBy === "amount" ? transactions.amount : transactions.date;
   const orderFn = sortDir === "asc" ? asc : desc;
+  const page = parsePage(params);
 
-  const rows = await db
-    .select({
-      id: transactions.id,
-      accountId: transactions.accountId,
-      date: transactions.date,
-      amount: transactions.amount,
-      description: transactions.description,
-      merchantName: transactions.merchantName,
-      type: transactions.type,
-      balance: transactions.balance,
-      akahuCategory: transactions.akahuCategory,
-      categoryId: transactions.categoryId,
-      categorySource: transactions.categorySource,
-      raw: transactions.raw,
-      createdAt: transactions.createdAt,
-      updatedAt: transactions.updatedAt,
-      accountName: accounts.name,
-      connectionName: accounts.connectionName,
-    })
-    .from(transactions)
-    .leftJoin(accounts, eq(transactions.accountId, accounts.id))
-    .where(conditions.length > 0 ? and(...conditions) : undefined)
-    .orderBy(orderFn(sortColumn))
-    .limit(PAGE_SIZE);
+  const [rows, [{ total }]] = await Promise.all([
+    db
+      .select({
+        id: transactions.id,
+        accountId: transactions.accountId,
+        date: transactions.date,
+        amount: transactions.amount,
+        description: transactions.description,
+        merchantName: transactions.merchantName,
+        type: transactions.type,
+        balance: transactions.balance,
+        akahuCategory: transactions.akahuCategory,
+        categoryId: transactions.categoryId,
+        categorySource: transactions.categorySource,
+        raw: transactions.raw,
+        createdAt: transactions.createdAt,
+        updatedAt: transactions.updatedAt,
+        accountName: accounts.name,
+        connectionName: accounts.connectionName,
+      })
+      .from(transactions)
+      .leftJoin(accounts, eq(transactions.accountId, accounts.id))
+      .where(where)
+      .orderBy(orderFn(sortColumn))
+      .limit(PAGE_SIZE)
+      .offset((page - 1) * PAGE_SIZE),
+    db.select({ total: count() }).from(transactions).where(where),
+  ]);
 
-  return { accounts: allAccounts, categories: allCategories, rows: rows as TransactionRow[] };
+  return {
+    accounts: allAccounts,
+    categories: allCategories,
+    rows: rows as TransactionRow[],
+    total,
+  };
 }
 
 export default async function TransactionsPage({
@@ -91,6 +111,7 @@ export default async function TransactionsPage({
   let accounts_: Account[] = [];
   let categories_: Category[] = [];
   let rows: TransactionRow[] = [];
+  let total = 0;
   let error: string | null = null;
 
   try {
@@ -98,11 +119,16 @@ export default async function TransactionsPage({
     accounts_ = data.accounts;
     categories_ = data.categories;
     rows = data.rows;
+    total = data.total;
   } catch (err) {
     error = err instanceof Error ? err.message : "Failed to load transactions.";
   }
 
   const { sortBy, sortDir } = parseSort(params);
+  const page = parsePage(params);
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const rangeStart = total === 0 ? 0 : (page - 1) * PAGE_SIZE + 1;
+  const rangeEnd = Math.min(page * PAGE_SIZE, total);
 
   return (
     <div className="space-y-6">
@@ -111,12 +137,13 @@ export default async function TransactionsPage({
           <h1 className="flex items-center gap-2 text-2xl font-semibold tracking-tight">
             Transactions
             <span className="flex h-6 min-w-6 items-center justify-center rounded-full bg-secondary px-1.5 text-sm font-medium text-secondary-foreground">
-              {rows.length}
+              {total}
             </span>
           </h1>
           <p className="text-sm text-muted-foreground">
-            All transactions synced from Akahu
-            {rows.length === PAGE_SIZE ? ` (showing latest ${PAGE_SIZE})` : ""}.
+            {total === 0
+              ? "All transactions synced from Akahu."
+              : `Showing ${rangeStart}–${rangeEnd} of ${total} transactions synced from Akahu.`}
           </p>
         </div>
         <SyncButton />
@@ -134,6 +161,7 @@ export default async function TransactionsPage({
             defaults={{ ...params, sortBy, sortDir }}
           />
           <TransactionsTable rows={rows} categories={categories_} />
+          <TransactionsPagination page={page} totalPages={totalPages} searchParams={params} />
         </>
       )}
     </div>
