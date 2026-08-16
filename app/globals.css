@@ -17,8 +17,16 @@
 @import "@heroui/styles/utilities";
 @import "@heroui/styles/variants";
 
+/* tw-animate-css is NOT just an app-level convenience import — HeroUI's own
+   compiled component CSS (popover.css, tooltip.css, date-picker.css,
+   alert-dialog.css, autocomplete.css, ...) uses its `fade-in-0`/`zoom-in-95`/
+   `slide-in-from-*` utilities directly for enter/exit transitions. Confirmed
+   by removing it: the build fails on `fade-in-0` as an unknown utility class.
+   Keep it. (shadcn/tailwind.css, by contrast, only supplies data-open/
+   data-checked/etc. custom variants for Base UI/Radix's data-state
+   convention, which neither the app nor HeroUI's own components use — that
+   one really was dead weight.) */
 @import "tw-animate-css";
-@import "shadcn/tailwind.css";
 
 @custom-variant dark (&:is(.dark *));
 
