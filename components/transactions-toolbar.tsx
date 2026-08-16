@@ -38,6 +38,8 @@ export function TransactionsToolbar({
   const formRef = useRef<HTMLFormElement>(null);
 
   const [q, setQ] = useState(defaults.q ?? "");
+  const [from, setFrom] = useState(defaults.from ?? "");
+  const [to, setTo] = useState(defaults.to ?? "");
   const [minAmount, setMinAmount] = useState(defaults.minAmount ?? "");
   const [maxAmount, setMaxAmount] = useState(defaults.maxAmount ?? "");
   const [accountIds, setAccountIds] = useState<string[]>(toIds(defaults.accountIds));
@@ -50,10 +52,8 @@ export function TransactionsToolbar({
   useDebouncedSubmit(formRef, maxAmount, defaults.maxAmount ?? "");
   useSubmitOnChange(formRef, accountIds.join(","), defaults.accountIds ?? "");
   useSubmitOnChange(formRef, categoryIds.join(","), defaults.categoryIds ?? "");
-
-  function submitNow() {
-    formRef.current?.requestSubmit();
-  }
+  useSubmitOnChange(formRef, from, defaults.from ?? "");
+  useSubmitOnChange(formRef, to, defaults.to ?? "");
 
   function handleAccountChange(keys: Selection) {
     if (keys === "all") return;
@@ -81,6 +81,20 @@ export function TransactionsToolbar({
       <input type="hidden" name="sortDir" value={defaults.sortDir} />
       <input type="hidden" name="accountIds" value={accountIds.join(",")} />
       <input type="hidden" name="categoryIds" value={categoryIds.join(",")} />
+      {/*
+       * HeroUI's Popover renders its content in a portal attached to
+       * document.body — the From/To/Min/Max inputs below live inside
+       * PopoverContent, so despite being JSX children of this <form>,
+       * they are NOT DOM descendants of it and are silently excluded from
+       * native form submission (confirmed: their name="..." attributes on
+       * their own never made it into the query string). Same fix as
+       * accountIds/categoryIds above: mirror the value into a hidden input
+       * that lives directly in the form.
+       */}
+      <input type="hidden" name="from" value={from} />
+      <input type="hidden" name="to" value={to} />
+      <input type="hidden" name="minAmount" value={minAmount} />
+      <input type="hidden" name="maxAmount" value={maxAmount} />
 
       <Popover>
         <PopoverTrigger className="inline-flex! h-9 cursor-pointer items-center gap-1.5 rounded-full border border-border bg-card px-3 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground">
@@ -139,18 +153,16 @@ export function TransactionsToolbar({
                 <Input
                   id="from"
                   type="date"
-                  name="from"
-                  defaultValue={defaults.from ?? ""}
-                  onChange={submitNow}
+                  value={from}
+                  onChange={(e) => setFrom(e.target.value)}
                 />
               </Field>
               <Field label="To" htmlFor="to">
                 <Input
                   id="to"
                   type="date"
-                  name="to"
-                  defaultValue={defaults.to ?? ""}
-                  onChange={submitNow}
+                  value={to}
+                  onChange={(e) => setTo(e.target.value)}
                 />
               </Field>
             </div>
@@ -161,7 +173,6 @@ export function TransactionsToolbar({
                   id="minAmount"
                   type="number"
                   step="0.01"
-                  name="minAmount"
                   placeholder="-100.00"
                   value={minAmount}
                   onChange={(e) => setMinAmount(e.target.value)}
@@ -172,7 +183,6 @@ export function TransactionsToolbar({
                   id="maxAmount"
                   type="number"
                   step="0.01"
-                  name="maxAmount"
                   placeholder="100.00"
                   value={maxAmount}
                   onChange={(e) => setMaxAmount(e.target.value)}
