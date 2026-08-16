@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/hero/card";
 import { ReportPeriodPicker } from "@/components/reports/report-period-picker";
+import { PageHeader } from "@/components/ui/page-header";
 import { getCashflowStatement } from "@/lib/reports/statements";
 import { periodFromSearchParams } from "@/lib/reports/period";
 import { monthRange } from "@/lib/reports/date-params";
@@ -34,14 +35,16 @@ export default async function CashflowPage({
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Cashflow statement</h1>
-        <p className="text-sm text-muted-foreground">
-          Opening balance, cash in/out per month, and closing balance across your bank,
-          loan, and credit card accounts — KiwiSaver/managed-fund accounts are excluded
-          since they don&apos;t move via day-to-day transactions.
-        </p>
-      </div>
+      <PageHeader
+        title="Cashflow statement"
+        description={
+          <>
+            Opening balance, cash in/out per month, and closing balance across your bank,
+            loan, and credit card accounts — KiwiSaver/managed-fund accounts are excluded
+            since they don&apos;t move via day-to-day transactions.
+          </>
+        }
+      />
 
       <ReportPeriodPicker defaults={period} />
 

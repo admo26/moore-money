@@ -2,6 +2,7 @@ import { db } from "@/lib/db";
 import { accounts } from "@/lib/db/schema";
 import { AccountCard } from "@/components/account-card";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/hero/card";
+import { PageHeader } from "@/components/ui/page-header";
 import { formatMoney } from "@/lib/format";
 import { accountClass } from "@/lib/accounts/classify";
 
@@ -29,13 +30,10 @@ export default async function NetWorthPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Net Worth</h1>
-        <p className="text-sm text-muted-foreground">
-          Everything you own (assets) minus everything you owe (liabilities), across every
-          linked account.
-        </p>
-      </div>
+      <PageHeader
+        title="Net Worth"
+        description="Everything you own (assets) minus everything you owe (liabilities), across every linked account."
+      />
 
       {error ? (
         <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">

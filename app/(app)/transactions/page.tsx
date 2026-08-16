@@ -5,6 +5,7 @@ import { TransactionsToolbar } from "@/components/transactions-toolbar";
 import { TransactionsTable, type TransactionRow } from "@/components/transactions-table";
 import { TransactionsPagination } from "@/components/transactions-pagination";
 import { SyncButton } from "@/components/sync-button";
+import { PageHeader } from "@/components/ui/page-header";
 
 interface SearchParams {
   [key: string]: string | undefined;
@@ -146,22 +147,22 @@ export default async function TransactionsPage({
 
   return (
     <div className="space-y-6">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <h1 className="flex items-center gap-2 text-2xl font-semibold tracking-tight">
+      <PageHeader
+        title={
+          <span className="flex items-center gap-2">
             Transactions
             <span className="flex h-6 min-w-6 items-center justify-center rounded-full bg-secondary px-1.5 text-sm font-medium text-secondary-foreground">
               {total}
             </span>
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            {total === 0
-              ? "All transactions synced from Akahu."
-              : `Showing ${rangeStart}–${rangeEnd} of ${total} transactions synced from Akahu.`}
-          </p>
-        </div>
-        <SyncButton />
-      </div>
+          </span>
+        }
+        description={
+          total === 0
+            ? "All transactions synced from Akahu."
+            : `Showing ${rangeStart}–${rangeEnd} of ${total} transactions synced from Akahu.`
+        }
+        action={<SyncButton />}
+      />
 
       {error ? (
         <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/hero/card";
+import { PageHeader } from "@/components/ui/page-header";
 
 const REPORTS = [
   {
@@ -19,10 +20,7 @@ const REPORTS = [
 export default function ReportsPage() {
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Reports</h1>
-        <p className="text-sm text-muted-foreground">Financial statements for a chosen period.</p>
-      </div>
+      <PageHeader title="Reports" description="Financial statements for a chosen period." />
 
       <div className="grid gap-4 sm:grid-cols-2">
         {REPORTS.map((report) => (

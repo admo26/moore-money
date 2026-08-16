@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/hero/card";
 import { ReportPeriodPicker } from "@/components/reports/report-period-picker";
+import { PageHeader } from "@/components/ui/page-header";
 import { getIncomeExpenseReport, type StatementRow } from "@/lib/reports/statements";
 import { periodFromSearchParams } from "@/lib/reports/period";
 import { formatDate, formatMoney } from "@/lib/format";
@@ -50,15 +51,17 @@ export default async function IncomeExpensePage({
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Income & Expense</h1>
-        <p className="text-sm text-muted-foreground">
-          Net amount per category for the chosen period. Transfers and Investments are
-          excluded — they&apos;re money moving between your own accounts, not income or
-          spending. &quot;Income&quot; here means credits to your linked accounts (e.g. loan
-          repayments), not salary, since no everyday transaction account is linked yet.
-        </p>
-      </div>
+      <PageHeader
+        title="Income & Expense"
+        description={
+          <>
+            Net amount per category for the chosen period. Transfers and Investments are
+            excluded — they&apos;re money moving between your own accounts, not income or
+            spending. &quot;Income&quot; here means credits to your linked accounts (e.g. loan
+            repayments), not salary, since no everyday transaction account is linked yet.
+          </>
+        }
+      />
 
       <ReportPeriodPicker defaults={period} />
 

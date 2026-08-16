@@ -13,6 +13,7 @@ import { NetPositionChart } from "@/components/charts/net-position-chart";
 import { RangeSelect } from "@/components/dashboard/range-select";
 import { AccountsWidget } from "@/components/dashboard/accounts-widget";
 import { StatCard } from "@/components/dashboard/stat-card";
+import { PageHeader } from "@/components/ui/page-header";
 import { formatMoney } from "@/lib/format";
 import { db } from "@/lib/db";
 import { accounts as accountsTable, type Account } from "@/lib/db/schema";
@@ -84,15 +85,17 @@ export default async function DashboardPage({
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Dashboard</h1>
-        <p className="text-sm text-muted-foreground">
-          Household financial performance over the last {PERIOD_DAYS} days. &quot;Money
-          in&quot; is credits to your linked accounts (e.g. loan repayments), and
-          &quot;money out&quot; is debits (spending or drawdowns) — not salary income,
-          since no everyday transaction account is linked yet.
-        </p>
-      </div>
+      <PageHeader
+        title="Dashboard"
+        description={
+          <>
+            Household financial performance over the last {PERIOD_DAYS} days. &quot;Money
+            in&quot; is credits to your linked accounts (e.g. loan repayments), and
+            &quot;money out&quot; is debits (spending or drawdowns) — not salary income,
+            since no everyday transaction account is linked yet.
+          </>
+        }
+      />
 
       {error ? (
         <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">

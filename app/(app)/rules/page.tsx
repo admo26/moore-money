@@ -13,6 +13,7 @@ import {
   ListBoxItem,
 } from "@/components/ui/hero/select";
 import { Table, TableHeader, TableRow, TableHead, TableBody } from "@/components/ui/table";
+import { PageHeader } from "@/components/ui/page-header";
 import { RuleRow } from "@/components/rule-row";
 import { RerunRulesButton } from "@/components/rerun-rules-button";
 import { createRule } from "./actions";
@@ -58,16 +59,11 @@ export default async function RulesPage({
 
   return (
     <div className="space-y-6">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Rules</h1>
-          <p className="text-sm text-muted-foreground">
-            If a transaction&apos;s description or merchant contains a rule&apos;s pattern,
-            it&apos;s assigned that category automatically on the next sync.
-          </p>
-        </div>
-        <RerunRulesButton />
-      </div>
+      <PageHeader
+        title="Rules"
+        description="If a transaction's description or merchant contains a rule's pattern, it's assigned that category automatically on the next sync."
+        action={<RerunRulesButton />}
+      />
 
       {error && (
         <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">
