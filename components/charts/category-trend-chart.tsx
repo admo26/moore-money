@@ -47,7 +47,7 @@ function ClickableDot(
         cy={cy}
         r={4}
         fill={color}
-        stroke="var(--card)"
+        stroke="var(--chart-surface)"
         strokeWidth={1.5}
         style={{ cursor: "pointer" }}
         onClick={() => onDotClick(categoryFilter, payload.month)}
@@ -187,21 +187,21 @@ export function CategoryTrendChart({
         <ResponsiveContainer width="100%" height={240}>
           {chartType === "line" ? (
             <LineChart data={chartData} margin={{ left: 8, right: 8, top: 8 }}>
-              <CartesianGrid vertical={false} stroke="var(--border)" />
+              <CartesianGrid vertical={false} stroke="var(--chart-grid)" />
               <XAxis
                 dataKey="month"
                 tickFormatter={monthLabel}
-                tick={{ fill: "var(--muted-foreground)", fontSize: 12 }}
-                axisLine={{ stroke: "var(--border)" }}
+                tick={{ fill: "var(--chart-axis)", fontSize: 12 }}
+                axisLine={{ stroke: "var(--chart-grid)" }}
                 tickLine={false}
               />
               <YAxis
-                tick={{ fill: "var(--muted-foreground)", fontSize: 12 }}
+                tick={{ fill: "var(--chart-axis)", fontSize: 12 }}
                 axisLine={false}
                 tickLine={false}
                 tickFormatter={(v) => new Intl.NumberFormat("en-NZ").format(v)}
               />
-              <Tooltip content={<TrendTooltip resolveName={resolveName} />} cursor={{ stroke: "var(--border)" }} />
+              <Tooltip content={<TrendTooltip resolveName={resolveName} />} cursor={{ stroke: "var(--chart-cursor)" }} />
               {selectedSeries.length > 1 && (
                 <Legend
                   formatter={(value) => (
@@ -231,16 +231,16 @@ export function CategoryTrendChart({
               barGap={2}
               barCategoryGap="20%"
             >
-              <CartesianGrid vertical={false} stroke="var(--border)" />
+              <CartesianGrid vertical={false} stroke="var(--chart-grid)" />
               <XAxis
                 dataKey="month"
                 tickFormatter={monthLabel}
-                tick={{ fill: "var(--muted-foreground)", fontSize: 12 }}
-                axisLine={{ stroke: "var(--border)" }}
+                tick={{ fill: "var(--chart-axis)", fontSize: 12 }}
+                axisLine={{ stroke: "var(--chart-grid)" }}
                 tickLine={false}
               />
               <YAxis
-                tick={{ fill: "var(--muted-foreground)", fontSize: 12 }}
+                tick={{ fill: "var(--chart-axis)", fontSize: 12 }}
                 axisLine={false}
                 tickLine={false}
                 tickFormatter={(v) => new Intl.NumberFormat("en-NZ").format(v)}

@@ -64,16 +64,16 @@ export function CashflowChart({ data }: { data: MonthlyCashflow[] }) {
   return (
     <ResponsiveContainer width="100%" height={280}>
       <BarChart data={data} barGap={2} barCategoryGap="20%">
-        <CartesianGrid vertical={false} stroke="var(--border)" />
+        <CartesianGrid vertical={false} stroke="var(--chart-grid)" />
         <XAxis
           dataKey="month"
           tickFormatter={monthLabel}
-          tick={{ fill: "var(--muted-foreground)", fontSize: 12 }}
-          axisLine={{ stroke: "var(--border)" }}
+          tick={{ fill: "var(--chart-axis)", fontSize: 12 }}
+          axisLine={{ stroke: "var(--chart-grid)" }}
           tickLine={false}
         />
         <YAxis
-          tick={{ fill: "var(--muted-foreground)", fontSize: 12 }}
+          tick={{ fill: "var(--chart-axis)", fontSize: 12 }}
           axisLine={false}
           tickLine={false}
           tickFormatter={(v) => new Intl.NumberFormat("en-NZ").format(v)}

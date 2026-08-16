@@ -44,22 +44,22 @@ export function NetPositionChart({ data }: { data: NetPositionPoint[] }) {
   return (
     <ResponsiveContainer width="100%" height={240}>
       <AreaChart data={data} margin={{ left: 8, right: 8, top: 8 }}>
-        <CartesianGrid vertical={false} stroke="var(--border)" />
+        <CartesianGrid vertical={false} stroke="var(--chart-grid)" />
         <XAxis
           dataKey="date"
           tickFormatter={shortDateLabel}
           interval={tickInterval}
-          tick={{ fill: "var(--muted-foreground)", fontSize: 12 }}
-          axisLine={{ stroke: "var(--border)" }}
+          tick={{ fill: "var(--chart-axis)", fontSize: 12 }}
+          axisLine={{ stroke: "var(--chart-grid)" }}
           tickLine={false}
         />
         <YAxis
-          tick={{ fill: "var(--muted-foreground)", fontSize: 12 }}
+          tick={{ fill: "var(--chart-axis)", fontSize: 12 }}
           axisLine={false}
           tickLine={false}
           tickFormatter={(v) => new Intl.NumberFormat("en-NZ").format(v)}
         />
-        <ReferenceLine y={0} stroke="var(--border)" />
+        <ReferenceLine y={0} stroke="var(--chart-grid)" />
         <Tooltip content={<NetPositionTooltip />} />
         <Area
           type="monotone"
@@ -68,7 +68,7 @@ export function NetPositionChart({ data }: { data: NetPositionPoint[] }) {
           strokeWidth={2}
           fill="none"
           dot={false}
-          activeDot={{ r: 4, fill: "var(--chart-1)", stroke: "var(--card)", strokeWidth: 2 }}
+          activeDot={{ r: 4, fill: "var(--chart-1)", stroke: "var(--chart-surface)", strokeWidth: 2 }}
         />
       </AreaChart>
     </ResponsiveContainer>

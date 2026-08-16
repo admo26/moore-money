@@ -39,13 +39,13 @@ export function CategorySpendChart({
     >
       <ResponsiveContainer width="100%" height={height}>
         <BarChart data={data} layout="vertical" margin={{ left: 8, right: 56 }}>
-          <CartesianGrid horizontal={false} stroke="var(--border)" />
+          <CartesianGrid horizontal={false} stroke="var(--chart-grid)" />
           <XAxis type="number" hide />
           <YAxis
             type="category"
             dataKey="name"
             width={140}
-            tick={{ fill: "var(--muted-foreground)", fontSize: 12 }}
+            tick={{ fill: "var(--chart-axis)", fontSize: 12 }}
             axisLine={false}
             tickLine={false}
           />
