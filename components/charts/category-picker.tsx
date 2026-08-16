@@ -2,8 +2,8 @@
 
 import { Plus, X } from "lucide-react";
 import type { Selection } from "react-aria-components";
-import { Popover, PopoverContent, PopoverTrigger } from "@heroui/react/popover";
-import { ListBox } from "@heroui/react/list-box";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/hero/popover";
+import { ListBox } from "@/components/ui/hero/select";
 import type { CategoryTrendSeries } from "@/lib/reports/queries";
 
 /**

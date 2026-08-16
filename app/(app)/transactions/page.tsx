@@ -1,7 +1,7 @@
 import { and, asc, desc, eq, gte, ilike, isNull, lte, or } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { accounts, categories, transactions, type Account, type Category } from "@/lib/db/schema";
-import { TransactionsFilters } from "@/components/transactions-filters";
+import { TransactionsToolbar } from "@/components/transactions-toolbar";
 import { TransactionsTable, type TransactionRow } from "@/components/transactions-table";
 import { SyncButton } from "@/components/sync-button";
 
@@ -13,9 +13,17 @@ interface SearchParams {
   to?: string;
   minAmount?: string;
   maxAmount?: string;
+  sortBy?: string;
+  sortDir?: string;
 }
 
 const PAGE_SIZE = 200;
+
+function parseSort(params: SearchParams) {
+  const sortBy = params.sortBy === "amount" ? "amount" : "date";
+  const sortDir = params.sortDir === "asc" ? "asc" : "desc";
+  return { sortBy, sortDir };
+}
 
 async function loadData(params: SearchParams) {
   const [allAccounts, allCategories] = await Promise.all([
@@ -41,6 +49,10 @@ async function loadData(params: SearchParams) {
     );
   }
 
+  const { sortBy, sortDir } = parseSort(params);
+  const sortColumn = sortBy === "amount" ? transactions.amount : transactions.date;
+  const orderFn = sortDir === "asc" ? asc : desc;
+
   const rows = await db
     .select({
       id: transactions.id,
@@ -63,7 +75,7 @@ async function loadData(params: SearchParams) {
     .from(transactions)
     .leftJoin(accounts, eq(transactions.accountId, accounts.id))
     .where(conditions.length > 0 ? and(...conditions) : undefined)
-    .orderBy(desc(transactions.date))
+    .orderBy(orderFn(sortColumn))
     .limit(PAGE_SIZE);
 
   return { accounts: allAccounts, categories: allCategories, rows: rows as TransactionRow[] };
@@ -90,11 +102,18 @@ export default async function TransactionsPage({
     error = err instanceof Error ? err.message : "Failed to load transactions.";
   }
 
+  const { sortBy, sortDir } = parseSort(params);
+
   return (
     <div className="space-y-6">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Transactions</h1>
+          <h1 className="flex items-center gap-2 text-2xl font-semibold tracking-tight">
+            Transactions
+            <span className="flex h-6 min-w-6 items-center justify-center rounded-full bg-secondary px-1.5 text-sm font-medium text-secondary-foreground">
+              {rows.length}
+            </span>
+          </h1>
           <p className="text-sm text-muted-foreground">
             All transactions synced from Akahu
             {rows.length === PAGE_SIZE ? ` (showing latest ${PAGE_SIZE})` : ""}.
@@ -109,7 +128,11 @@ export default async function TransactionsPage({
         </div>
       ) : (
         <>
-          <TransactionsFilters accounts={accounts_} categories={categories_} defaults={params} />
+          <TransactionsToolbar
+            accounts={accounts_}
+            categories={categories_}
+            defaults={{ ...params, sortBy, sortDir }}
+          />
           <TransactionsTable rows={rows} categories={categories_} />
         </>
       )}
