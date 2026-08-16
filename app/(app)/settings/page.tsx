@@ -15,7 +15,7 @@ import { McpTokenDialog } from "@/components/mcp-token-dialog";
 import { McpTokenRow } from "@/components/mcp-token-row";
 import { McpOauthGrantRow } from "@/components/mcp-oauth-grant-row";
 import { AddCategoryForm } from "@/components/add-category-form";
-import { CategoryRow } from "@/components/category-row";
+import { CategoriesTable } from "@/components/categories-table";
 
 async function loadTokens() {
   return db
@@ -117,21 +117,7 @@ export default async function SettingsPage() {
                 No categories yet — add one above.
               </div>
             ) : (
-              <div className="max-h-96 overflow-y-auto rounded-lg border border-border">
-                <table className="w-full text-sm">
-                  <thead className="sticky top-0 bg-card">
-                    <tr className="border-b border-border text-left text-muted-foreground">
-                      <th className="px-4 py-2 font-medium">Name</th>
-                      <th className="px-4 py-2" />
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {categoriesList.map((category) => (
-                      <CategoryRow key={category.id} category={category} />
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+              <CategoriesTable categories={categoriesList} />
             )}
           </CardContent>
         </Card>
