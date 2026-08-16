@@ -3,6 +3,7 @@ import { accounts } from "@/lib/db/schema";
 import { AccountCard } from "@/components/account-card";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/hero/card";
 import { PageHeader } from "@/components/ui/page-header";
+import { EmptyState } from "@/components/ui/empty-state";
 import { formatMoney } from "@/lib/format";
 import { accountClass } from "@/lib/accounts/classify";
 
@@ -40,10 +41,10 @@ export default async function NetWorthPage() {
           Couldn&apos;t load net worth: {error}
         </div>
       ) : rows.length === 0 ? (
-        <div className="rounded-lg border border-border bg-card p-6 text-sm text-muted-foreground">
+        <EmptyState>
           No accounts yet. Click <span className="font-medium">Sync now</span> above once
           Akahu is configured.
-        </div>
+        </EmptyState>
       ) : (
         <>
           <Card>
@@ -77,9 +78,7 @@ export default async function NetWorthPage() {
               </span>
             </div>
             {assetAccounts.length === 0 ? (
-              <div className="rounded-lg border border-border bg-card p-6 text-sm text-muted-foreground">
-                No asset accounts linked yet (e.g. KiwiSaver, managed funds, savings).
-              </div>
+              <EmptyState>No asset accounts linked yet (e.g. KiwiSaver, managed funds, savings).</EmptyState>
             ) : (
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {assetAccounts.map((account) => (
@@ -97,9 +96,7 @@ export default async function NetWorthPage() {
               </span>
             </div>
             {liabilityAccounts.length === 0 ? (
-              <div className="rounded-lg border border-border bg-card p-6 text-sm text-muted-foreground">
-                No liability accounts linked (e.g. loans, credit cards).
-              </div>
+              <EmptyState>No liability accounts linked (e.g. loans, credit cards).</EmptyState>
             ) : (
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {liabilityAccounts.map((account) => (

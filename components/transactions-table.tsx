@@ -7,6 +7,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { CategorySelect } from "@/components/category-select";
+import { EmptyState } from "@/components/ui/empty-state";
 import { formatDate, formatMoney } from "@/lib/format";
 import type { Category, Transaction } from "@/lib/db/schema";
 
@@ -33,11 +34,7 @@ export function TransactionsTable({
   categories: Category[];
 }) {
   if (rows.length === 0) {
-    return (
-      <div className="rounded-lg border border-border bg-card p-6 text-sm text-muted-foreground">
-        No transactions match these filters.
-      </div>
-    );
+    return <EmptyState>No transactions match these filters.</EmptyState>;
   }
 
   return (

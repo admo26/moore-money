@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/hero/select";
 import { Table, TableHeader, TableRow, TableHead, TableBody } from "@/components/ui/table";
 import { PageHeader } from "@/components/ui/page-header";
+import { EmptyState } from "@/components/ui/empty-state";
 import { RuleRow } from "@/components/rule-row";
 import { RerunRulesButton } from "@/components/rerun-rules-button";
 import { createRule } from "./actions";
@@ -123,9 +124,7 @@ export default async function RulesPage({
           </form>
 
           {rulesList.length === 0 ? (
-            <div className="rounded-lg border border-border bg-card p-6 text-sm text-muted-foreground">
-              No rules yet — add one above.
-            </div>
+            <EmptyState>No rules yet — add one above.</EmptyState>
           ) : (
             <div className="overflow-hidden rounded-lg border border-border bg-card">
               <Table>
