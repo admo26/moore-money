@@ -21,7 +21,7 @@ export function AccountsWidget({
         {accounts.length === 0 ? (
           <p className="text-sm text-muted-foreground">No accounts yet.</p>
         ) : (
-          <div className="divide-y divide-border">
+          <div className="max-h-[280px] divide-y divide-border overflow-y-auto">
             {accounts.map((account) => {
               const changePct = sparklines.get(account.id)?.changePct ?? null;
               const points = sparklines.get(account.id)?.points ?? [];

@@ -42,7 +42,7 @@ export function NetPositionChart({ data }: { data: NetPositionPoint[] }) {
   const tickInterval = Math.max(0, Math.floor(data.length / 6) - 1);
 
   return (
-    <ResponsiveContainer width="100%" height={240}>
+    <ResponsiveContainer width="100%" height={280}>
       <AreaChart data={data} margin={{ left: 8, right: 8, top: 8 }}>
         <CartesianGrid vertical={false} stroke="var(--chart-grid)" />
         <XAxis

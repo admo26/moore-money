@@ -25,19 +25,18 @@ export function CategorySpendChart({
     );
   }
 
-  const height = Math.max(160, data.length * 36);
-  const maxVisibleHeight = 360;
+  // Fixed card height (matches the other dashboard chart cards) — bars get
+  // taller/scrollable rather than the card growing with the category count.
+  const CARD_HEIGHT = 280;
+  const barsHeight = Math.max(160, data.length * 36);
 
   function handleClick(entry: CategorySpend) {
     router.push(`/transactions?categoryId=${entry.categoryFilter}&from=${from}&to=${to}`);
   }
 
   return (
-    <div
-      className={height > maxVisibleHeight ? "overflow-y-auto" : undefined}
-      style={height > maxVisibleHeight ? { maxHeight: maxVisibleHeight } : undefined}
-    >
-      <ResponsiveContainer width="100%" height={height}>
+    <div style={{ height: CARD_HEIGHT }} className="overflow-y-auto">
+      <ResponsiveContainer width="100%" height={Math.max(barsHeight, CARD_HEIGHT)}>
         <BarChart data={data} layout="vertical" margin={{ left: 8, right: 56 }}>
           <CartesianGrid horizontal={false} stroke="var(--chart-grid)" />
           <XAxis type="number" hide />
