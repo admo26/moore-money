@@ -15,12 +15,7 @@ export function AccountsWidget({
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-base">
-          Accounts
-          <span className="rounded-full bg-secondary px-2 py-0.5 text-xs font-medium text-secondary-foreground">
-            {accounts.length}
-          </span>
-        </CardTitle>
+        <CardTitle className="text-base">Accounts</CardTitle>
       </CardHeader>
       <CardContent>
         {accounts.length === 0 ? (
@@ -28,7 +23,6 @@ export function AccountsWidget({
         ) : (
           <div className="divide-y divide-border">
             {accounts.map((account) => {
-              const balance = Number(account.currentBalance ?? 0);
               const changePct = sparklines.get(account.id)?.changePct ?? null;
               const points = sparklines.get(account.id)?.points ?? [];
               const positive = (changePct ?? 0) >= 0;
@@ -44,19 +38,15 @@ export function AccountsWidget({
                     </div>
                   </div>
 
-                  <Sparkline
-                    data={points.map((p) => ({ value: p.balance }))}
-                    positive={positive}
-                  />
+                  <div className="hidden sm:block">
+                    <Sparkline
+                      data={points.map((p) => ({ value: p.balance }))}
+                      positive={positive}
+                    />
+                  </div>
 
                   <div className="shrink-0 text-right">
-                    <div
-                      className={
-                        balance < 0
-                          ? "text-sm font-semibold text-negative"
-                          : "text-sm font-semibold"
-                      }
-                    >
+                    <div className="text-sm font-semibold">
                       {formatMoney(account.currentBalance, account.currency)}
                     </div>
                     {changePct !== null && (
