@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/hero/c
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ErrorBanner } from "@/components/ui/error-banner";
+import { Money } from "@/components/ui/money";
 import { formatMoney } from "@/lib/format";
 import { accountClass } from "@/lib/accounts/classify";
 
@@ -53,15 +54,7 @@ export default async function NetWorthPage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div
-                className={
-                  netWorth < 0
-                    ? "text-3xl font-semibold text-negative"
-                    : "text-3xl font-semibold text-positive"
-                }
-              >
-                {formatMoney(netWorth)}
-              </div>
+              <Money value={netWorth} className="block text-3xl font-semibold" />
               <div className="mt-1 text-xs text-muted-foreground">
                 {formatMoney(totalAssets)} in assets − {formatMoney(-totalLiabilities)} in
                 liabilities

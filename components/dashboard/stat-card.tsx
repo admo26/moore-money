@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { Card, CardContent } from "@/components/ui/hero/card";
 import { cn } from "@/lib/utils";
 
@@ -8,7 +9,7 @@ export function StatCard({
   changePct,
 }: {
   label: string;
-  value: string;
+  value: ReactNode;
   changePct: number | null;
 }) {
   const positive = (changePct ?? 0) >= 0;

@@ -1,10 +1,9 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/hero/card";
+import { Money } from "@/components/ui/money";
 import { formatDate, formatMoney } from "@/lib/format";
 import type { Account } from "@/lib/db/schema";
 
 export function AccountCard({ account }: { account: Account }) {
-  const balance = Number(account.currentBalance ?? 0);
-
   return (
     <Card>
       <CardHeader className="pb-2">
@@ -19,15 +18,12 @@ export function AccountCard({ account }: { account: Account }) {
       </CardHeader>
       <CardContent>
         <div className="text-base font-medium">{account.name}</div>
-        <div
-          className={
-            balance < 0
-              ? "mt-1 text-2xl font-semibold text-negative"
-              : "mt-1 text-2xl font-semibold"
-          }
-        >
-          {formatMoney(account.currentBalance, account.currency)}
-        </div>
+        <Money
+          value={account.currentBalance}
+          currency={account.currency}
+          color="negative"
+          className="mt-1 block text-2xl font-semibold"
+        />
         {account.availableBalance && (
           <div className="mt-1 text-xs text-muted-foreground">
             {formatMoney(account.availableBalance, account.currency)} available

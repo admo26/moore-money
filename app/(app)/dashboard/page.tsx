@@ -15,6 +15,7 @@ import { AccountsWidget } from "@/components/dashboard/accounts-widget";
 import { StatCard } from "@/components/dashboard/stat-card";
 import { PageHeader } from "@/components/ui/page-header";
 import { ErrorBanner } from "@/components/ui/error-banner";
+import { Money } from "@/components/ui/money";
 import { formatMoney } from "@/lib/format";
 import { db } from "@/lib/db";
 import { accounts as accountsTable, type Account } from "@/lib/db/schema";
@@ -115,7 +116,7 @@ export default async function DashboardPage({
             />
             <StatCard
               label="Net"
-              value={`${net > 0 ? "+" : ""}${formatMoney(net)}`}
+              value={<Money value={net} showSign color="none" />}
               changePct={summary.netChangePct}
             />
           </div>

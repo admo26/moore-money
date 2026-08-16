@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { ReportPeriodPicker } from "@/components/reports/report-period-picker";
 import { PageHeader } from "@/components/ui/page-header";
 import { ErrorBanner } from "@/components/ui/error-banner";
+import { Money } from "@/components/ui/money";
 import { getIncomeExpenseReport, type StatementRow } from "@/lib/reports/statements";
 import { periodFromSearchParams } from "@/lib/reports/period";
 import { formatDate, formatMoney } from "@/lib/format";
@@ -114,10 +115,7 @@ export default async function IncomeExpensePage({
               className="flex items-center justify-between rounded-md border-t border-border pt-3 text-base font-semibold hover:bg-accent"
             >
               <span>Net</span>
-              <span className={report.net < 0 ? "text-negative" : "text-positive"}>
-                {report.net > 0 ? "+" : ""}
-                {formatMoney(report.net)}
-              </span>
+              <Money value={report.net} showSign />
             </Link>
           </CardContent>
         </Card>

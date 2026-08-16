@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { ReportPeriodPicker } from "@/components/reports/report-period-picker";
 import { PageHeader } from "@/components/ui/page-header";
 import { ErrorBanner } from "@/components/ui/error-banner";
+import { Money } from "@/components/ui/money";
 import { getCashflowStatement } from "@/lib/reports/statements";
 import { periodFromSearchParams } from "@/lib/reports/period";
 import { monthRange } from "@/lib/reports/date-params";
@@ -99,16 +100,8 @@ export default async function CashflowPage({
                         >
                           −{formatMoney(month.cashOut)}
                         </Link>
-                        <Link
-                          href={monthHref}
-                          className={
-                            month.net < 0
-                              ? "font-medium text-negative hover:underline"
-                              : "font-medium text-positive hover:underline"
-                          }
-                        >
-                          {month.net > 0 ? "+" : ""}
-                          {formatMoney(month.net)}
+                        <Link href={monthHref} className="hover:underline">
+                          <Money value={month.net} showSign className="font-medium" />
                         </Link>
                       </div>
                     </div>
@@ -122,10 +115,7 @@ export default async function CashflowPage({
               className="flex items-center justify-between rounded-md border-t border-border py-1.5 text-sm font-medium hover:bg-accent"
             >
               <span>Total cash movement</span>
-              <span className={statement.totalNet < 0 ? "text-negative" : "text-positive"}>
-                {statement.totalNet > 0 ? "+" : ""}
-                {formatMoney(statement.totalNet)}
-              </span>
+              <Money value={statement.totalNet} showSign />
             </Link>
 
             {statement.otherChanges !== null && (

@@ -8,7 +8,8 @@ import {
 } from "@/components/ui/table";
 import { CategorySelect } from "@/components/category-select";
 import { EmptyState } from "@/components/ui/empty-state";
-import { formatDate, formatMoney } from "@/lib/format";
+import { Money } from "@/components/ui/money";
+import { formatDate } from "@/lib/format";
 import type { Category, Transaction } from "@/lib/db/schema";
 
 export interface TransactionRow extends Transaction {
@@ -42,7 +43,6 @@ export function TransactionsTable({
       {/* Mobile: stacked rows with amount and category always visible, no horizontal scroll. */}
       <div className="divide-y divide-border md:hidden">
         {rows.map((tx) => {
-          const amount = Number(tx.amount);
           return (
             <div key={tx.id} className="space-y-2 p-4">
               <div className="flex items-start justify-between gap-3">
@@ -59,16 +59,7 @@ export function TransactionsTable({
                     {formatDate(tx.date)} · {formatAccountLabel(tx.connectionName, tx.accountName)}
                   </div>
                 </div>
-                <div
-                  className={
-                    amount < 0
-                      ? "whitespace-nowrap font-medium text-negative"
-                      : "whitespace-nowrap font-medium text-positive"
-                  }
-                >
-                  {amount > 0 ? "+" : ""}
-                  {formatMoney(tx.amount)}
-                </div>
+                <Money value={tx.amount} showSign className="whitespace-nowrap font-medium" />
               </div>
               <CategorySelect
                 transactionId={tx.id}
@@ -95,7 +86,6 @@ export function TransactionsTable({
           </TableHeader>
           <TableBody>
             {rows.map((tx) => {
-              const amount = Number(tx.amount);
               return (
                 <TableRow key={tx.id}>
                   <TableCell className="whitespace-nowrap text-muted-foreground">
@@ -118,15 +108,8 @@ export function TransactionsTable({
                       pattern={tx.merchantName ?? tx.description}
                     />
                   </TableCell>
-                  <TableCell
-                    className={
-                      amount < 0
-                        ? "whitespace-nowrap text-right font-medium text-negative"
-                        : "whitespace-nowrap text-right font-medium text-positive"
-                    }
-                  >
-                    {amount > 0 ? "+" : ""}
-                    {formatMoney(tx.amount)}
+                  <TableCell className="whitespace-nowrap text-right">
+                    <Money value={tx.amount} showSign className="font-medium" />
                   </TableCell>
                 </TableRow>
               );
