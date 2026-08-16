@@ -15,6 +15,7 @@ import {
 import { Table, TableHeader, TableRow, TableHead, TableBody } from "@/components/ui/table";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
+import { ErrorBanner } from "@/components/ui/error-banner";
 import { RuleRow } from "@/components/rule-row";
 import { RerunRulesButton } from "@/components/rerun-rules-button";
 import { createRule } from "./actions";
@@ -67,9 +68,7 @@ export default async function RulesPage({
       />
 
       {error && (
-        <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">
-          Couldn&apos;t load rules: {error}
-        </div>
+        <ErrorBanner>Couldn&apos;t load rules: {error}</ErrorBanner>
       )}
 
       {!error && (

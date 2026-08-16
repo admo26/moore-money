@@ -6,6 +6,7 @@ import { TransactionsTable, type TransactionRow } from "@/components/transaction
 import { TransactionsPagination } from "@/components/transactions-pagination";
 import { SyncButton } from "@/components/sync-button";
 import { PageHeader } from "@/components/ui/page-header";
+import { ErrorBanner } from "@/components/ui/error-banner";
 
 interface SearchParams {
   [key: string]: string | undefined;
@@ -165,9 +166,7 @@ export default async function TransactionsPage({
       />
 
       {error ? (
-        <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">
-          Couldn&apos;t load transactions: {error}
-        </div>
+        <ErrorBanner>Couldn&apos;t load transactions: {error}</ErrorBanner>
       ) : (
         <>
           <TransactionsToolbar

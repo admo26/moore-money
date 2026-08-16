@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/hero/card";
 import { ReportPeriodPicker } from "@/components/reports/report-period-picker";
 import { PageHeader } from "@/components/ui/page-header";
+import { ErrorBanner } from "@/components/ui/error-banner";
 import { getCashflowStatement } from "@/lib/reports/statements";
 import { periodFromSearchParams } from "@/lib/reports/period";
 import { monthRange } from "@/lib/reports/date-params";
@@ -49,9 +50,7 @@ export default async function CashflowPage({
       <ReportPeriodPicker defaults={period} />
 
       {error ? (
-        <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">
-          Couldn&apos;t load report: {error}
-        </div>
+        <ErrorBanner>Couldn&apos;t load report: {error}</ErrorBanner>
       ) : statement ? (
         <Card>
           <CardHeader>

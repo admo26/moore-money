@@ -4,6 +4,7 @@ import { AccountCard } from "@/components/account-card";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/hero/card";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
+import { ErrorBanner } from "@/components/ui/error-banner";
 import { formatMoney } from "@/lib/format";
 import { accountClass } from "@/lib/accounts/classify";
 
@@ -37,9 +38,7 @@ export default async function NetWorthPage() {
       />
 
       {error ? (
-        <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">
-          Couldn&apos;t load net worth: {error}
-        </div>
+        <ErrorBanner>Couldn&apos;t load net worth: {error}</ErrorBanner>
       ) : rows.length === 0 ? (
         <EmptyState>
           No accounts yet. Click <span className="font-medium">Sync now</span> above once

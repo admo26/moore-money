@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/hero/input";
 import { Button } from "@/components/ui/hero/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/hero/card";
 import { Separator } from "@/components/ui/hero/separator";
+import { ErrorBanner } from "@/components/ui/error-banner";
 
 export function LoginForm() {
   const searchParams = useSearchParams();
@@ -82,14 +83,14 @@ export function LoginForm() {
         </CardHeader>
         <CardContent>
           {notAllowed && (
-            <p className="mb-3 rounded-md border border-destructive/30 bg-destructive/5 p-2 text-sm text-destructive">
+            <ErrorBanner size="sm" className="mb-3">
               That email isn&apos;t on the household allowlist.
-            </p>
+            </ErrorBanner>
           )}
           {authFailedDescription && (
-            <p className="mb-3 rounded-md border border-destructive/30 bg-destructive/5 p-2 text-sm text-destructive">
+            <ErrorBanner size="sm" className="mb-3">
               Sign-in failed: {authFailedDescription}
-            </p>
+            </ErrorBanner>
           )}
           <Button
             type="button"

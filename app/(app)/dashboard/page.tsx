@@ -14,6 +14,7 @@ import { RangeSelect } from "@/components/dashboard/range-select";
 import { AccountsWidget } from "@/components/dashboard/accounts-widget";
 import { StatCard } from "@/components/dashboard/stat-card";
 import { PageHeader } from "@/components/ui/page-header";
+import { ErrorBanner } from "@/components/ui/error-banner";
 import { formatMoney } from "@/lib/format";
 import { db } from "@/lib/db";
 import { accounts as accountsTable, type Account } from "@/lib/db/schema";
@@ -98,9 +99,7 @@ export default async function DashboardPage({
       />
 
       {error ? (
-        <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">
-          Couldn&apos;t load dashboard: {error}
-        </div>
+        <ErrorBanner>Couldn&apos;t load dashboard: {error}</ErrorBanner>
       ) : (
         <>
           <div className="grid gap-4 sm:grid-cols-3">
