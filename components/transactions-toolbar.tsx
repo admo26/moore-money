@@ -2,13 +2,18 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Filter, Search } from "lucide-react";
+import type { Selection } from "react-aria-components";
 import { Input } from "@/components/ui/hero/input";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/hero/popover";
-import { Select, ListBox } from "@/components/ui/hero/select";
+import { ListBox } from "@/components/ui/hero/select";
 import { TransactionsSort } from "@/components/transactions-sort";
 import type { Account, Category } from "@/lib/db/schema";
 
 const DEBOUNCE_MS = 450;
+
+function toIds(value: string | undefined): string[] {
+  return value ? value.split(",").filter(Boolean) : [];
+}
 
 export function TransactionsToolbar({
   accounts,
@@ -18,8 +23,8 @@ export function TransactionsToolbar({
   accounts: Account[];
   categories: Category[];
   defaults: {
-    accountId?: string;
-    categoryId?: string;
+    accountIds?: string;
+    categoryIds?: string;
     q?: string;
     from?: string;
     to?: string;
@@ -34,20 +39,34 @@ export function TransactionsToolbar({
   const [q, setQ] = useState(defaults.q ?? "");
   const [minAmount, setMinAmount] = useState(defaults.minAmount ?? "");
   const [maxAmount, setMaxAmount] = useState(defaults.maxAmount ?? "");
+  const [accountIds, setAccountIds] = useState<string[]>(toIds(defaults.accountIds));
+  const [categoryIds, setCategoryIds] = useState<string[]>(toIds(defaults.categoryIds));
 
   // Debounce free-typed fields so we don't reload on every keystroke; submit
-  // immediately for single-action controls (selects, dates) via onChange.
+  // immediately for single-action controls (selects, dates, checklists) via onChange.
   useDebouncedSubmit(formRef, q, defaults.q ?? "");
   useDebouncedSubmit(formRef, minAmount, defaults.minAmount ?? "");
   useDebouncedSubmit(formRef, maxAmount, defaults.maxAmount ?? "");
+  useSubmitOnChange(formRef, accountIds.join(","), defaults.accountIds ?? "");
+  useSubmitOnChange(formRef, categoryIds.join(","), defaults.categoryIds ?? "");
 
   function submitNow() {
     formRef.current?.requestSubmit();
   }
 
+  function handleAccountChange(keys: Selection) {
+    if (keys === "all") return;
+    setAccountIds([...keys].map(String));
+  }
+
+  function handleCategoryChange(keys: Selection) {
+    if (keys === "all") return;
+    setCategoryIds([...keys].map(String));
+  }
+
   const activeFilterCount = [
-    defaults.accountId,
-    defaults.categoryId,
+    accountIds.length > 0,
+    categoryIds.length > 0,
     defaults.from,
     defaults.to,
     defaults.minAmount,
@@ -59,6 +78,8 @@ export function TransactionsToolbar({
       {/* Carried through on every submit so sort isn't lost when a filter changes. */}
       <input type="hidden" name="sortBy" value={defaults.sortBy} />
       <input type="hidden" name="sortDir" value={defaults.sortDir} />
+      <input type="hidden" name="accountIds" value={accountIds.join(",")} />
+      <input type="hidden" name="categoryIds" value={categoryIds.join(",")} />
 
       <Popover>
         <PopoverTrigger className="inline-flex! h-9 cursor-pointer items-center gap-1.5 rounded-full border border-border bg-card px-3 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground">
@@ -73,56 +94,49 @@ export function TransactionsToolbar({
         <PopoverContent>
           <div className="w-72 space-y-3 p-3">
             <div className="flex flex-col gap-1">
-              <label htmlFor="accountId" className="text-xs font-medium text-muted-foreground">
-                Account
-              </label>
-              <Select
-                name="accountId"
-                defaultSelectedKey={defaults.accountId ?? ""}
-                onSelectionChange={() => submitNow()}
-              >
-                <Select.Trigger id="accountId" className="h-9 w-full">
-                  <Select.Value />
-                  <Select.Indicator />
-                </Select.Trigger>
-                <Select.Popover>
-                  <ListBox>
-                    <ListBox.Item id="">All accounts</ListBox.Item>
-                    {accounts.map((a) => (
-                      <ListBox.Item key={a.id} id={a.id}>
-                        {a.connectionName} — {a.name}
-                      </ListBox.Item>
-                    ))}
-                  </ListBox>
-                </Select.Popover>
-              </Select>
+              <span className="text-xs font-medium text-muted-foreground">
+                Account {accountIds.length > 0 && `(${accountIds.length})`}
+              </span>
+              <div className="max-h-40 overflow-y-auto rounded-md border border-border">
+                <ListBox
+                  aria-label="Filter by account"
+                  selectionMode="multiple"
+                  selectedKeys={new Set(accountIds)}
+                  onSelectionChange={handleAccountChange}
+                >
+                  {accounts.map((a) => (
+                    <ListBox.Item key={a.id} id={a.id}>
+                      <ListBox.Item.Indicator />
+                      {a.connectionName} — {a.name}
+                    </ListBox.Item>
+                  ))}
+                </ListBox>
+              </div>
             </div>
 
             <div className="flex flex-col gap-1">
-              <label htmlFor="categoryId" className="text-xs font-medium text-muted-foreground">
-                Category
-              </label>
-              <Select
-                name="categoryId"
-                defaultSelectedKey={defaults.categoryId ?? ""}
-                onSelectionChange={() => submitNow()}
-              >
-                <Select.Trigger id="categoryId" className="h-9 w-full">
-                  <Select.Value />
-                  <Select.Indicator />
-                </Select.Trigger>
-                <Select.Popover>
-                  <ListBox>
-                    <ListBox.Item id="">All categories</ListBox.Item>
-                    <ListBox.Item id="uncategorised">Uncategorised</ListBox.Item>
-                    {categories.map((c) => (
-                      <ListBox.Item key={c.id} id={c.id}>
-                        {c.name}
-                      </ListBox.Item>
-                    ))}
-                  </ListBox>
-                </Select.Popover>
-              </Select>
+              <span className="text-xs font-medium text-muted-foreground">
+                Category {categoryIds.length > 0 && `(${categoryIds.length})`}
+              </span>
+              <div className="max-h-40 overflow-y-auto rounded-md border border-border">
+                <ListBox
+                  aria-label="Filter by category"
+                  selectionMode="multiple"
+                  selectedKeys={new Set(categoryIds)}
+                  onSelectionChange={handleCategoryChange}
+                >
+                  <ListBox.Item id="uncategorised">
+                    <ListBox.Item.Indicator />
+                    Uncategorised
+                  </ListBox.Item>
+                  {categories.map((c) => (
+                    <ListBox.Item key={c.id} id={String(c.id)}>
+                      <ListBox.Item.Indicator />
+                      {c.name}
+                    </ListBox.Item>
+                  ))}
+                </ListBox>
+              </div>
             </div>
 
             <div className="grid grid-cols-2 gap-2">
@@ -221,6 +235,20 @@ function useDebouncedSubmit(
     if (value === initialValue) return;
     const timeout = setTimeout(() => formRef.current?.requestSubmit(), DEBOUNCE_MS);
     return () => clearTimeout(timeout);
+    // Only re-run when the field's own value changes — initialValue/formRef are stable per render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value]);
+}
+
+/** Like useDebouncedSubmit but instant — for discrete picks (checklists) where there's no keystroke to debounce, unlike free-typed fields. */
+function useSubmitOnChange(
+  formRef: React.RefObject<HTMLFormElement | null>,
+  value: string,
+  initialValue: string
+) {
+  useEffect(() => {
+    if (value === initialValue) return;
+    formRef.current?.requestSubmit();
     // Only re-run when the field's own value changes — initialValue/formRef are stable per render.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value]);

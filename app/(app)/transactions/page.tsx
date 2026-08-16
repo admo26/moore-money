@@ -1,4 +1,4 @@
-import { and, asc, count, desc, eq, gte, ilike, isNull, lte, or } from "drizzle-orm";
+import { and, asc, count, desc, eq, gte, ilike, inArray, isNull, lte, or } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { accounts, categories, transactions, type Account, type Category } from "@/lib/db/schema";
 import { TransactionsToolbar } from "@/components/transactions-toolbar";
@@ -9,8 +9,8 @@ import { SyncButton } from "@/components/sync-button";
 interface SearchParams {
   [key: string]: string | undefined;
   q?: string;
-  accountId?: string;
-  categoryId?: string;
+  accountIds?: string;
+  categoryIds?: string;
   from?: string;
   to?: string;
   minAmount?: string;
@@ -40,12 +40,26 @@ async function loadData(params: SearchParams) {
   ]);
 
   const conditions = [];
-  if (params.accountId) conditions.push(eq(transactions.accountId, params.accountId));
-  if (params.categoryId === "uncategorised") {
-    conditions.push(isNull(transactions.categoryId));
-  } else if (params.categoryId) {
-    conditions.push(eq(transactions.categoryId, Number(params.categoryId)));
+
+  const accountIds = params.accountIds ? params.accountIds.split(",").filter(Boolean) : [];
+  if (accountIds.length > 0) conditions.push(inArray(transactions.accountId, accountIds));
+
+  const categoryIds = params.categoryIds ? params.categoryIds.split(",").filter(Boolean) : [];
+  if (categoryIds.length > 0) {
+    const includeUncategorised = categoryIds.includes("uncategorised");
+    const numericIds = categoryIds.filter((id) => id !== "uncategorised").map(Number);
+
+    if (includeUncategorised && numericIds.length > 0) {
+      conditions.push(
+        or(isNull(transactions.categoryId), inArray(transactions.categoryId, numericIds))
+      );
+    } else if (includeUncategorised) {
+      conditions.push(isNull(transactions.categoryId));
+    } else {
+      conditions.push(inArray(transactions.categoryId, numericIds));
+    }
   }
+
   if (params.from) conditions.push(gte(transactions.date, new Date(params.from)));
   if (params.to) conditions.push(lte(transactions.date, new Date(params.to)));
   if (params.minAmount) conditions.push(gte(transactions.amount, params.minAmount));
