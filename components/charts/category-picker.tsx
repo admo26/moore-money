@@ -64,7 +64,7 @@ export function CategoryPicker({
 
       {unselected.length > 0 && (
         <Popover>
-          <PopoverTrigger className="inline-flex cursor-pointer items-center gap-1 rounded-full border border-dashed border-border px-2.5 py-1 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground">
+          <PopoverTrigger className="inline-flex! cursor-pointer items-center gap-1 rounded-full border border-dashed border-border px-2.5 py-1 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground">
             <Plus className="h-3 w-3" />
             More
           </PopoverTrigger>

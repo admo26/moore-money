@@ -33,7 +33,7 @@ export function TransactionsSort({ sortBy, sortDir }: { sortBy: string; sortDir:
 
   return (
     <Popover>
-      <PopoverTrigger className="inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-full border border-border bg-card px-3 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground">
+      <PopoverTrigger className="inline-flex! h-9 cursor-pointer items-center gap-1.5 rounded-full border border-border bg-card px-3 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground">
         <ArrowUpDown className="h-4 w-4" />
         Sort
       </PopoverTrigger>
