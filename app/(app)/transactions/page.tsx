@@ -1,12 +1,20 @@
 import { and, asc, count, desc, eq, gte, ilike, inArray, isNull, lte, or } from "drizzle-orm";
 import { db } from "@/lib/db";
-import { accounts, categories, transactions, type Account, type Category } from "@/lib/db/schema";
+import {
+  accounts,
+  categories,
+  syncRuns,
+  transactions,
+  type Account,
+  type Category,
+} from "@/lib/db/schema";
 import { TransactionsToolbar } from "@/components/transactions-toolbar";
 import { TransactionsTable, type TransactionRow } from "@/components/transactions-table";
 import { TransactionsPagination } from "@/components/transactions-pagination";
 import { SyncButton } from "@/components/sync-button";
 import { PageHeader } from "@/components/ui/page-header";
 import { ErrorBanner } from "@/components/ui/error-banner";
+import { formatRelativeTime } from "@/lib/format";
 
 interface SearchParams {
   [key: string]: string | undefined;
@@ -36,9 +44,15 @@ function parsePage(params: SearchParams) {
 }
 
 async function loadData(params: SearchParams) {
-  const [allAccounts, allCategories] = await Promise.all([
+  const [allAccounts, allCategories, [lastSyncRow]] = await Promise.all([
     db.select().from(accounts),
     db.select().from(categories).orderBy(asc(categories.name)),
+    db
+      .select({ finishedAt: syncRuns.finishedAt })
+      .from(syncRuns)
+      .where(eq(syncRuns.status, "success"))
+      .orderBy(desc(syncRuns.finishedAt))
+      .limit(1),
   ]);
 
   const conditions = [];
@@ -114,6 +128,7 @@ async function loadData(params: SearchParams) {
     categories: allCategories,
     rows: rows as TransactionRow[],
     total,
+    lastSyncedAt: lastSyncRow?.finishedAt ?? null,
   };
 }
 
@@ -128,6 +143,7 @@ export default async function TransactionsPage({
   let categories_: Category[] = [];
   let rows: TransactionRow[] = [];
   let total = 0;
+  let lastSyncedAt: Date | null = null;
   let error: string | null = null;
 
   try {
@@ -136,6 +152,7 @@ export default async function TransactionsPage({
     categories_ = data.categories;
     rows = data.rows;
     total = data.total;
+    lastSyncedAt = data.lastSyncedAt;
   } catch (err) {
     error = err instanceof Error ? err.message : "Failed to load transactions.";
   }
@@ -145,6 +162,11 @@ export default async function TransactionsPage({
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
   const rangeStart = total === 0 ? 0 : (page - 1) * PAGE_SIZE + 1;
   const rangeEnd = Math.min(page * PAGE_SIZE, total);
+
+  const lastSyncedText = lastSyncedAt
+    ? `Last synced ${formatRelativeTime(lastSyncedAt)}.`
+    : "Never synced.";
+  const countText = total === 0 ? "All transactions." : `Showing ${rangeStart}–${rangeEnd} of ${total} transactions.`;
 
   return (
     <div className="space-y-6">
@@ -157,11 +179,7 @@ export default async function TransactionsPage({
             </span>
           </span>
         }
-        description={
-          total === 0
-            ? "All transactions synced from Akahu."
-            : `Showing ${rangeStart}–${rangeEnd} of ${total} transactions synced from Akahu.`
-        }
+        description={`${countText} ${lastSyncedText}`}
         action={<SyncButton />}
       />
 
