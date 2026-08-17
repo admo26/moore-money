@@ -209,7 +209,7 @@ export function TransactionsToolbar({
         <Input
           id="q"
           name="q"
-          placeholder="Search description or merchant"
+          placeholder="Search description, merchant, or amount"
           value={q}
           onChange={(e) => setQ(e.target.value)}
           className="w-64 rounded-full pl-9!"

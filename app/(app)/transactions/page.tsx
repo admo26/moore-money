@@ -1,4 +1,4 @@
-import { and, asc, count, desc, eq, gte, ilike, inArray, isNull, lte, or } from "drizzle-orm";
+import { and, asc, count, desc, eq, gte, ilike, inArray, isNull, lte, or, sql } from "drizzle-orm";
 import { db } from "@/lib/db";
 import {
   accounts,
@@ -83,7 +83,11 @@ async function loadData(params: SearchParams) {
   if (params.q) {
     const pattern = `%${params.q}%`;
     conditions.push(
-      or(ilike(transactions.description, pattern), ilike(transactions.merchantName, pattern))
+      or(
+        ilike(transactions.description, pattern),
+        ilike(transactions.merchantName, pattern),
+        ilike(sql`${transactions.amount}::text`, pattern)
+      )
     );
   }
 
