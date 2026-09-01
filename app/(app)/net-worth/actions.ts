@@ -6,19 +6,23 @@ import { db } from "@/lib/db";
 import { holdings } from "@/lib/db/schema";
 import { getAuthorizedUser } from "@/lib/auth";
 
-export async function createHolding(formData: FormData) {
+export async function createHolding(symbol: string, type: string, quantity: string) {
   const user = await getAuthorizedUser();
   if (!user) throw new Error("Unauthorized");
 
-  const symbol = String(formData.get("symbol") ?? "").trim().toUpperCase();
-  const type = String(formData.get("type") ?? "");
-  const quantity = String(formData.get("quantity") ?? "").trim();
+  const trimmedSymbol = symbol.trim().toUpperCase();
+  const trimmedQuantity = quantity.trim();
 
-  if (!symbol || !["stock", "crypto"].includes(type) || !quantity || Number(quantity) <= 0) {
+  if (
+    !trimmedSymbol ||
+    !["stock", "crypto"].includes(type) ||
+    !trimmedQuantity ||
+    Number(trimmedQuantity) <= 0
+  ) {
     throw new Error("A symbol, type, and positive quantity are required.");
   }
 
-  await db.insert(holdings).values({ symbol, type, quantity });
+  await db.insert(holdings).values({ symbol: trimmedSymbol, type, quantity: trimmedQuantity });
   revalidatePath("/net-worth");
 }
 

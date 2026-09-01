@@ -2,27 +2,15 @@ import { db } from "@/lib/db";
 import { accounts, holdings } from "@/lib/db/schema";
 import { AccountCard } from "@/components/account-card";
 import { HoldingCard } from "@/components/holding-card";
+import { AddHoldingDialog } from "@/components/add-holding-dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/hero/card";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ErrorBanner } from "@/components/ui/error-banner";
 import { Money } from "@/components/ui/money";
-import { Field } from "@/components/ui/field";
-import { Input } from "@/components/ui/hero/input";
-import { Button } from "@/components/ui/hero/button";
-import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectIndicator,
-  SelectPopover,
-  ListBox,
-  ListBoxItem,
-} from "@/components/ui/hero/select";
 import { formatMoney } from "@/lib/format";
 import { accountClass } from "@/lib/accounts/classify";
 import { getHoldingPrices, getUsdToNzdRate } from "@/lib/holdings/prices";
-import { createHolding } from "./actions";
 
 async function loadData() {
   const [accountRows, holdingRows] = await Promise.all([
@@ -101,7 +89,10 @@ export default async function NetWorthPage() {
 
           <div className="space-y-3">
             <div className="flex items-baseline justify-between">
-              <h2 className="text-lg font-medium">Assets</h2>
+              <div className="flex items-center gap-2">
+                <h2 className="text-lg font-medium">Assets</h2>
+                <AddHoldingDialog />
+              </div>
               <span className="text-sm font-medium text-positive">
                 {formatMoney(totalAssets)}
               </span>
@@ -143,47 +134,6 @@ export default async function NetWorthPage() {
               </div>
             )}
           </div>
-
-          <form
-            action={createHolding}
-            className="flex flex-wrap items-end gap-3 rounded-lg border border-border bg-card p-4"
-          >
-            <Field label="Symbol" htmlFor="symbol">
-              <Input id="symbol" name="symbol" required placeholder="e.g. TEAM, BTC" className="h-9 w-40" />
-            </Field>
-
-            <Field label="Type" htmlFor="type">
-              <Select aria-label="Type" name="type" defaultSelectedKey="stock" isRequired validationBehavior="native">
-                <SelectTrigger id="type" className="h-9 w-32">
-                  <SelectValue />
-                  <SelectIndicator />
-                </SelectTrigger>
-                <SelectPopover>
-                  <ListBox>
-                    <ListBoxItem id="stock">Shares</ListBoxItem>
-                    <ListBoxItem id="crypto">Crypto</ListBoxItem>
-                  </ListBox>
-                </SelectPopover>
-              </Select>
-            </Field>
-
-            <Field label="Quantity" htmlFor="quantity">
-              <Input
-                id="quantity"
-                name="quantity"
-                type="number"
-                step="any"
-                min="0"
-                required
-                placeholder="e.g. 10"
-                className="h-9 w-32"
-              />
-            </Field>
-
-            <Button type="submit" size="sm">
-              Add holding
-            </Button>
-          </form>
         </>
       )}
     </div>
