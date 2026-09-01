@@ -40,6 +40,9 @@ async function categorizeBatch(
       maxRetries: 1,
       maxOutputTokens: 32000,
       schema: ResultSchema,
+      providerOptions: {
+        gateway: { disallowPromptTraining: true },
+      },
       prompt: [
         `Categorise each household bank transaction below into exactly one of these categories: ${categoryNames.join(", ")}, or "none" if none fit.`,
         "Negative amounts are money out (spending); positive amounts are money in.",
