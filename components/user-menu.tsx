@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { Settings } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/hero/avatar";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/hero/popover";
@@ -47,6 +48,14 @@ export function UserMenu({
   const menu = (
     <PopoverContent placement={collapsed ? "right" : "top"}>
       <div className="flex w-56 flex-col gap-1 p-2">
+        <Link
+          href="/settings"
+          onClick={onNavigate}
+          className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-sidebar-foreground transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+        >
+          <Settings className="h-4 w-4 shrink-0" />
+          Settings
+        </Link>
         <div className="flex items-center justify-between gap-3 rounded-md px-1 py-1">
           <span className="text-sm font-medium">Dark mode</span>
           <ThemeToggle initialIsDark={initialIsDark} collapsed />
