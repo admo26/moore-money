@@ -117,7 +117,8 @@ export default async function NetWorthPage() {
                   <HoldingCard
                     key={holding.id}
                     holding={holding}
-                    price={priceUsd}
+                    priceUsd={priceUsd}
+                    usdToNzd={fxRate?.price ?? null}
                     priceFetchedAt={fetchedAt}
                   />
                 ))}
@@ -159,7 +160,7 @@ export default async function NetWorthPage() {
                 </SelectTrigger>
                 <SelectPopover>
                   <ListBox>
-                    <ListBoxItem id="stock">Stock</ListBoxItem>
+                    <ListBoxItem id="stock">Shares</ListBoxItem>
                     <ListBoxItem id="crypto">Crypto</ListBoxItem>
                   </ListBox>
                 </SelectPopover>

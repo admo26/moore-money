@@ -10,17 +10,26 @@ import { formatMoney, formatRelativeTime } from "@/lib/format";
 import { deleteHolding } from "@/app/(app)/net-worth/actions";
 import type { Holding } from "@/lib/db/schema";
 
+/** Trims a numeric(20,8) string's trailing zeros — "455.00000000" -> "455", "0.50000000" -> "0.5". */
+function formatQuantity(quantity: string) {
+  return Number(quantity).toString();
+}
+
 export function HoldingCard({
   holding,
-  price,
+  priceUsd,
+  usdToNzd,
   priceFetchedAt,
 }: {
   holding: Holding;
-  price: number | null;
+  priceUsd: number | null;
+  usdToNzd: number | null;
   priceFetchedAt: Date | null;
 }) {
   const [isPending, startTransition] = useTransition();
-  const value = price !== null ? Number(holding.quantity) * price : null;
+  const valueUsd = priceUsd !== null ? Number(holding.quantity) * priceUsd : null;
+  const valueNzd = valueUsd !== null && usdToNzd !== null ? valueUsd * usdToNzd : null;
+  const priceNzd = priceUsd !== null && usdToNzd !== null ? priceUsd * usdToNzd : null;
 
   function handleDelete() {
     const formData = new FormData();
@@ -35,7 +44,7 @@ export function HoldingCard({
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
           <CardTitle className="text-sm font-medium text-muted-foreground">
-            {holding.type === "crypto" ? "Crypto" : "Stock"}
+            {holding.type === "crypto" ? "Crypto" : "Shares"}
           </CardTitle>
           <div className="flex items-center gap-2">
             <span className="rounded bg-secondary px-2 py-0.5 text-xs font-medium text-secondary-foreground">
@@ -60,14 +69,21 @@ export function HoldingCard({
           <AccountLogo name={holding.symbol} logoUrl={null} />
           <div>
             <div className="text-base font-medium">
-              {holding.quantity} {holding.symbol}
+              {formatQuantity(holding.quantity)} {holding.symbol}
             </div>
             <div className="text-xs text-muted-foreground">
-              {price !== null ? `${formatMoney(price, "USD")} / unit` : "Price unavailable"}
+              {priceNzd !== null
+                ? `${formatMoney(priceNzd)} / unit (${formatMoney(priceUsd, "USD")})`
+                : "Price unavailable"}
             </div>
           </div>
         </div>
-        <Money value={value} currency="USD" color="negative" className="mt-2 block text-2xl font-semibold" />
+        <div className="mt-2 flex items-baseline gap-2">
+          <Money value={valueNzd} color="negative" className="text-2xl font-semibold" />
+          {valueUsd !== null && (
+            <span className="text-sm text-muted-foreground">({formatMoney(valueUsd, "USD")})</span>
+          )}
+        </div>
         <div className="mt-3 text-xs text-muted-foreground">
           {priceFetchedAt ? `Updated ${formatRelativeTime(priceFetchedAt)}` : "Not yet priced"}
         </div>
