@@ -16,6 +16,7 @@ import { StatCard } from "@/components/dashboard/stat-card";
 import { PageHeader } from "@/components/ui/page-header";
 import { ErrorBanner } from "@/components/ui/error-banner";
 import { Money } from "@/components/ui/money";
+import { StaggerGrid } from "@/components/ui/motion/stagger-grid";
 import { formatMoney } from "@/lib/format";
 import { db } from "@/lib/db";
 import { accounts as accountsTable, type Account } from "@/lib/db/schema";
@@ -103,7 +104,7 @@ export default async function DashboardPage({
         <ErrorBanner>Couldn&apos;t load dashboard: {error}</ErrorBanner>
       ) : (
         <>
-          <div className="grid gap-4 sm:grid-cols-3">
+          <StaggerGrid className="gap-4 sm:grid-cols-3">
             <StatCard
               label="Money in"
               value={formatMoney(summary.income)}
@@ -119,7 +120,7 @@ export default async function DashboardPage({
               value={<Money value={net} showSign color="none" />}
               changePct={summary.netChangePct}
             />
-          </div>
+          </StaggerGrid>
 
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
             <AccountsWidget accounts={accounts} sparklines={accountSparklines} />

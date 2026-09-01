@@ -7,7 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/hero/c
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ErrorBanner } from "@/components/ui/error-banner";
-import { Money } from "@/components/ui/money";
+import { CountUpMoney } from "@/components/ui/count-up-money";
+import { StaggerGrid } from "@/components/ui/motion/stagger-grid";
 import { formatMoney } from "@/lib/format";
 import { accountClass, isRetirementAccount } from "@/lib/accounts/classify";
 import { getHoldingPrices, getUsdToNzdRate } from "@/lib/holdings/prices";
@@ -95,7 +96,7 @@ export default async function NetWorthPage() {
             </CardHeader>
             <CardContent>
               <div className="flex items-baseline gap-2">
-                <Money value={netWorth} className="block text-3xl font-semibold" />
+                <CountUpMoney value={netWorth} className="block text-3xl font-semibold" />
                 {totalRetirement > 0 && (
                   <span className="text-sm text-muted-foreground">(exc. KiwiSaver)</span>
                 )}
@@ -120,7 +121,7 @@ export default async function NetWorthPage() {
             {nonRetirementAssetAccounts.length === 0 && holdingRows.length === 0 ? (
               <EmptyState>No asset accounts linked yet (e.g. managed funds, savings).</EmptyState>
             ) : (
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              <StaggerGrid className="gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {nonRetirementAssetAccounts.map((account) => (
                   <AccountCard key={account.id} account={account} />
                 ))}
@@ -133,7 +134,7 @@ export default async function NetWorthPage() {
                     priceFetchedAt={fetchedAt}
                   />
                 ))}
-              </div>
+              </StaggerGrid>
             )}
           </div>
 
@@ -147,11 +148,11 @@ export default async function NetWorthPage() {
             {liabilityAccounts.length === 0 ? (
               <EmptyState>No liability accounts linked (e.g. loans, credit cards).</EmptyState>
             ) : (
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              <StaggerGrid className="gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {liabilityAccounts.map((account) => (
                   <AccountCard key={account.id} account={account} />
                 ))}
-              </div>
+              </StaggerGrid>
             )}
           </div>
 
@@ -163,11 +164,11 @@ export default async function NetWorthPage() {
                   {formatMoney(totalRetirement)}
                 </span>
               </div>
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              <StaggerGrid className="gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {retirementAccounts.map((account) => (
                   <AccountCard key={account.id} account={account} />
                 ))}
-              </div>
+              </StaggerGrid>
             </div>
           )}
         </>
