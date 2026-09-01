@@ -63,12 +63,12 @@ export function AddHoldingDialog() {
     <Dialog isOpen={open} onOpenChange={handleOpenChange}>
       <Button
         size="sm"
-        variant="secondary"
+        variant="ghost"
         isIconOnly
-        className="rounded-full"
+        className="rounded-full text-muted-foreground"
         aria-label="Add holding"
       >
-        <Plus className="h-4 w-4" />
+        <Plus className="h-3.5 w-3.5" />
       </Button>
       <DialogBackdrop>
         <DialogContainer>
