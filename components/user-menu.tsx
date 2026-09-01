@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Settings } from "lucide-react";
+import { Settings, SunMoon } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/hero/avatar";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/hero/popover";
 import { Separator } from "@/components/ui/hero/separator";
@@ -56,8 +56,11 @@ export function UserMenu({
           <Settings className="h-4 w-4 shrink-0" />
           Settings
         </Link>
-        <div className="flex items-center justify-between gap-3 rounded-md px-1 py-1">
-          <span className="text-sm font-medium">Dark mode</span>
+        <div className="flex items-center justify-between gap-3 rounded-md px-3 py-2">
+          <span className="flex items-center gap-3 text-sm font-medium">
+            <SunMoon className="h-4 w-4 shrink-0" />
+            Dark mode
+          </span>
           <ThemeToggle initialIsDark={initialIsDark} collapsed />
         </div>
         <Separator className="my-1" />
