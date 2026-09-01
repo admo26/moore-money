@@ -1,7 +1,7 @@
 "use client";
 
 import { useTransition } from "react";
-import { Trash2 } from "lucide-react";
+import { Home, Trash2 } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/hero/card";
 import { Button } from "@/components/ui/hero/button";
 import { AccountLogo } from "@/components/dashboard/account-logo";
@@ -27,8 +27,15 @@ export function HoldingCard({
   priceFetchedAt: Date | null;
 }) {
   const [isPending, startTransition] = useTransition();
-  const valueUsd = priceUsd !== null ? Number(holding.quantity) * priceUsd : null;
-  const valueNzd = valueUsd !== null && usdToNzd !== null ? valueUsd * usdToNzd : null;
+  const isProperty = holding.type === "property";
+  const valueUsd = !isProperty && priceUsd !== null ? Number(holding.quantity) * priceUsd : null;
+  const valueNzd = isProperty
+    ? holding.manualValue !== null
+      ? Number(holding.manualValue)
+      : null
+    : valueUsd !== null && usdToNzd !== null
+      ? valueUsd * usdToNzd
+      : null;
   const priceNzd = priceUsd !== null && usdToNzd !== null ? priceUsd * usdToNzd : null;
 
   function handleDelete() {
@@ -44,12 +51,14 @@ export function HoldingCard({
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
           <CardTitle className="text-sm font-medium text-muted-foreground">
-            {holding.type === "crypto" ? "Crypto" : "Shares"}
+            {isProperty ? "Property" : holding.type === "crypto" ? "Crypto" : "Shares"}
           </CardTitle>
           <div className="flex items-center gap-2">
-            <span className="rounded bg-secondary px-2 py-0.5 text-xs font-medium text-secondary-foreground">
-              {holding.symbol}
-            </span>
+            {holding.symbol && (
+              <span className="rounded bg-secondary px-2 py-0.5 text-xs font-medium text-secondary-foreground">
+                {holding.symbol}
+              </span>
+            )}
             <Button
               size="sm"
               variant="danger-soft"
@@ -66,16 +75,28 @@ export function HoldingCard({
       </CardHeader>
       <CardContent>
         <div className="flex items-center gap-3">
-          <AccountLogo name={holding.symbol} logoUrl={null} />
+          {isProperty ? (
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-secondary text-secondary-foreground">
+              <Home className="h-4 w-4" />
+            </div>
+          ) : (
+            <AccountLogo name={holding.symbol ?? ""} logoUrl={null} />
+          )}
           <div>
-            <div className="text-base font-medium">
-              {formatQuantity(holding.quantity)} {holding.symbol}
-            </div>
-            <div className="text-xs text-muted-foreground">
-              {priceNzd !== null
-                ? `${formatMoney(priceNzd)} / unit (${formatMoney(priceUsd, "USD")})`
-                : "Price unavailable"}
-            </div>
+            {isProperty ? (
+              <div className="text-base font-medium">{holding.address}</div>
+            ) : (
+              <>
+                <div className="text-base font-medium">
+                  {formatQuantity(holding.quantity ?? "0")} {holding.symbol}
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  {priceNzd !== null
+                    ? `${formatMoney(priceNzd)} / unit (${formatMoney(priceUsd, "USD")})`
+                    : "Price unavailable"}
+                </div>
+              </>
+            )}
           </div>
         </div>
         <div className="mt-2 flex items-baseline gap-2">

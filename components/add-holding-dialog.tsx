@@ -20,13 +20,21 @@ import {
 import { Select, SelectTrigger, SelectValue, SelectIndicator, SelectPopover, ListBox, ListBoxItem } from "@/components/ui/hero/select";
 import { createHolding } from "@/app/(app)/net-worth/actions";
 
-const EMPTY_FORM = { symbol: "", type: "stock", quantity: "" };
+const EMPTY_FORM = { symbol: "", type: "stock", quantity: "", address: "", manualValue: "" };
+
+function isValid(form: typeof EMPTY_FORM) {
+  if (form.type === "property") {
+    return Boolean(form.address.trim() && form.manualValue && Number(form.manualValue) > 0);
+  }
+  return Boolean(form.symbol.trim() && form.quantity && Number(form.quantity) > 0);
+}
 
 /** Matches AddCategoryForm's button-opens-modal pattern — a "+" icon trigger instead of a text button, since this sits next to the "Assets" heading rather than standing alone. */
 export function AddHoldingDialog() {
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState(EMPTY_FORM);
   const [isPending, startTransition] = useTransition();
+  const isProperty = form.type === "property";
 
   function handleOpenChange(next: boolean) {
     setOpen(next);
@@ -34,11 +42,15 @@ export function AddHoldingDialog() {
   }
 
   function handleSubmit() {
-    if (!form.symbol.trim() || !form.quantity || Number(form.quantity) <= 0) return;
+    if (!isValid(form)) return;
 
     startTransition(async () => {
       try {
-        await createHolding(form.symbol, form.type, form.quantity);
+        await createHolding(
+          isProperty
+            ? { type: "property", address: form.address, manualValue: form.manualValue }
+            : { type: form.type, symbol: form.symbol, quantity: form.quantity }
+        );
         setOpen(false);
         setForm(EMPTY_FORM);
       } catch {
@@ -66,26 +78,12 @@ export function AddHoldingDialog() {
             </DialogHeader>
 
             <DialogBody className="flex flex-col gap-3">
-              <Field label="Symbol" htmlFor="new-holding-symbol">
-                <Input
-                  id="new-holding-symbol"
-                  autoFocus
-                  placeholder="e.g. TEAM, BTC"
-                  value={form.symbol}
-                  onChange={(e) => setForm((f) => ({ ...f, symbol: e.target.value }))}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") handleSubmit();
-                  }}
-                  disabled={isPending}
-                />
-              </Field>
-
               <Field label="Type" htmlFor="new-holding-type">
                 <Select
                   aria-label="Type"
                   selectedKey={form.type}
                   onSelectionChange={(key: Key | null) => {
-                    if (key != null) setForm((f) => ({ ...f, type: String(key) }));
+                    if (key != null) setForm({ ...EMPTY_FORM, type: String(key) });
                   }}
                   isDisabled={isPending}
                 >
@@ -97,34 +95,81 @@ export function AddHoldingDialog() {
                     <ListBox>
                       <ListBoxItem id="stock">Shares</ListBoxItem>
                       <ListBoxItem id="crypto">Crypto</ListBoxItem>
+                      <ListBoxItem id="property">Property</ListBoxItem>
                     </ListBox>
                   </SelectPopover>
                 </Select>
               </Field>
 
-              <Field label="Quantity" htmlFor="new-holding-quantity">
-                <Input
-                  id="new-holding-quantity"
-                  type="number"
-                  step="any"
-                  min="0"
-                  placeholder="e.g. 10"
-                  value={form.quantity}
-                  onChange={(e) => setForm((f) => ({ ...f, quantity: e.target.value }))}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") handleSubmit();
-                  }}
-                  disabled={isPending}
-                />
-              </Field>
+              {isProperty ? (
+                <>
+                  <Field label="Address" htmlFor="new-holding-address">
+                    <Input
+                      id="new-holding-address"
+                      autoFocus
+                      placeholder="e.g. 12 Example Street, Auckland"
+                      value={form.address}
+                      onChange={(e) => setForm((f) => ({ ...f, address: e.target.value }))}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") handleSubmit();
+                      }}
+                      disabled={isPending}
+                    />
+                  </Field>
+
+                  <Field label="Value (NZD)" htmlFor="new-holding-value">
+                    <Input
+                      id="new-holding-value"
+                      type="number"
+                      step="any"
+                      min="0"
+                      placeholder="e.g. 950000"
+                      value={form.manualValue}
+                      onChange={(e) => setForm((f) => ({ ...f, manualValue: e.target.value }))}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") handleSubmit();
+                      }}
+                      disabled={isPending}
+                    />
+                  </Field>
+                </>
+              ) : (
+                <>
+                  <Field label="Symbol" htmlFor="new-holding-symbol">
+                    <Input
+                      id="new-holding-symbol"
+                      autoFocus
+                      placeholder="e.g. TEAM, BTC"
+                      value={form.symbol}
+                      onChange={(e) => setForm((f) => ({ ...f, symbol: e.target.value }))}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") handleSubmit();
+                      }}
+                      disabled={isPending}
+                    />
+                  </Field>
+
+                  <Field label="Quantity" htmlFor="new-holding-quantity">
+                    <Input
+                      id="new-holding-quantity"
+                      type="number"
+                      step="any"
+                      min="0"
+                      placeholder="e.g. 10"
+                      value={form.quantity}
+                      onChange={(e) => setForm((f) => ({ ...f, quantity: e.target.value }))}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") handleSubmit();
+                      }}
+                      disabled={isPending}
+                    />
+                  </Field>
+                </>
+              )}
             </DialogBody>
 
             <DialogFooter>
-              <Button
-                size="sm"
-                onPress={handleSubmit}
-                isDisabled={isPending || !form.symbol.trim() || !form.quantity}
-              >
+              <Button size="sm" onPress={handleSubmit} isDisabled={isPending || !isValid(form)}>
                 {isPending ? "Adding…" : "Add"}
               </Button>
             </DialogFooter>

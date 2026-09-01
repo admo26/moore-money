@@ -6,23 +6,36 @@ import { db } from "@/lib/db";
 import { holdings } from "@/lib/db/schema";
 import { getAuthorizedUser } from "@/lib/auth";
 
-export async function createHolding(symbol: string, type: string, quantity: string) {
+export async function createHolding(input: {
+  type: string;
+  symbol?: string;
+  quantity?: string;
+  address?: string;
+  manualValue?: string;
+}) {
   const user = await getAuthorizedUser();
   if (!user) throw new Error("Unauthorized");
 
-  const trimmedSymbol = symbol.trim().toUpperCase();
-  const trimmedQuantity = quantity.trim();
+  if (input.type === "property") {
+    const address = (input.address ?? "").trim();
+    const manualValue = (input.manualValue ?? "").trim();
 
-  if (
-    !trimmedSymbol ||
-    !["stock", "crypto"].includes(type) ||
-    !trimmedQuantity ||
-    Number(trimmedQuantity) <= 0
-  ) {
-    throw new Error("A symbol, type, and positive quantity are required.");
+    if (!address || !manualValue || Number(manualValue) <= 0) {
+      throw new Error("An address and a positive value are required.");
+    }
+
+    await db.insert(holdings).values({ type: "property", address, manualValue });
+  } else {
+    const symbol = (input.symbol ?? "").trim().toUpperCase();
+    const quantity = (input.quantity ?? "").trim();
+
+    if (!symbol || !["stock", "crypto"].includes(input.type) || !quantity || Number(quantity) <= 0) {
+      throw new Error("A symbol, type, and positive quantity are required.");
+    }
+
+    await db.insert(holdings).values({ type: input.type, symbol, quantity });
   }
 
-  await db.insert(holdings).values({ symbol: trimmedSymbol, type, quantity: trimmedQuantity });
   revalidatePath("/net-worth");
 }
 

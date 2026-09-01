@@ -191,15 +191,20 @@ export const mcpOauthTokens = pgTable("mcp_oauth_tokens", {
 }).enableRLS();
 
 /**
- * A manually-entered stock or crypto holding — unlike `accounts`, there's no
- * Akahu-synced source for these, so the user enters symbol/quantity by hand
- * and prices are fetched from a market-data API instead of Akahu.
+ * A manually-entered asset — unlike `accounts`, there's no Akahu-synced
+ * source for these. For `stock`/`crypto`, the user enters symbol/quantity
+ * and a price is fetched from a market-data API (see lib/holdings/prices.ts);
+ * for `property`, there's no market API, so address/value are both entered
+ * and kept up to date by hand — symbol/quantity are null for those rows, and
+ * address/manualValue are null for the priced types.
  */
 export const holdings = pgTable("holdings", {
   id: serial("id").primaryKey(),
-  symbol: text("symbol").notNull(),
-  type: text("type").notNull(), // stock | crypto
-  quantity: numeric("quantity", { precision: 20, scale: 8 }).notNull(),
+  symbol: text("symbol"),
+  type: text("type").notNull(), // stock | crypto | property
+  quantity: numeric("quantity", { precision: 20, scale: 8 }),
+  address: text("address"),
+  manualValue: numeric("manual_value", { precision: 14, scale: 2 }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 }).enableRLS();

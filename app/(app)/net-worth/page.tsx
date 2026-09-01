@@ -43,12 +43,21 @@ export default async function NetWorthPage() {
   const sumBalance = (list: typeof accountRows) =>
     list.reduce((sum, a) => sum + Number(a.currentBalance ?? 0), 0);
 
-  const [prices, fxRate] = holdingRows.length
-    ? await Promise.all([getHoldingPrices(holdingRows), getUsdToNzdRate().catch(() => null)])
+  const pricedHoldings = holdingRows
+    .filter((h) => h.type !== "property" && h.symbol)
+    .map((h) => ({ symbol: h.symbol as string, type: h.type }));
+
+  const [prices, fxRate] = pricedHoldings.length
+    ? await Promise.all([getHoldingPrices(pricedHoldings), getUsdToNzdRate().catch(() => null)])
     : [new Map(), null];
 
   const holdingsWithValue = holdingRows.map((holding) => {
-    const point = prices.get(holding.symbol) ?? null;
+    if (holding.type === "property") {
+      const valueNzd = holding.manualValue !== null ? Number(holding.manualValue) : null;
+      return { holding, priceUsd: null, fetchedAt: holding.updatedAt, valueNzd };
+    }
+
+    const point = holding.symbol ? prices.get(holding.symbol) ?? null : null;
     const priceUsd = point?.price ?? null;
     const valueNzd =
       priceUsd !== null && fxRate ? Number(holding.quantity) * priceUsd * fxRate.price : null;
