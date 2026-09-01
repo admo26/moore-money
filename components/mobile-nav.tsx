@@ -3,10 +3,17 @@
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
 import { SidebarNav } from "@/components/sidebar-nav";
-import { SignOutButton } from "@/components/sign-out-button";
-import { ThemeToggle } from "@/components/theme-toggle";
+import { UserMenu } from "@/components/user-menu";
 
-export function MobileNav({ initialIsDark }: { initialIsDark?: boolean }) {
+export function MobileNav({
+  initialIsDark,
+  name,
+  avatarUrl,
+}: {
+  initialIsDark?: boolean;
+  name: string;
+  avatarUrl: string | null;
+}) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -47,9 +54,13 @@ export function MobileNav({ initialIsDark }: { initialIsDark?: boolean }) {
             <div className="mt-2 flex-1">
               <SidebarNav onNavigate={() => setOpen(false)} />
             </div>
-            <div className="space-y-1 px-3 py-2">
-              <ThemeToggle initialIsDark={initialIsDark} />
-              <SignOutButton onNavigate={() => setOpen(false)} />
+            <div className="border-t border-sidebar-border px-3 py-3">
+              <UserMenu
+                name={name}
+                avatarUrl={avatarUrl}
+                initialIsDark={initialIsDark}
+                onNavigate={() => setOpen(false)}
+              />
             </div>
           </div>
         </div>

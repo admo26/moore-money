@@ -4,13 +4,20 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { SidebarNav } from "@/components/sidebar-nav";
-import { SignOutButton } from "@/components/sign-out-button";
-import { ThemeToggle } from "@/components/theme-toggle";
+import { UserMenu } from "@/components/user-menu";
 import { cn } from "@/lib/utils";
 
 const STORAGE_KEY = "sidebar-collapsed";
 
-export function Sidebar({ initialIsDark }: { initialIsDark?: boolean }) {
+export function Sidebar({
+  initialIsDark,
+  name,
+  avatarUrl,
+}: {
+  initialIsDark?: boolean;
+  name: string;
+  avatarUrl: string | null;
+}) {
   // Was a lazy initializer reading localStorage directly — looks SSR-safe
   // (the typeof window guard), but a `true` stored value still produces a
   // genuine hydration mismatch, because it changes which *elements* render
@@ -68,12 +75,11 @@ export function Sidebar({ initialIsDark }: { initialIsDark?: boolean }) {
       <div className="mt-2 flex-1">
         <SidebarNav collapsed={collapsed} />
       </div>
-      <div className="space-y-1 px-3 py-2">
-        <ThemeToggle initialIsDark={initialIsDark} collapsed={collapsed} />
-        <SignOutButton collapsed={collapsed} />
+      <div className="border-t border-sidebar-border px-3 py-3">
+        <UserMenu name={name} avatarUrl={avatarUrl} initialIsDark={initialIsDark} collapsed={collapsed} />
       </div>
       {!collapsed && (
-        <div className="px-5 py-4 text-xs text-sidebar-foreground/40">Household finance</div>
+        <div className="px-5 py-2 text-xs text-sidebar-foreground/40">Household finance</div>
       )}
     </aside>
   );

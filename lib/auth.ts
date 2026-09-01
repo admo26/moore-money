@@ -42,3 +42,20 @@ export function getFirstName(user: Pick<User, "user_metadata" | "email"> | null 
 
   return user?.email?.split("@")[0] ?? "";
 }
+
+/** Full name for the account menu, from the Google profile if signed in that way, else the email's local part. */
+export function getFullName(user: Pick<User, "user_metadata" | "email"> | null | undefined): string {
+  const fullName = (user?.user_metadata?.full_name ?? user?.user_metadata?.name) as
+    | string
+    | undefined;
+  return fullName ?? user?.email?.split("@")[0] ?? "";
+}
+
+/** Google/GitHub profile photo, if the user signed in that way. */
+export function getAvatarUrl(
+  user: Pick<User, "user_metadata"> | null | undefined
+): string | null {
+  return (user?.user_metadata?.avatar_url ?? user?.user_metadata?.picture ?? null) as
+    | string
+    | null;
+}
