@@ -12,3 +12,8 @@ export type AccountClass = "asset" | "liability";
 export function accountClass(type: string): AccountClass {
   return LIABILITY_TYPES.has(type.toUpperCase()) ? "liability" : "asset";
 }
+
+/** KiwiSaver is an asset, but shown in its own "Retirement" section and excluded from the headline net-worth figure — it's locked away until retirement, not spendable net worth. */
+export function isRetirementAccount(type: string): boolean {
+  return type.toUpperCase() === "KIWISAVER";
+}
