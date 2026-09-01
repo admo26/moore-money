@@ -59,8 +59,11 @@ export function HoldingCard({
     <Card>
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between gap-2">
-          <div className="flex min-w-0 items-center gap-1">
-            <CardTitle className="truncate text-base font-medium">{title}</CardTitle>
+          <CardTitle className="truncate text-base font-medium">{title}</CardTitle>
+          <div className="flex shrink-0 items-center gap-2">
+            <span className="rounded bg-secondary px-2 py-0.5 text-xs font-medium uppercase text-secondary-foreground">
+              {TYPE_LABEL[holding.type] ?? holding.type}
+            </span>
             <MenuTrigger>
               <Button
                 size="sm"
@@ -91,9 +94,6 @@ export function HoldingCard({
               </MenuPopover>
             </MenuTrigger>
           </div>
-          <span className="shrink-0 rounded bg-secondary px-2 py-0.5 text-xs font-medium uppercase text-secondary-foreground">
-            {TYPE_LABEL[holding.type] ?? holding.type}
-          </span>
         </div>
       </CardHeader>
       <CardContent>
