@@ -1,46 +1,83 @@
 import { db } from "@/lib/db";
-import { accounts } from "@/lib/db/schema";
+import { accounts, holdings } from "@/lib/db/schema";
 import { AccountCard } from "@/components/account-card";
+import { HoldingCard } from "@/components/holding-card";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/hero/card";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ErrorBanner } from "@/components/ui/error-banner";
 import { Money } from "@/components/ui/money";
+import { Field } from "@/components/ui/field";
+import { Input } from "@/components/ui/hero/input";
+import { Button } from "@/components/ui/hero/button";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectIndicator,
+  SelectPopover,
+  ListBox,
+  ListBoxItem,
+} from "@/components/ui/hero/select";
 import { formatMoney } from "@/lib/format";
 import { accountClass } from "@/lib/accounts/classify";
+import { getHoldingPrices, getUsdToNzdRate } from "@/lib/holdings/prices";
+import { createHolding } from "./actions";
 
-async function loadAccounts() {
-  return db.select().from(accounts);
+async function loadData() {
+  const [accountRows, holdingRows] = await Promise.all([
+    db.select().from(accounts),
+    db.select().from(holdings),
+  ]);
+  return { accountRows, holdingRows };
 }
 
 export default async function NetWorthPage() {
-  let rows: Awaited<ReturnType<typeof loadAccounts>> = [];
+  let accountRows: Awaited<ReturnType<typeof loadData>>["accountRows"] = [];
+  let holdingRows: Awaited<ReturnType<typeof loadData>>["holdingRows"] = [];
   let error: string | null = null;
 
   try {
-    rows = await loadAccounts();
+    const data = await loadData();
+    accountRows = data.accountRows;
+    holdingRows = data.holdingRows;
   } catch (err) {
     error = err instanceof Error ? err.message : "Failed to load net worth.";
   }
 
-  const assetAccounts = rows.filter((a) => accountClass(a.type) === "asset");
-  const liabilityAccounts = rows.filter((a) => accountClass(a.type) === "liability");
-  const sumBalance = (list: typeof rows) =>
+  const assetAccounts = accountRows.filter((a) => accountClass(a.type) === "asset");
+  const liabilityAccounts = accountRows.filter((a) => accountClass(a.type) === "liability");
+  const sumBalance = (list: typeof accountRows) =>
     list.reduce((sum, a) => sum + Number(a.currentBalance ?? 0), 0);
-  const totalAssets = sumBalance(assetAccounts);
+
+  const [prices, fxRate] = holdingRows.length
+    ? await Promise.all([getHoldingPrices(holdingRows), getUsdToNzdRate().catch(() => null)])
+    : [new Map(), null];
+
+  const holdingsWithValue = holdingRows.map((holding) => {
+    const point = prices.get(holding.symbol) ?? null;
+    const priceUsd = point?.price ?? null;
+    const valueNzd =
+      priceUsd !== null && fxRate ? Number(holding.quantity) * priceUsd * fxRate.price : null;
+    return { holding, priceUsd, fetchedAt: point?.fetchedAt ?? null, valueNzd };
+  });
+
+  const totalHoldingsValue = holdingsWithValue.reduce((sum, h) => sum + (h.valueNzd ?? 0), 0);
+  const totalAssets = sumBalance(assetAccounts) + totalHoldingsValue;
   const totalLiabilities = sumBalance(liabilityAccounts);
   const netWorth = totalAssets + totalLiabilities;
+  const isEmpty = accountRows.length === 0 && holdingRows.length === 0;
 
   return (
     <div className="space-y-6">
       <PageHeader
         title="Net Worth"
-        description="Everything you own (assets) minus everything you owe (liabilities), across every linked account."
+        description="Everything you own (assets) minus everything you owe (liabilities), across every linked account and holding."
       />
 
       {error ? (
         <ErrorBanner>Couldn&apos;t load net worth: {error}</ErrorBanner>
-      ) : rows.length === 0 ? (
+      ) : isEmpty ? (
         <EmptyState>
           No accounts yet. Click <span className="font-medium">Sync now</span> above once
           Akahu is configured.
@@ -69,12 +106,20 @@ export default async function NetWorthPage() {
                 {formatMoney(totalAssets)}
               </span>
             </div>
-            {assetAccounts.length === 0 ? (
+            {assetAccounts.length === 0 && holdingRows.length === 0 ? (
               <EmptyState>No asset accounts linked yet (e.g. KiwiSaver, managed funds, savings).</EmptyState>
             ) : (
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {assetAccounts.map((account) => (
                   <AccountCard key={account.id} account={account} />
+                ))}
+                {holdingsWithValue.map(({ holding, priceUsd, fetchedAt }) => (
+                  <HoldingCard
+                    key={holding.id}
+                    holding={holding}
+                    price={priceUsd}
+                    priceFetchedAt={fetchedAt}
+                  />
                 ))}
               </div>
             )}
@@ -97,6 +142,47 @@ export default async function NetWorthPage() {
               </div>
             )}
           </div>
+
+          <form
+            action={createHolding}
+            className="flex flex-wrap items-end gap-3 rounded-lg border border-border bg-card p-4"
+          >
+            <Field label="Symbol" htmlFor="symbol">
+              <Input id="symbol" name="symbol" required placeholder="e.g. TEAM, BTC" className="h-9 w-40" />
+            </Field>
+
+            <Field label="Type" htmlFor="type">
+              <Select aria-label="Type" name="type" defaultSelectedKey="stock" isRequired validationBehavior="native">
+                <SelectTrigger id="type" className="h-9 w-32">
+                  <SelectValue />
+                  <SelectIndicator />
+                </SelectTrigger>
+                <SelectPopover>
+                  <ListBox>
+                    <ListBoxItem id="stock">Stock</ListBoxItem>
+                    <ListBoxItem id="crypto">Crypto</ListBoxItem>
+                  </ListBox>
+                </SelectPopover>
+              </Select>
+            </Field>
+
+            <Field label="Quantity" htmlFor="quantity">
+              <Input
+                id="quantity"
+                name="quantity"
+                type="number"
+                step="any"
+                min="0"
+                required
+                placeholder="e.g. 10"
+                className="h-9 w-32"
+              />
+            </Field>
+
+            <Button type="submit" size="sm">
+              Add holding
+            </Button>
+          </form>
         </>
       )}
     </div>

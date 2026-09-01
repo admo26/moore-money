@@ -190,6 +190,33 @@ export const mcpOauthTokens = pgTable("mcp_oauth_tokens", {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 }).enableRLS();
 
+/**
+ * A manually-entered stock or crypto holding — unlike `accounts`, there's no
+ * Akahu-synced source for these, so the user enters symbol/quantity by hand
+ * and prices are fetched from a market-data API instead of Akahu.
+ */
+export const holdings = pgTable("holdings", {
+  id: serial("id").primaryKey(),
+  symbol: text("symbol").notNull(),
+  type: text("type").notNull(), // stock | crypto
+  quantity: numeric("quantity", { precision: 20, scale: 8 }).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+}).enableRLS();
+
+/**
+ * Latest fetched price per symbol, doubling as both history and a TTL cache
+ * — a fetch is skipped if the newest row for a symbol is recent enough (see
+ * lib/holdings/prices.ts), the same role accountBalanceSnapshots plays for
+ * Akahu accounts.
+ */
+export const holdingPriceSnapshots = pgTable("holding_price_snapshots", {
+  id: serial("id").primaryKey(),
+  symbol: text("symbol").notNull(),
+  price: numeric("price", { precision: 20, scale: 8 }).notNull(),
+  fetchedAt: timestamp("fetched_at", { withTimezone: true }).notNull().defaultNow(),
+}).enableRLS();
+
 export type Account = typeof accounts.$inferSelect;
 export type NewAccount = typeof accounts.$inferInsert;
 export type Transaction = typeof transactions.$inferSelect;
@@ -199,6 +226,9 @@ export type Category = typeof categories.$inferSelect;
 export type Rule = typeof rules.$inferSelect;
 export type McpToken = typeof mcpTokens.$inferSelect;
 export type AccountBalanceSnapshot = typeof accountBalanceSnapshots.$inferSelect;
+export type Holding = typeof holdings.$inferSelect;
+export type NewHolding = typeof holdings.$inferInsert;
+export type HoldingPriceSnapshot = typeof holdingPriceSnapshots.$inferSelect;
 export type McpOauthClient = typeof mcpOauthClients.$inferSelect;
 export type McpOauthCode = typeof mcpOauthCodes.$inferSelect;
 export type McpOauthToken = typeof mcpOauthTokens.$inferSelect;
