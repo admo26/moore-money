@@ -60,7 +60,6 @@ export default async function NetWorthPage() {
   const totalRetirement = sumBalance(retirementAccounts);
   const totalLiabilities = sumBalance(liabilityAccounts);
   const netWorth = totalAssets + totalLiabilities;
-  const netWorthIncludingRetirement = netWorth + totalRetirement;
   const isEmpty = accountRows.length === 0 && holdingRows.length === 0;
 
   return (
@@ -89,9 +88,7 @@ export default async function NetWorthPage() {
               <div className="flex items-baseline gap-2">
                 <Money value={netWorth} className="block text-3xl font-semibold" />
                 {totalRetirement > 0 && (
-                  <span className="text-sm text-muted-foreground">
-                    ({formatMoney(netWorthIncludingRetirement)} including KiwiSaver)
-                  </span>
+                  <span className="text-sm text-muted-foreground">(exc. KiwiSaver)</span>
                 )}
               </div>
               <div className="mt-1 text-xs text-muted-foreground">
