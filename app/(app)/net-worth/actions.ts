@@ -39,6 +39,42 @@ export async function createHolding(input: {
   revalidatePath("/net-worth");
 }
 
+export async function updateHolding(
+  id: number,
+  input: { symbol?: string; quantity?: string; address?: string; manualValue?: string }
+) {
+  const user = await getAuthorizedUser();
+  if (!user) throw new Error("Unauthorized");
+
+  const [existing] = await db.select().from(holdings).where(eq(holdings.id, id));
+  if (!existing) throw new Error("Holding not found");
+
+  if (existing.type === "property") {
+    const address = (input.address ?? "").trim();
+    const manualValue = (input.manualValue ?? "").trim();
+
+    if (!address || !manualValue || Number(manualValue) <= 0) {
+      throw new Error("An address and a positive value are required.");
+    }
+
+    await db
+      .update(holdings)
+      .set({ address, manualValue, updatedAt: new Date() })
+      .where(eq(holdings.id, id));
+  } else {
+    const symbol = (input.symbol ?? "").trim().toUpperCase();
+    const quantity = (input.quantity ?? "").trim();
+
+    if (!symbol || !quantity || Number(quantity) <= 0) {
+      throw new Error("A symbol and a positive quantity are required.");
+    }
+
+    await db.update(holdings).set({ symbol, quantity, updatedAt: new Date() }).where(eq(holdings.id, id));
+  }
+
+  revalidatePath("/net-worth");
+}
+
 export async function deleteHolding(formData: FormData) {
   const user = await getAuthorizedUser();
   if (!user) throw new Error("Unauthorized");
