@@ -1,9 +1,12 @@
 "use client";
 
 import type { Key } from "react-aria-components";
+import { ChartLine, ChartColumn } from "lucide-react";
 import { ToggleButtonGroup, ToggleButton } from "@/components/ui/hero/toggle-button-group";
 
 export type ChartType = "line" | "bar";
+
+const ICONS = { line: ChartLine, bar: ChartColumn } as const;
 
 export function ChartTypeToggle({
   value,
@@ -26,11 +29,14 @@ export function ChartTypeToggle({
       onSelectionChange={handleSelectionChange}
       size="sm"
     >
-      {(["line", "bar"] as const).map((type) => (
-        <ToggleButton key={type} id={type} className="capitalize">
-          {type}
-        </ToggleButton>
-      ))}
+      {(["line", "bar"] as const).map((type) => {
+        const Icon = ICONS[type];
+        return (
+          <ToggleButton key={type} id={type} aria-label={`${type} chart`}>
+            <Icon className="h-4 w-4" />
+          </ToggleButton>
+        );
+      })}
     </ToggleButtonGroup>
   );
 }

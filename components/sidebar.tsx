@@ -21,7 +21,7 @@ export function Sidebar({
   // Was a lazy initializer reading localStorage directly — looks SSR-safe
   // (the typeof window guard), but a `true` stored value still produces a
   // genuine hydration mismatch, because it changes which *elements* render
-  // (the Link/footer text below are conditionally omitted entirely, not
+  // (the "Moore Money" Link below is conditionally omitted entirely, not
   // just re-styled), which `suppressHydrationWarning` on <aside> doesn't
   // cover (that only silences attribute/text mismatches on the element
   // it's placed on). Confirmed while adding the theme toggle below: with a
@@ -78,9 +78,6 @@ export function Sidebar({
       <div className="border-t border-sidebar-border px-3 py-3">
         <UserMenu name={name} avatarUrl={avatarUrl} initialIsDark={initialIsDark} collapsed={collapsed} />
       </div>
-      {!collapsed && (
-        <div className="px-5 py-2 text-xs text-sidebar-foreground/40">Household finance</div>
-      )}
     </aside>
   );
 }
